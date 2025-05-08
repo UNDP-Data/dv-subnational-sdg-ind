@@ -133,7 +133,6 @@ export default function SlideFourContent(props: Props) {
                 curveType: 'curve',
                 noOfXTicks: window.innerWidth < 768 ? 5 : 12,
                 rightMargin: window.innerWidth < 768 ? 18 : 64,
-                graphID: 'chart',
                 colorLegendTitle: 'SDG Index groups',
                 colorDomain: [
                   'Aspirant',
@@ -169,7 +168,6 @@ export default function SlideFourContent(props: Props) {
               ]}
               graphType='dataTable'
               graphSettings={{
-                graphID: 'table',
                 columnData: [
                   {
                     columnTitle: 'State',

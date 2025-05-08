@@ -144,7 +144,6 @@ export default function SlideOneContent(props: Props) {
                 },
               ]}
               graphSettings={{
-                graphID: 'table',
                 columnData: [
                   {
                     columnTitle: 'State',

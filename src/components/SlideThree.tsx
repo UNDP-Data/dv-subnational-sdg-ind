@@ -159,7 +159,6 @@ export default function SlideThreeContent(props: Props) {
               ]}
               graphSettings={{
                 mapData: mapData,
-                graphID: 'map',
                 isWorldMap: false,
                 scale: 1.1,
                 zoomScaleExtend: [1, 1],
@@ -245,7 +244,6 @@ export default function SlideThreeContent(props: Props) {
                 },
               ]}
               graphSettings={{
-                graphID: 'table',
                 columnData: [
                   {
                     columnTitle: 'State',
