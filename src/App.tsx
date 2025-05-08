@@ -14,7 +14,7 @@ import SlideOneContent from './components/SlideOne';
 import SlideTwoContent from './components/SlideTwo';
 // import SlideThreeContent from './components/SlideThree';
 import SlideFourContent from './components/SlideFour';
-import SlideFiveContent from './components/SlideFive';
+// import SlideFiveContent from './components/SlideFive';
 
 export function App() {
   const [mapData, setMapData] = useState<
@@ -196,32 +196,32 @@ export function App() {
               </div>
             ),
           },
-          {
-            content: (
-              <div className='flex flex-col'>
-                <H3 marginBottom='2xs'>
-                  Exploring the Indicators Behind the SDG Index
-                </H3>
-                <P size='xl' marginBottom='none' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-                  blandit augue eu sagittis facilisis. Class aptent taciti
-                  sociosqu ad litora torquent per conubia nostra, per inceptos
-                  himenaeos.
-                </P>
-              </div>
-            ),
-            viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideFiveContent
-                  mapData={mapData}
-                  graphData={graphData}
-                  yearsOptions={yearsOptions}
-                  stateOptions={stateOptions}
-                  SDGOptions={SDGOptions}
-                />
-              </div>
-            ),
-          },
+          // {
+          //   content: (
+          //     <div className='flex flex-col'>
+          //       <H3 marginBottom='2xs'>
+          //         Exploring the Indicators Behind the SDG Index
+          //       </H3>
+          //       <P size='xl' marginBottom='none' className='text-gray-600'>
+          //         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
+          //         blandit augue eu sagittis facilisis. Class aptent taciti
+          //         sociosqu ad litora torquent per conubia nostra, per inceptos
+          //         himenaeos.
+          //       </P>
+          //     </div>
+          //   ),
+          //   viz: (
+          //     <div className='bg-primary-white w-full p-6 flex flex-col'>
+          //       <SlideFiveContent
+          //         mapData={mapData}
+          //         graphData={graphData}
+          //         yearsOptions={yearsOptions}
+          //         stateOptions={stateOptions}
+          //         SDGOptions={SDGOptions}
+          //       />
+          //     </div>
+          //   ),
+          // },
         ]}
         vizHeight='auto'
         vizWidth='full'
