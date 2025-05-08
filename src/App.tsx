@@ -12,7 +12,9 @@ import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 import { GraphDataType, OptionsDataType } from './types';
 import SlideOneContent from './components/SlideOne';
 import SlideTwoContent from './components/SlideTwo';
-import SlideThreeContent from './components/SlideThree';
+// import SlideThreeContent from './components/SlideThree';
+import SlideFourContent from './components/SlideFour';
+import SlideFiveContent from './components/SlideFive';
 
 export function App() {
   const [mapData, setMapData] = useState<
@@ -113,7 +115,7 @@ export function App() {
               </div>
             ),
             viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col min-h-[960px]'>
+              <div className='bg-primary-white w-full p-6 flex flex-col'>
                 <SlideOneContent
                   graphData={graphData}
                   yearsOptions={yearsOptions}
@@ -135,7 +137,7 @@ export function App() {
               </div>
             ),
             viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col min-h-[960px]'>
+              <div className='bg-primary-white w-full p-6 flex flex-col'>
                 <SlideTwoContent
                   graphData={graphData}
                   yearsOptions={yearsOptions}
@@ -144,32 +146,32 @@ export function App() {
               </div>
             ),
           },
-          {
-            content: (
-              <div className='flex flex-col'>
-                <H3 marginBottom='2xs'>
-                  A Closer Look at Progress on Individual SDGs
-                </H3>
-                <P size='xl' marginBottom='none' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet consectetur. Integer velit nibh
-                  mattis rhoncus enim venenatis non euismod felis. Quam nec
-                  porttitor sed et vitae et ac magna semper. Eu faucibus potenti
-                  egestas nunc aenean elit porttitor.
-                </P>
-              </div>
-            ),
-            viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col min-h-[960px]'>
-                <SlideThreeContent
-                  mapData={mapData}
-                  graphData={graphData}
-                  yearsOptions={yearsOptions}
-                  stateOptions={stateOptions}
-                  SDGOptions={SDGOptions}
-                />
-              </div>
-            ),
-          },
+          // {
+          //   content: (
+          //     <div className='flex flex-col'>
+          //       <H3 marginBottom='2xs'>
+          //         A Closer Look at Progress on Individual SDGs
+          //       </H3>
+          //       <P size='xl' marginBottom='none' className='text-gray-600'>
+          //         Lorem ipsum dolor sit amet consectetur. Integer velit nibh
+          //         mattis rhoncus enim venenatis non euismod felis. Quam nec
+          //         porttitor sed et vitae et ac magna semper. Eu faucibus potenti
+          //         egestas nunc aenean elit porttitor.
+          //       </P>
+          //     </div>
+          //   ),
+          //   viz: (
+          //     <div className='bg-primary-white w-full p-6 flex flex-col'>
+          //       <SlideThreeContent
+          //         mapData={mapData}
+          //         graphData={graphData}
+          //         yearsOptions={yearsOptions}
+          //         stateOptions={stateOptions}
+          //         SDGOptions={SDGOptions}
+          //       />
+          //     </div>
+          //   ),
+          // },
           {
             content: (
               <div className='flex flex-col'>
@@ -186,7 +188,11 @@ export function App() {
             ),
             viz: (
               <div className='bg-primary-white w-full p-6 flex flex-col'>
-                test
+                <SlideFourContent
+                  graphData={graphData}
+                  stateOptions={stateOptions}
+                  SDGOptions={SDGOptions}
+                />
               </div>
             ),
           },
@@ -206,7 +212,13 @@ export function App() {
             ),
             viz: (
               <div className='bg-primary-white w-full p-6 flex flex-col'>
-                test
+                <SlideFiveContent
+                  mapData={mapData}
+                  graphData={graphData}
+                  yearsOptions={yearsOptions}
+                  stateOptions={stateOptions}
+                  SDGOptions={SDGOptions}
+                />
               </div>
             ),
           },

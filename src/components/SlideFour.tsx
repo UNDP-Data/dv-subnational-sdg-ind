@@ -10,36 +10,49 @@ import { pivotData } from '@/utils/pivotData';
 
 interface Props {
   graphData: GraphDataType[];
-  yearsOptions: OptionsDataType[];
   stateOptions: OptionsDataType[];
+  SDGOptions: OptionsDataType[];
 }
 
-export default function SlideOneContent(props: Props) {
-  const { graphData, yearsOptions } = props;
-  const [selectedYear, setSelectedYear] = useState({
-    label: '2022',
-    value: '2022',
+export default function SlideFourContent(props: Props) {
+  const { graphData, stateOptions, SDGOptions } = props;
+  const [selectedState, setSelectedState] = useState<OptionsDataType[] | null>(
+    null,
+  );
+  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType | null>({
+    label: 'SDG 1',
+    value: 'SDG 1',
   });
   const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
 
-  const pivotedDataBySDG = pivotData(graphData, 'sdg');
+  const pivotedDataByYears = pivotData(graphData, 'year');
   return (
     graphData &&
-    pivotedDataBySDG && (
-      <div className='flex flex-col justify-between grow w-full gap-2'>
+    pivotedDataByYears && (
+      <div className='flex flex-col justify-between w-full gap-2 grow'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
-            SDG Index Score by States ({selectedYear?.value})
+            SDG Index Score by States
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
-              onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={yearsOptions}
+              onChange={option => setSelectedSDG(option as OptionsDataType)}
+              options={SDGOptions}
+              defaultValue={selectedSDG}
               size='sm'
-              placeholder='Select year'
-              isClearable={false}
-              defaultValue={selectedYear}
-              className='min-w-40'
+              placeholder='Highlight state'
+              className='min-w-[240px]'
+              variant='light'
+            />
+            <DropdownSelect
+              onChange={option => setSelectedState(option as OptionsDataType[])}
+              options={stateOptions}
+              isClearable={true}
+              defaultValue={selectedState}
+              size='sm'
+              isMulti={true}
+              placeholder='Highlight state'
+              className='min-w-[240px]'
               variant='light'
             />
             <SegmentedControl
@@ -99,22 +112,29 @@ export default function SlideOneContent(props: Props) {
                 data: graphData,
                 fileType: 'csv',
               }}
-              debugMode={true}
-              graphType='heatMap'
+              graphType='multiLineAltChart'
               dataFilters={[
                 {
-                  column: 'year',
-                  includeValues: selectedYear
-                    ? [Number(selectedYear.value)]
-                    : [],
+                  column: 'sdg',
+                  includeValues: selectedSDG ? [selectedSDG.value] : [],
                 },
               ]}
               graphDataConfiguration={[
-                { columnId: 'state', chartConfigId: 'row' },
-                { columnId: 'indexGroup', chartConfigId: 'value' },
-                { columnId: 'sdg', chartConfigId: 'column' },
+                { columnId: 'year', chartConfigId: 'date' },
+                { columnId: 'state', chartConfigId: 'label' },
+                {
+                  columnId: 'value',
+                  chartConfigId: 'y',
+                },
+                { columnId: 'colorId', chartConfigId: 'color' },
               ]}
               graphSettings={{
+                showColorScale: false,
+                curveType: 'curve',
+                noOfXTicks: window.innerWidth < 768 ? 5 : 12,
+                rightMargin: window.innerWidth < 768 ? 18 : 64,
+                graphID: 'chart',
+                colorLegendTitle: 'SDG Index groups',
                 colorDomain: [
                   'Aspirant',
                   'Performer',
@@ -123,26 +143,31 @@ export default function SlideOneContent(props: Props) {
                 ],
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
                 showNAColor: false,
-                scaleType: 'categorical',
-                truncateBy: 10,
+                valueColor: '#000000',
+                strokeWidth: 1,
+                showDots: false,
+                tooltip: 'test',
+                footNote:
+                  'Colors are assigned according to SDG Index values from the year 2022',
+                highlightedLines: selectedState
+                  ? selectedState.map(state => state.value)
+                  : [],
               }}
             />
           )}
           {selectedView === 'table' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: pivotedDataBySDG,
+                data: pivotedDataByYears,
                 fileType: 'csv',
               }}
-              graphType='dataTable'
               dataFilters={[
                 {
-                  column: 'year',
-                  includeValues: selectedYear
-                    ? [Number(selectedYear.value)]
-                    : [],
+                  column: 'sdg',
+                  includeValues: [selectedSDG?.value],
                 },
               ]}
+              graphType='dataTable'
               graphSettings={{
                 graphID: 'table',
                 columnData: [
@@ -152,83 +177,43 @@ export default function SlideOneContent(props: Props) {
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 1',
-                    columnId: 'SDG 1',
+                    columnTitle: '2015',
+                    columnId: '2015',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 2',
-                    columnId: 'SDG 2',
+                    columnTitle: '2016',
+                    columnId: '2016',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 3',
-                    columnId: 'SDG 3',
+                    columnTitle: '2017',
+                    columnId: '2017',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 4',
-                    columnId: 'SDG 4',
+                    columnTitle: '2018',
+                    columnId: '2018',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 5',
-                    columnId: 'SDG 5',
+                    columnTitle: '2019',
+                    columnId: '2019',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 7',
-                    columnId: 'SDG 7',
+                    columnTitle: '2020',
+                    columnId: '2020',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 8',
-                    columnId: 'SDG 8',
+                    columnTitle: '2021',
+                    columnId: '2021',
                     sortable: true,
                   },
                   {
-                    columnTitle: 'SDG 9',
-                    columnId: 'SDG 9',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 10',
-                    columnId: 'SDG 10',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 11',
-                    columnId: 'SDG 11',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 12',
-                    columnId: 'SDG 12',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 13',
-                    columnId: 'SDG 13',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 14',
-                    columnId: 'SDG 14',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 15',
-                    columnId: 'SDG 15',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 16',
-                    columnId: 'SDG 16',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG 17',
-                    columnId: 'SDG 17',
+                    columnTitle: '2022',
+                    columnId: '2022',
                     sortable: true,
                   },
                 ],

@@ -26,11 +26,11 @@ export default function SlideThreeContent(props: Props) {
     null,
   );
   const [selectedSDG, setSelectedSDG] = useState<OptionsDataType | null>({
-    label: 'SDG_1',
-    value: 'SDG_1',
+    label: 'SDG 1',
+    value: 'SDG 1',
   });
   const [selectedView, setSelectedView] = useState<'chart' | 'table' | 'map'>(
-    'map',
+    'chart',
   );
 
   return (
@@ -46,7 +46,7 @@ export default function SlideThreeContent(props: Props) {
               options={SDGOptions}
               defaultValue={selectedSDG}
               size='sm'
-              placeholder='Highlight department'
+              placeholder='Highlight state'
               className='min-w-[240px]'
               variant='light'
             />
@@ -56,7 +56,7 @@ export default function SlideThreeContent(props: Props) {
               isClearable={true}
               defaultValue={selectedState}
               size='sm'
-              placeholder='Highlight department'
+              placeholder='Highlight state'
               className='min-w-[240px]'
               variant='light'
             />
@@ -141,7 +141,6 @@ export default function SlideThreeContent(props: Props) {
                 fileType: 'csv',
               }}
               graphType='choroplethMap'
-              debugMode={true}
               dataFilters={[
                 {
                   column: 'year',
@@ -193,12 +192,12 @@ export default function SlideThreeContent(props: Props) {
                     : [],
                 },
                 {
-                  column: 'state',
-                  includeValues: selectedState ? [selectedState.value] : [],
+                  column: 'sdg',
+                  includeValues: selectedSDG ? [selectedSDG.value] : [],
                 },
               ]}
               graphDataConfiguration={[
-                { columnId: 'sdg', chartConfigId: 'label' },
+                { columnId: 'state', chartConfigId: 'label' },
                 { columnId: 'value', chartConfigId: 'size' },
                 { columnId: 'indexGroup', chartConfigId: 'color' },
               ]}
@@ -212,6 +211,7 @@ export default function SlideThreeContent(props: Props) {
                 ],
                 showNAColor: false,
                 showLabels: true,
+                truncateBy: 3,
               }}
             />
           )}
@@ -222,6 +222,16 @@ export default function SlideThreeContent(props: Props) {
                 fileType: 'csv',
               }}
               graphType='dataTable'
+              readableHeader={[
+                {
+                  value: 'SDG 1',
+                  label: 'SDG 1: No Poverty',
+                },
+                {
+                  value: 'SDG 2',
+                  label: 'SDG 2: No Hunger',
+                },
+              ]}
               dataFilters={[
                 {
                   column: 'year',
@@ -230,17 +240,16 @@ export default function SlideThreeContent(props: Props) {
                     : [],
                 },
                 {
-                  column: 'state',
-                  includeValues: selectedState ? [selectedState.value] : [],
+                  column: 'sdg',
+                  includeValues: selectedSDG ? [selectedSDG.value] : [],
                 },
               ]}
               graphSettings={{
-                height: 880,
                 graphID: 'table',
                 columnData: [
                   {
-                    columnTitle: 'SDG',
-                    columnId: 'sdg',
+                    columnTitle: 'State',
+                    columnId: 'state',
                     sortable: true,
                   },
                   {

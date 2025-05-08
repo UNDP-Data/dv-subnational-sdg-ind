@@ -38,7 +38,7 @@ export default function SlideTwoContent(props: Props) {
               options={stateOptions}
               defaultValue={selectedState}
               size='sm'
-              placeholder='Highlight department'
+              placeholder='Highlight state'
               className='min-w-[240px]'
               variant='light'
             />
@@ -154,7 +154,6 @@ export default function SlideTwoContent(props: Props) {
                 },
               ]}
               graphSettings={{
-                height: 880,
                 graphID: 'table',
                 columnData: [
                   {
