@@ -1,6 +1,6 @@
 import '@/styles/fonts.css';
 import '@undp/design-system-react/dist/style.css';
-import { H3, P, VizCarousel } from '@undp/design-system-react';
+import { H3, P } from '@undp/design-system-react';
 import {
   fetchAndParseCSV,
   fetchAndParseJSON,
@@ -9,12 +9,13 @@ import {
 import { useEffect, useState } from 'react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
-import { GraphDataType, OptionsDataType } from './types';
+import { GraphDataType, OptionsDataType, RawSDGData } from './types';
 import SlideOneContent from './components/SlideOne';
-import SlideTwoContent from './components/SlideTwo';
+// import SlideTwoContent from './components/SlideTwo';
 // import SlideThreeContent from './components/SlideThree';
-import SlideFourContent from './components/SlideFour';
-import SlideFiveContent from './components/SlideFive';
+// import SlideFourContent from './components/SlideFour';
+// import SlideFiveContent from './components/SlideFive';
+import { VizCarousel } from './vizCarousel';
 
 export function App() {
   const [mapData, setMapData] = useState<
@@ -23,16 +24,16 @@ export function App() {
   const [graphData, setGraphData] = useState<GraphDataType[]>([]);
   const [yearsOptions, setYearsOptions] = useState<OptionsDataType[]>([]);
   const [stateOptions, setStateOptions] = useState<OptionsDataType[]>([]);
-  const [SDGOptions, setSDGOptions] = useState<OptionsDataType[]>([]);
+  // const [SDGOptions, setSDGOptions] = useState<OptionsDataType[]>([]);
 
-  const getIndexGroup = (
-    value: number,
-  ): 'Aspirant' | 'Performer' | 'Front Runner' | 'Achiever' => {
-    if (value < 49.99) return 'Aspirant';
-    if (value < 64.99) return 'Performer';
-    if (value < 99.99) return 'Front Runner';
-    return 'Achiever';
-  };
+  // const getIndexGroup = (
+  //   value: number,
+  // ): 'Aspirant' | 'Performer' | 'Front Runner' | 'Achiever' => {
+  //   if (value < 49.99) return 'Aspirant';
+  //   if (value < 64.99) return 'Performer';
+  //   if (value < 99.99) return 'Front Runner';
+  //   return 'Achiever';
+  // };
 
   // Fetch the map data
   useEffect(() => {
@@ -43,60 +44,54 @@ export function App() {
       .catch(console.error);
   }, []);
 
-  // Fetch the graph data
   useEffect(() => {
-    fetchAndParseCSV('/data/placeholder.csv')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((d: any) => {
-        const latestYear = getUniqValue(d, 'year').sort((a, b) => b - a)[0];
-        const dataWithIndexGroups = (d as GraphDataType[]).map(item => {
-          const indexNumber = +item.value;
-          const formattedIndex = +indexNumber.toFixed(3);
-          return {
-            ...item,
-            sdgIndex: formattedIndex,
-            indexGroup: getIndexGroup(formattedIndex),
-            colorId:
-              getIndexGroup(
-                (d as GraphDataType[])[
-                  (d as GraphDataType[]).findIndex(
-                    el => el.state === item.state && el.year === latestYear,
-                  )
-                ]['value'],
-              ) || null,
-          };
+    fetchAndParseCSV('/data/sdg-ind-index.csv')
+      .then(rawData => {
+        const typedData = rawData as RawSDGData[];
+        const longFormatData = typedData.flatMap(row => {
+          const { year, ['STATEs/UTs']: state, ...rest } = row;
+
+          return Object.entries(rest).map(([sdgLabel, value]) => {
+            const sdgNumber = parseInt(sdgLabel.replace('SDG ', ''), 10);
+            return {
+              state,
+              year,
+              sdg: `SDG ${sdgNumber}`,
+              value: value as number,
+            };
+          });
         });
 
-        const years = getUniqValue(dataWithIndexGroups, 'year')
-          .sort((a, b) => b - a)
-          .map(year => ({
-            label: `${year}`,
-            value: `${year}`,
-          }));
-
-        const states = getUniqValue(dataWithIndexGroups, 'state').map(
-          state => ({
-            label: state,
-            value: state,
+        const years = Array.from(new Set(longFormatData.map(d => d.year))).map(
+          year => ({
+            label: year,
+            value: year,
           }),
         );
 
-        const SDGs = getUniqValue(dataWithIndexGroups, 'sdg').map(sdg => ({
-          label: sdg,
-          value: sdg,
+        const states = getUniqValue(longFormatData, 'state').map(state => ({
+          label: state,
+          value: state,
         }));
+
+        // const SDGs = getUniqValue(longFormatData, 'sdg')
+        //   .sort((a, b) => a - b)
+        //   .map((sdg: string) => ({
+        //     label: sdg,
+        //     value: sdg,
+        //   }));
 
         setYearsOptions(years);
         setStateOptions(states);
-        setSDGOptions(SDGs);
-        setGraphData(dataWithIndexGroups);
+        // setSDGOptions(SDGs);
+        setGraphData(longFormatData);
       })
-      .catch(error => console.error('Error:', error));
+      .catch(error => console.error('Error loading SDG data:', error));
   }, []);
 
   if (!mapData || !graphData) return null;
   return (
-    <div className='bg-primary-gray-200 py-16 px-6 h-auto relative'>
+    <div style={{ height: '800px' }}>
       <VizCarousel
         className='max-w-[1980px]'
         slides={[
@@ -115,37 +110,33 @@ export function App() {
               </div>
             ),
             viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideOneContent
-                  graphData={graphData}
-                  yearsOptions={yearsOptions}
-                  stateOptions={stateOptions}
-                />
-              </div>
+              <SlideOneContent
+                graphData={graphData}
+                yearsOptions={yearsOptions}
+                stateOptions={stateOptions}
+              />
             ),
           },
-          {
-            content: (
-              <div className='flex flex-col'>
-                <H3 marginBottom='2xs'>Zooming In: State Profiles</H3>
-                <P size='xl' marginBottom='none' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet consectetur. Integer velit nibh
-                  mattis rhoncus enim venenatis non euismod felis. Quam nec
-                  porttitor sed et vitae et ac magna semper. Eu faucibus potenti
-                  egestas nunc aenean elit porttitor.
-                </P>
-              </div>
-            ),
-            viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideTwoContent
-                  graphData={graphData}
-                  yearsOptions={yearsOptions}
-                  stateOptions={stateOptions}
-                />
-              </div>
-            ),
-          },
+          // {
+          //   content: (
+          //     <div className='flex flex-col'>
+          //       <H3 marginBottom='2xs'>Zooming In: State Profiles</H3>
+          //       <P size='xl' marginBottom='none' className='text-gray-600'>
+          //         Lorem ipsum dolor sit amet consectetur. Integer velit nibh
+          //         mattis rhoncus enim venenatis non euismod felis. Quam nec
+          //         porttitor sed et vitae et ac magna semper. Eu faucibus potenti
+          //         egestas nunc aenean elit porttitor.
+          //       </P>
+          //     </div>
+          //   ),
+          //   viz: (
+          //     <SlideTwoContent
+          //       graphData={graphData}
+          //       yearsOptions={yearsOptions}
+          //       stateOptions={stateOptions}
+          //     />
+          //   ),
+          // },
           // {
           //   content: (
           //     <div className='flex flex-col'>
@@ -161,8 +152,54 @@ export function App() {
           //     </div>
           //   ),
           //   viz: (
+          //     <SlideThreeContent
+          //       mapData={mapData}
+          //       graphData={graphData}
+          //       yearsOptions={yearsOptions}
+          //       stateOptions={stateOptions}
+          //       SDGOptions={SDGOptions}
+          //     />
+          //   ),
+          // },
+          // {
+          //   content: (
+          //     <div className='flex flex-col'>
+          //       <H3 marginBottom='2xs'>
+          //         How Have SDG Index Changed Over Time?
+          //       </H3>
+          //       <P size='xl' marginBottom='none' className='text-gray-600'>
+          //         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
+          //         blandit augue eu sagittis facilisis. Class aptent taciti
+          //         sociosqu ad litora torquent per conubia nostra, per inceptos
+          //         himenaeos.
+          //       </P>
+          //     </div>
+          //   ),
+          //   viz: (
+          //     <SlideFourContent
+          //       graphData={graphData}
+          //       stateOptions={stateOptions}
+          //       SDGOptions={SDGOptions}
+          //     />
+          //   ),
+          // },
+          // {
+          //   content: (
+          //     <div className='flex flex-col'>
+          //       <H3 marginBottom='2xs'>
+          //         Exploring the Indicators Behind the SDG Index
+          //       </H3>
+          //       <P size='xl' marginBottom='none' className='text-gray-600'>
+          //         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
+          //         blandit augue eu sagittis facilisis. Class aptent taciti
+          //         sociosqu ad litora torquent per conubia nostra, per inceptos
+          //         himenaeos.
+          //       </P>
+          //     </div>
+          //   ),
+          //   viz: (
           //     <div className='bg-primary-white w-full p-6 flex flex-col'>
-          //       <SlideThreeContent
+          //       <SlideFiveContent
           //         mapData={mapData}
           //         graphData={graphData}
           //         yearsOptions={yearsOptions}
@@ -172,59 +209,11 @@ export function App() {
           //     </div>
           //   ),
           // },
-          {
-            content: (
-              <div className='flex flex-col'>
-                <H3 marginBottom='2xs'>
-                  How Have SDG Index Changed Over Time?
-                </H3>
-                <P size='xl' marginBottom='none' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-                  blandit augue eu sagittis facilisis. Class aptent taciti
-                  sociosqu ad litora torquent per conubia nostra, per inceptos
-                  himenaeos.
-                </P>
-              </div>
-            ),
-            viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideFourContent
-                  graphData={graphData}
-                  stateOptions={stateOptions}
-                  SDGOptions={SDGOptions}
-                />
-              </div>
-            ),
-          },
-          {
-            content: (
-              <div className='flex flex-col'>
-                <H3 marginBottom='2xs'>
-                  Exploring the Indicators Behind the SDG Index
-                </H3>
-                <P size='xl' marginBottom='none' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-                  blandit augue eu sagittis facilisis. Class aptent taciti
-                  sociosqu ad litora torquent per conubia nostra, per inceptos
-                  himenaeos.
-                </P>
-              </div>
-            ),
-            viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideFiveContent
-                  mapData={mapData}
-                  graphData={graphData}
-                  yearsOptions={yearsOptions}
-                  stateOptions={stateOptions}
-                  SDGOptions={SDGOptions}
-                />
-              </div>
-            ),
-          },
         ]}
-        vizHeight='auto'
         vizWidth='full'
+        vizStyle={{
+          height: '800px',
+        }}
       />
     </div>
   );

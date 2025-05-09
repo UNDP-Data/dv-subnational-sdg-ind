@@ -84,8 +84,11 @@ export default function SlideFiveContent(props: Props) {
           </div>
         </div>
         <div className='grow flex mt-4'>
-          <div className='max-h-[720px] w-full undp-scrollbar overflow-y-auto'>
-            <table className='w-full' style={{ borderCollapse: 'collapse' }}>
+          <div className='w-full undp-scrollbar overflow-y-auto'>
+            <table
+              className='w-full h-[720px]'
+              style={{ borderCollapse: 'collapse' }}
+            >
               <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
                 <tr>
                   <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>

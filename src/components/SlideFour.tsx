@@ -168,6 +168,7 @@ export default function SlideFourContent(props: Props) {
               ]}
               graphType='dataTable'
               graphSettings={{
+                height: 500,
                 columnData: [
                   {
                     columnTitle: 'State',

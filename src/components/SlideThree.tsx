@@ -35,7 +35,7 @@ export default function SlideThreeContent(props: Props) {
 
   return (
     graphData && (
-      <div className='flex flex-col justify-between grow w-full gap-2'>
+      <div className='flex flex-col grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
             SDG Index Score by States ({selectedYear?.value})
@@ -244,6 +244,7 @@ export default function SlideThreeContent(props: Props) {
                 },
               ]}
               graphSettings={{
+                height: 500,
                 columnData: [
                   {
                     columnTitle: 'State',

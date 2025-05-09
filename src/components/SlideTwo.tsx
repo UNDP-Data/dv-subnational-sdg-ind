@@ -154,6 +154,7 @@ export default function SlideTwoContent(props: Props) {
                 },
               ]}
               graphSettings={{
+                height: 500,
                 columnData: [
                   {
                     columnTitle: 'SDG',
