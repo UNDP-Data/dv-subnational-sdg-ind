@@ -1,62 +1,86 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DropdownSelect, P } from '@undp/design-system-react';
-import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
+import { fetchAndParseCSV } from '@undp/data-viz';
 
 import IconGrid from './IconGrid';
 
-import { GraphDataType, OptionsDataType } from '@/types';
+import {
+  GraphDataType,
+  MetaDataType,
+  OptionsDataType,
+  RawDataType,
+} from '@/types';
+import { colorMap, TABLE_HEIGHT } from '@/constants';
 
 interface Props {
+  rawData: RawDataType[];
   graphData: GraphDataType[];
-  mapData: FeatureCollection<Polygon | MultiPolygon>;
   yearsOptions: OptionsDataType[];
-  stateOptions: OptionsDataType[];
-  SDGOptions: OptionsDataType[];
+  sdgOptions: OptionsDataType[];
 }
 
-export const SDGs = [
-  {
-    id: 1,
-    label: 'SDG 1',
-    title: 'Peace, Justice and Strong Institutions',
-    indicators: [{ code: '16.1', label: 'Murders per 1 lakh population' }],
-  },
-];
-
 export default function SlideFiveContent(props: Props) {
-  const { graphData, yearsOptions, SDGOptions } = props;
-  const [selectedYear, setSelectedYear] = useState({
-    label: '2022',
-    value: '2022',
-  });
-  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType | null>({
-    label: 'SDG 1',
-    value: 'SDG 1',
-  });
-
-  const fallbackSDG = SDGs.find(sdg => sdg.label === 'SDG 1')!;
-  const activeSDG =
-    SDGs.find(sdg => sdg.label === selectedSDG?.label) ?? fallbackSDG;
-
-  const filteredData = graphData.filter(
-    row =>
-      String(row.year) === selectedYear?.value && row.sdg === activeSDG.label,
+  const { rawData, graphData, yearsOptions, sdgOptions } = props;
+  const [metaData, setMetaData] = useState<MetaDataType[]>([]);
+  const [selectedView] = useState<'chart' | 'table'>('table');
+  const [selectedYear, setSelectedYear] = useState(
+    yearsOptions[yearsOptions.length - 1],
+  );
+  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
+    sdgOptions[0],
   );
 
+  // Fetch the meta data
+  useEffect(() => {
+    fetchAndParseCSV('/data/meta-placeholder.csv')
+      .then(d => {
+        setMetaData(d as MetaDataType[]);
+      })
+      .catch(console.error);
+  }, []);
+
+  if (!metaData.length) return null;
+
+  const activeIndicators = metaData.filter(
+    item => item.sdg === selectedSDG?.value,
+  );
+  const indicatorNames = activeIndicators.map(item => item.indicator);
+
+  const sdgScoreMap = new Map();
+  graphData.forEach(d => {
+    if (
+      d.sdg === selectedSDG?.value &&
+      String(d.year) === selectedYear?.value
+    ) {
+      sdgScoreMap.set(d.area, { value: d.value, group: d.group });
+    }
+  });
+
+  const filteredData = rawData
+    .filter(row => String(row.year) === selectedYear?.value)
+    .map(row => {
+      const sdg = sdgScoreMap.get(row.area);
+      return {
+        ...row,
+        sdgValue: sdg?.value ?? null,
+        group: sdg?.group ?? null,
+      };
+    });
   return (
     graphData && (
       <div className='flex flex-col justify-between grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
-            SDG Index Score by States ({selectedYear?.value})
+            Performance of States and UTs on indicators of {selectedSDG?.value}{' '}
+            ({selectedYear?.value})
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
               onChange={option => setSelectedSDG(option as OptionsDataType)}
-              options={SDGOptions}
+              options={sdgOptions}
               defaultValue={selectedSDG}
               size='sm'
-              placeholder='Highlight state'
+              placeholder='Select SDG'
               className='min-w-[240px]'
               variant='light'
             />
@@ -71,32 +95,37 @@ export default function SlideFiveContent(props: Props) {
               variant='light'
             />
             <IconGrid
-              selectedView='chart'
-              data={graphData}
-              year={2022}
+              selectedView={selectedView}
+              data={filteredData}
+              year={selectedYear}
               keys={[
-                'department',
-                'Human Development Index',
-                'hdiGroup',
+                'area',
+                'Indicator 1',
+                'Indicator 2',
+                'Indicator 3',
                 'year',
               ]}
+              slideIndex={5}
             />
           </div>
         </div>
         <div className='grow flex mt-4'>
-          <div className='max-h-[720px] w-full undp-scrollbar overflow-y-auto'>
+          <div
+            className='overflow-y-auto undp-scrollbar w-full'
+            style={{ height: `${TABLE_HEIGHT}px` }}
+          >
             <table className='w-full' style={{ borderCollapse: 'collapse' }}>
               <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
                 <tr>
                   <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
                     State
                   </th>
-                  {activeSDG.indicators.map(ind => (
+                  {indicatorNames.map(indicator => (
                     <th
-                      key={ind.label}
+                      key={indicator}
                       className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'
                     >
-                      {ind.label}
+                      {indicator}
                     </th>
                   ))}
                   <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
@@ -107,30 +136,28 @@ export default function SlideFiveContent(props: Props) {
               <tbody>
                 {filteredData.map((row, idx) => (
                   <tr
-                    key={`${row.state}-${idx}`}
+                    key={`${row.area}-${idx}`}
                     className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
                   >
                     <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
-                      {row.state}
+                      {row.area}
                     </td>
 
-                    {activeSDG.indicators.map(ind => (
-                      <td key={ind.label} className='text-sm text-left p-4'>
-                        {row[ind.label] !== undefined ? row[ind.label] : '-'}
+                    {indicatorNames.map(indicator => (
+                      <td key={indicator} className='text-sm text-left p-4'>
+                        {row?.[indicator as keyof typeof row] ?? '-'}
                       </td>
                     ))}
-
                     <td className='text-sm text-left p-4'>
                       <span
-                        className={`rounded px-2 py-1 text-white ${
-                          row.value >= 80
-                            ? 'bg-accent-green'
-                            : row.value >= 60
-                              ? 'bg-accent-yellow'
-                              : 'bg-accent-red'
-                        }`}
+                        className='rounded-full px-4 py-1 text-white text-primary-white'
+                        style={{
+                          backgroundColor:
+                            colorMap[row.group as keyof typeof colorMap] ??
+                            '#fafafa',
+                        }}
                       >
-                        {row.value}
+                        {row.sdgValue ?? '-'}
                       </span>
                     </td>
                   </tr>

@@ -8,30 +8,38 @@ import {
 import { ImageDown } from 'lucide-react';
 import { useCallback } from 'react';
 
-import { GraphDataType } from '@/types';
+import { GraphDataType, OptionsDataType } from '@/types';
 
 interface Props {
   selectedView: 'chart' | 'table' | 'map';
   data: unknown[];
   keys: string[];
-  year?: number;
+  year?: OptionsDataType;
+  area?: OptionsDataType;
+  sdg?: OptionsDataType;
+  slideIndex: number;
 }
 
 export default function IconGrid(props: Props) {
-  const { selectedView, data, keys, year } = props;
-  const filteredData = year
-    ? (data as GraphDataType[]).filter(d => d.year === year)
-    : (data as GraphDataType[]);
+  const { selectedView, data, keys, year, area, sdg, slideIndex } = props;
+  const filteredData = (data as GraphDataType[]).filter(d => {
+    const matchesYear = year ? String(d.year) === year.value : true;
+    const matchesArea = area ? d.area === area.value : true;
+    const matchesSDG = sdg ? d.sdg === sdg.value : true;
+    return matchesYear && matchesArea && matchesSDG;
+  });
   const handleImageDownload = useCallback(() => {
-    const el = document.getElementById(selectedView);
-    if (el) imageDownload(el, `hdi-${selectedView}`);
-  }, [selectedView]);
+    const id = `slide-${slideIndex}-${selectedView}`;
+    const el = document.getElementById(id);
+    if (el) {
+      imageDownload(el, `hdi-${id}`);
+    }
+  }, [slideIndex, selectedView]);
 
   const headers = keys.map(key => ({
     label: key,
     key: key,
   }));
-
   return (
     <div className='flex gap-2'>
       <TooltipProvider>
@@ -40,16 +48,34 @@ export default function IconGrid(props: Props) {
             <button
               type='button'
               onClick={handleImageDownload}
-              className='border border-primary-gray-400 p-3 h-full w-fit cursor-pointer bg-transparent'
+              disabled={selectedView === 'table'}
+              className={`border border-primary-gray-400 p-3 h-full w-fit ${
+                selectedView === 'table'
+                  ? 'cursor-not-allowed bg-primary-gray-200'
+                  : 'cursor-pointer bg-transparent'
+              }`}
               aria-label='Download image'
             >
-              <ImageDown size={16} strokeWidth={1.5} />
+              <ImageDown
+                size={16}
+                strokeWidth={1.5}
+                className={`${
+                  selectedView === 'table'
+                    ? 'text-gray-400 opacity-20'
+                    : 'text-black'
+                }`}
+              />
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p className='m-0 p-0'>Download Image</p>
+            <p className='m-0 p-0'>
+              {selectedView === 'table'
+                ? 'Not available for table view'
+                : 'Download Image'}
+            </p>
           </TooltipContent>
         </Tooltip>
+
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <CsvDownloadButton
