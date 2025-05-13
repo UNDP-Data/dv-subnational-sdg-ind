@@ -1,11 +1,15 @@
 export interface GraphDataType {
   year: string;
-  state: string;
-  value: number;
+  area: string;
+  value: number | undefined;
   sdg: string;
-  // indexGroup: string;
-  // colorId: string;
-  [key: string]: string | number;
+  group: string;
+}
+
+export interface MetaDataType {
+  sdg: string;
+  label: string;
+  indicator: string;
 }
 
 export interface OptionsDataType {
@@ -13,8 +17,15 @@ export interface OptionsDataType {
   value: string;
 }
 
-export interface RawSDGData {
-  'STATEs/UTs': string;
+export interface PivotedRowType {
+  area: string;
+  sdg: string;
+  [year: string]: string | number;
+}
+
+export interface RawDataType {
+  area: string;
+  year: string;
   'SDG 1': number;
   'SDG 2': number;
   'SDG 3': number;
@@ -30,6 +41,7 @@ export interface RawSDGData {
   'SDG 13': number;
   'SDG 15': number;
   'SDG 16': number;
-  'Composite Score': string;
-  year: string;
+  'Indicator 1': number;
+  'Indicator 2': number;
+  'Indicator 3': number;
 }

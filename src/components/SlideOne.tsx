@@ -5,37 +5,34 @@ import { ChartBar, Table2 } from 'lucide-react';
 
 import IconGrid from './IconGrid';
 
-import { GraphDataType, OptionsDataType } from '@/types';
-import { pivotData } from '@/utils/pivotData';
+import { GraphDataType, OptionsDataType, RawDataType } from '@/types';
+import { TABLE_HEIGHT } from '@/constants';
 
 interface Props {
   graphData: GraphDataType[];
+  rawData: RawDataType[];
   yearsOptions: OptionsDataType[];
-  stateOptions: OptionsDataType[];
+  sdgOptions: OptionsDataType[];
 }
 
 export default function SlideOneContent(props: Props) {
-  const { graphData, yearsOptions } = props;
-  const [selectedYear, setSelectedYear] = useState({
-    label: '2023-24',
-    value: '2023-24',
-  });
+  const { graphData, rawData, yearsOptions, sdgOptions } = props;
+  const [selectedYear, setSelectedYear] = useState(
+    yearsOptions[yearsOptions.length - 1],
+  );
   const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
-  console.log('graphData', graphData);
-  console.log('selectedYear', selectedYear);
-  const pivotedDataBySDG = pivotData(graphData, 'sdg');
   return (
     graphData &&
-    pivotedDataBySDG && (
-      <div className='flex flex-col grow w-full gap-2'>
+    rawData && (
+      <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
-            SDG Index Score by States ({selectedYear?.value})
+            Performance of States and UTs on SDGs ({selectedYear?.value})
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
               onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={yearsOptions}
+              options={[...yearsOptions].reverse()}
               size='sm'
               placeholder='Select year'
               isClearable={false}
@@ -81,15 +78,11 @@ export default function SlideOneContent(props: Props) {
               ]}
             />
             <IconGrid
-              selectedView='chart'
-              data={graphData}
-              year={2022}
-              keys={[
-                'department',
-                'Human Development Index',
-                'hdiGroup',
-                'year',
-              ]}
+              selectedView={selectedView}
+              data={rawData}
+              year={selectedYear}
+              keys={['area', 'year', ...sdgOptions.map(opt => opt.value)]}
+              slideIndex={1}
             />
           </div>
         </div>
@@ -106,132 +99,69 @@ export default function SlideOneContent(props: Props) {
                   column: 'year',
                   includeValues: [selectedYear.value],
                 },
+                {
+                  column: 'value',
+                  excludeValues: [null, NaN],
+                },
               ]}
               graphDataConfiguration={[
-                { columnId: 'state', chartConfigId: 'row' },
+                { columnId: 'area', chartConfigId: 'row' },
                 { columnId: 'value', chartConfigId: 'value' },
                 { columnId: 'sdg', chartConfigId: 'column' },
               ]}
               graphSettings={{
+                graphID: `slide-1-chart`,
                 colorDomain: [
-                  'Aspirant',
-                  'Performer',
-                  'Front Runner',
-                  'Achiever',
+                  'Aspirant (0–49)',
+                  'Performer (50–64)',
+                  'Front Runner (65–99)',
+                  'Achiever (100)',
                 ],
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
                 showNAColor: false,
                 scaleType: 'categorical',
                 truncateBy: 10,
+                tooltip: '<b>{{row}}</b></br> {{column}} – {{value}}',
+                styles: {
+                  tooltip: {
+                    padding: '100px 12px',
+                    backgroundColor: '#000',
+                  },
+                },
               }}
             />
           )}
           {selectedView === 'table' && (
-            // <SingleGraphDashboard
-            //   dataSettings={{
-            //     data: pivotedDataBySDG,
-            //     fileType: 'csv',
-            //   }}
-            //   graphType='dataTable'
-            //   dataFilters={[
-            //     {
-            //       column: 'year',
-            //       includeValues: selectedYear
-            //         ? [Number(selectedYear.value)]
-            //         : [],
-            //     },
-            //   ]}
-            //   graphSettings={{
-            //     columnData: [
-            //       {
-            //         columnTitle: 'State',
-            //         columnId: 'state',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 1',
-            //         columnId: 'SDG 1',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 2',
-            //         columnId: 'SDG 2',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 3',
-            //         columnId: 'SDG 3',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 4',
-            //         columnId: 'SDG 4',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 5',
-            //         columnId: 'SDG 5',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 7',
-            //         columnId: 'SDG 7',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 8',
-            //         columnId: 'SDG 8',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 9',
-            //         columnId: 'SDG 9',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 10',
-            //         columnId: 'SDG 10',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 11',
-            //         columnId: 'SDG 11',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 12',
-            //         columnId: 'SDG 12',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 13',
-            //         columnId: 'SDG 13',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 14',
-            //         columnId: 'SDG 14',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 15',
-            //         columnId: 'SDG 15',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 16',
-            //         columnId: 'SDG 16',
-            //         sortable: true,
-            //       },
-            //       {
-            //         columnTitle: 'SDG 17',
-            //         columnId: 'SDG 17',
-            //         sortable: true,
-            //       },
-            //     ],
-            //   }}
-            // />
-            <div>tset</div>
+            <>
+              <SingleGraphDashboard
+                dataSettings={{
+                  data: rawData,
+                  fileType: 'csv',
+                }}
+                graphType='dataTable'
+                dataFilters={[
+                  {
+                    column: 'year',
+                    includeValues: [selectedYear.value],
+                  },
+                ]}
+                graphSettings={{
+                  height: TABLE_HEIGHT,
+                  columnData: [
+                    {
+                      columnTitle: 'Area',
+                      columnId: 'area',
+                      sortable: true,
+                    },
+                    ...sdgOptions.map(option => ({
+                      columnTitle: option.label,
+                      columnId: option.value,
+                      sortable: true,
+                    })),
+                  ],
+                }}
+              />
+            </>
           )}
         </div>
       </div>

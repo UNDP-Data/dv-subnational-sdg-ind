@@ -6,40 +6,48 @@ import { ChartBar, Table2 } from 'lucide-react';
 import IconGrid from './IconGrid';
 
 import { GraphDataType, OptionsDataType } from '@/types';
+import { colorMap, SDGS, TABLE_HEIGHT } from '@/constants';
 
 interface Props {
   graphData: GraphDataType[];
   yearsOptions: OptionsDataType[];
-  stateOptions: OptionsDataType[];
+  areaOptions: OptionsDataType[];
 }
 
 export default function SlideTwoContent(props: Props) {
-  const { graphData, yearsOptions, stateOptions } = props;
-  const [selectedYear, setSelectedYear] = useState({
-    label: '2022',
-    value: '2022',
-  });
-  const [selectedState, setSelectedState] = useState<OptionsDataType | null>({
-    label: 'Andaman and Nicobar Islands',
-    value: 'Andaman and Nicobar Islands',
-  });
+  const { graphData, yearsOptions, areaOptions } = props;
+  const [selectedYear, setSelectedYear] = useState(
+    yearsOptions[yearsOptions.length - 1],
+  );
+  const [selectedArea, setSelectedArea] = useState(areaOptions[0]);
   const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
+  const indiaValue = graphData.find(
+    d => d.area === 'India' && d.year === selectedYear.value,
+  )?.value;
+
+  const sdgOrder = SDGS.map(sdg => sdg.value);
+
+  const filteredData = graphData.filter(
+    row =>
+      String(row.year) === selectedYear?.value &&
+      row.area === selectedArea?.label,
+  );
 
   return (
     graphData && (
-      <div className='flex flex-col justify-between grow w-full gap-2'>
+      <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
-            SDG Index Score for {selectedState?.value} ({selectedYear?.value})
+            SDG Index Score for {selectedArea?.value} ({selectedYear?.value})
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
-              onChange={option => setSelectedState(option as OptionsDataType)}
-              options={stateOptions}
-              defaultValue={selectedState}
+              onChange={option => setSelectedArea(option as OptionsDataType)}
+              options={areaOptions}
+              defaultValue={selectedArea}
               size='sm'
-              placeholder='Highlight state'
-              className='min-w-[240px]'
+              placeholder='Select area'
+              className='w-full'
               variant='light'
             />
             <DropdownSelect
@@ -90,15 +98,12 @@ export default function SlideTwoContent(props: Props) {
               ]}
             />
             <IconGrid
-              selectedView='chart'
+              selectedView={selectedView}
               data={graphData}
-              year={2022}
-              keys={[
-                'department',
-                'Human Development Index',
-                'hdiGroup',
-                'year',
-              ]}
+              year={selectedYear}
+              area={selectedArea}
+              keys={['area', 'sdg', 'value', 'group', 'year']}
+              slideIndex={2}
             />
           </div>
         </div>
@@ -113,67 +118,89 @@ export default function SlideTwoContent(props: Props) {
               dataFilters={[
                 {
                   column: 'year',
-                  includeValues: selectedYear
-                    ? [Number(selectedYear.value)]
-                    : [],
+                  includeValues: [selectedYear.value],
                 },
                 {
-                  column: 'state',
-                  includeValues: selectedState ? [selectedState.value] : [],
+                  column: 'area',
+                  includeValues: selectedArea ? [selectedArea.value] : [],
                 },
               ]}
               graphDataConfiguration={[
                 { columnId: 'sdg', chartConfigId: 'label' },
                 { columnId: 'value', chartConfigId: 'size' },
-                { columnId: 'indexGroup', chartConfigId: 'color' },
+                { columnId: 'group', chartConfigId: 'color' },
               ]}
               graphSettings={{
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
+                graphID: `slide-2-chart`,
+                labelOrder: sdgOrder,
                 showNAColor: false,
+                colorLegendTitle: undefined,
                 showLabels: true,
+                bottomMargin: 40,
+                refValues: indiaValue
+                  ? [
+                      {
+                        value: indiaValue,
+                        text: 'India SDG Index Score',
+                        color: '#000000',
+                      },
+                    ]
+                  : undefined,
               }}
             />
           )}
           {selectedView === 'table' && (
-            <SingleGraphDashboard
-              dataSettings={{
-                data: graphData,
-                fileType: 'csv',
-              }}
-              graphType='dataTable'
-              dataFilters={[
-                {
-                  column: 'year',
-                  includeValues: selectedYear
-                    ? [Number(selectedYear.value)]
-                    : [],
-                },
-                {
-                  column: 'state',
-                  includeValues: selectedState ? [selectedState.value] : [],
-                },
-              ]}
-              graphSettings={{
-                height: 500,
-                columnData: [
-                  {
-                    columnTitle: 'SDG',
-                    columnId: 'sdg',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'SDG Index Score',
-                    columnId: 'value',
-                    sortable: true,
-                  },
-                  {
-                    columnTitle: 'Group',
-                    columnId: 'indexGroup',
-                    sortable: true,
-                  },
-                ],
-              }}
-            />
+            <div className='grow flex mt-4'>
+              <div
+                className='overflow-y-auto undp-scrollbar w-full'
+                style={{ height: `${TABLE_HEIGHT}px` }}
+              >
+                <table
+                  className='w-full'
+                  style={{ borderCollapse: 'collapse' }}
+                >
+                  <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
+                    <tr>
+                      <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
+                        SDG
+                      </th>
+                      <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
+                        SDG Index Score
+                      </th>
+                      <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
+                        Category
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredData.map((row, idx) => (
+                      <tr
+                        key={`${row.sdg}-${idx}`}
+                        className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
+                      >
+                        <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
+                          {row.sdg}
+                        </td>
+                        <td className='text-sm text-left p-4'>{row.value}</td>
+                        <td className='text-sm text-left p-4'>
+                          <span
+                            className='rounded-full px-4 py-1 text-white text-primary-white'
+                            style={{
+                              backgroundColor:
+                                colorMap[row.group as keyof typeof colorMap] ??
+                                '#fafafa',
+                            }}
+                          >
+                            {row.group}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
         </div>
       </div>

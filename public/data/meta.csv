@@ -1,0 +1,115 @@
+﻿sdg,label,indicator
+SDG 1,No Poverty,Head count ratio as per the Multidimensional Poverty Index (%)
+SDG 1,No Poverty,Percentage of households with any usual member covered by a health scheme or health insurance
+SDG 1,No Poverty,Persons  offered employment as a percentage of persons who demanded employment under Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA)
+SDG 1,No Poverty,Percentage of the population (out of total eligible population) receiving social protection benefits under Pradhan Mantri Matru Vandana Yojana (PMMVY)
+SDG 1,No Poverty,Percentage of households living in Kachha houses
+SDG 2,Zero Hunger,"Percentage of beneficiaries covered under National Food Security Act (NFSA),2013"
+SDG 2,Zero Hunger,Percentage of children under five years who are underweight
+SDG 2,Zero Hunger,Percentage of children under five years who are stunted
+SDG 2,Zero Hunger,Percentage of pregnant women aged 15-49 years who are anaemic
+SDG 2,Zero Hunger,Percentage of women (aged 15-49 years) whose Body Mass Index is below 18.5
+SDG 2,Zero Hunger,Rice and Wheat produced per unit area (three-year average) (Kg/Ha)
+SDG 2,Zero Hunger,Gross Value Added (constant prices) in agriculture per worker (in Lakhs/worker)
+SDG 3,Good Health and Well-being,"Maternal Mortality Ratio (per 1,00,000 live births)"
+SDG 3,Good Health and Well-being,"Under-five Mortality Rate (per 1,000 live births)"
+SDG 3,Good Health and Well-being,Percentage of children in the age group 9-11 months fully immunized
+SDG 3,Good Health and Well-being,Tuberculosis case notification against target in percentage
+SDG 3,Good Health and Well-being,"HIV incidence per 1,000 uninfected population"
+SDG 3,Good Health and Well-being,Life expectancy
+SDG 3,Good Health and Well-being,"Suicide rate (per 1,00,000 population)"
+SDG 3,Good Health and Well-being,"Death rate due to road traffic accidents (per 1,00,000 population)"
+SDG 3,Good Health and Well-being,Percentage of institutional deliveries out of the total deliveries reported
+SDG 3,Good Health and Well-being,Monthly per capita out-of-pocket expenditure on health as a share of Monthly Per capita Consumption Expenditure (MPCE)
+SDG 3,Good Health and Well-being,"Health worker density per 10,000 population"
+SDG 4,Quality Education,Adjusted Net Enrolment Rate (ANER) in elementary education (class 1-8) (%)
+SDG 4,Quality Education,Average annual dropout rate at secondary level (class 9-10)
+SDG 4,Quality Education,Gross Enrolment Ratio (GER) in higher secondary (class 11-12) (%)
+SDG 4,Quality Education,Percentage of students in grade VIII achieving at least a minimum proficiency level in terms of nationally defined learning outcomes to be attained by the pupils at the end of the grade
+SDG 4,Quality Education,Gross Enrolment Ratio (GER) in higher education (18-23 years)
+SDG 4,Quality Education,Percentage of persons with disability (15 years and above) who have completed at least secondary education
+SDG 4,Quality Education,Gender Parity Index (GPI) for higher education (18-23 years)
+SDG 4,Quality Education,Percentage of persons 15 years and above who are literate
+SDG 4,Quality Education,"Percentage of schools with access to basic infrastructure (electricity, and drinking water-both)"
+SDG 4,Quality Education,Percentage of Schools with computers
+SDG 4,Quality Education,Percentage of trained teachers at secondary level (class 9-10)
+SDG 4,Quality Education,Pupil Teacher Ratio (PTR) at secondary level (class 9-10)
+SDG 5,Gender Equality,Sex ratio at birth
+SDG 5,Gender Equality,Ratio of female to male average wage/salary earnings received among regular wage/salaried employees
+SDG 5,Gender Equality,Percentage of ever married women aged 18-49 years who have ever experienced spousal violence (physical/sexual)
+SDG 5,Gender Equality,Ratio of female to male Labour Force Participation Rate (LFPR) (15-59 years)
+SDG 5,Gender Equality,"Proportion of women in managerial positions including women in board of directors, in listed companies (per 1,000 persons)"
+SDG 5,Gender Equality,Percentage of currently married women aged 15-49 years who have their demand for  family planning satisfied by any modern method
+SDG 5,Gender Equality,Percentage of  female operated operational land holdings
+SDG 5,Gender Equality,Percentage of women (aged 15-49 years) who own a mobile phone that they themselves use
+SDG 5,Gender Equality,Percentage of currently married women (aged 15-49 years) who usually participate in three household decisions
+SDG 6,Clean Water and Sanitation,Percentage of rural households getting safe and adequate drinking water within premises through Piped Water Supply (PWS)
+SDG 6,Clean Water and Sanitation,Percentage of rural population having improved source of drinking water
+SDG 6,Clean Water and Sanitation,Percentage of individual household toilets constructed against target (SBM(G))
+SDG 6,Clean Water and Sanitation,Percentage of districts verified to be ODF (SBM(G))
+SDG 6,Clean Water and Sanitation,Percentage of schools with functional girls' toilet
+SDG 6,Clean Water and Sanitation,Stage of ground water extraction (%)
+SDG 6,Clean Water and Sanitation,Percentage of blocks/mandals/talukas over-exploited
+SDG 7,Affordable and Clean Energy,Percentage of households electrified
+SDG 7,Affordable and Clean Energy,Percentage of LPG+PNG connections against number of households
+SDG 8,Decent Work and Economic Growth,Annual growth rate of GDP (constant prices) per capita (%)
+SDG 8,Decent Work and Economic Growth,Unemployment rate (%) (15-59 years)
+SDG 8,Decent Work and Economic Growth,Labour Force Participation Rate (LFPR) (%) (15-59 years) 
+SDG 8,Decent Work and Economic Growth,Percentage of regular wage/ salaried employees in non-agriculture sector without any social security benefit
+SDG 8,Decent Work and Economic Growth,Percentage of households with any usual member with a bank or post office account
+SDG 8,Decent Work and Economic Growth,"Number of functioning branches of commercial banks per 1,00,000 population"
+SDG 8,Decent Work and Economic Growth,"Automated Teller Machines (ATMs) per 1,00,000 population"
+SDG 8,Decent Work and Economic Growth,Percentage of women account holders in Pradhan Mantri Jan Dhan Yojana (PMJDY)
+SDG 9,"Industry, Innovation and Infrastructure",Percentage of targeted habitations connected by all-weather roads under Pradhan Mantri Gram Sadak Yojana (PMGSY)
+SDG 9,"Industry, Innovation and Infrastructure",Percentage Share of GVA in Manufacturing to total GVA (current prices)
+SDG 9,"Industry, Innovation and Infrastructure",Manufacturing employment as a percentage of total employment
+SDG 9,"Industry, Innovation and Infrastructure",Percentage Share of GVA in Services to total GVA (current prices)
+SDG 9,"Industry, Innovation and Infrastructure",Services employment as a percentage of total employment
+SDG 9,"Industry, Innovation and Infrastructure",Innovation score as per the India Innovation Index
+SDG 9,"Industry, Innovation and Infrastructure",Percentage of households that own at least one mobile phone
+SDG 9,"Industry, Innovation and Infrastructure",Percentage of inhabited villages with 3G/4G mobile internet coverage
+SDG 10,Reduced Inequalities,Gini coefficient
+SDG 10,Reduced Inequalities,Percentage of seats held by women in Panchayat Raj Institutions (PRIs)
+SDG 10,Reduced Inequalities,Percentage of SC/ST seats in State Legislative Assemblies* 
+SDG 10,Reduced Inequalities,Ratio (in percent)  of female workers to male workers working as Professionals and Technical Workers
+SDG 10,Reduced Inequalities,"Rate of total crimes against SCs (per 1,00,000 SC population)"
+SDG 10,Reduced Inequalities,"Rate of total crime against STs (per 1,00,000 ST population)"
+SDG 11,Sustainable Cities and Communities,Percentage of urban households living in kachha houses
+SDG 11,Sustainable Cities and Communities,Percentage of individual household toilets constructed against target SBM (U)
+SDG 11,Sustainable Cities and Communities,"Deaths due to road accidents in urban areas (per 1,00,000 population) "
+SDG 11,Sustainable Cities and Communities,Percentage of wards with 100% door to door waste collection (SBM(U))
+SDG 11,Sustainable Cities and Communities,Percentage of Municipal Solid Waste (MSW) processed to the total MSW generated (SBM(U))
+SDG 11,Sustainable Cities and Communities,Percentage of wards with 100% source segregation (SBM(U))
+SDG 11,Sustainable Cities and Communities,Installed sewage treatment capacity as a percentage of sewage generated in urban areas
+SDG 12,Responsible Consumption and Production,Per capita fossil fuel consumption (in kg.)
+SDG 12,Responsible Consumption and Production,"Percentage use of nitrogenous fertilizer out of total N,P,K, (Nitrogen, Phosphorous, Potassium)"
+SDG 12,Responsible Consumption and Production,Quantity of hazardous waste recycled/utilized to total hazardous waste generated (%)
+SDG 12,Responsible Consumption and Production,"Plastic waste generated per 1,000 population (Tonnes/Annum)"
+SDG 12,Responsible Consumption and Production,Percentage of Bio Medical Waste (BMW) treated to total quantity of BMW generated  
+SDG 13,Climate Action,Number of human lives lost per 1 crore population due to extreme weather events
+SDG 13,Climate Action,Disaster preparedness score as per Disaster Resilience Index
+SDG 13,Climate Action,Percentage of renewable energy out of total installed generating capacity (Including allocated shares) 
+SDG 13,Climate Action,"Disability Adjusted Life Years (DALY) rate attributable to air pollution (per 1,00,000 population)"
+SDG 13,Climate Action,Percentage of industries complying with environmental standards
+SDG 14,Life Below Water,Mean shore zone coastal water quality (DO) - Biochemical Oxygen Demand (BOD) (mg/l)*
+SDG 14,Life Below Water,Mean shore zone coastal water quality – Total Nitrogen (TN) (µmol/l)*
+SDG 14,Life Below Water,Percentage increase in area under mangroves
+SDG 14,Life Below Water,Average marine acidity (pH) measured at representative sampling stations in the shore zone*
+SDG 14,Life Below Water,Percentage of available potential area developed under aquaculture
+SDG 15,Life on Land,Forest cover as a percentage of total geographical area
+SDG 15,Life on Land,Tree cover as a percentage of total geographical area
+SDG 15,Life on Land,Combined 15.1+15.2
+SDG 15,Life on Land,Percentage of area covered under  afforestation schemes to the total  geographical area
+SDG 15,Life on Land,Percentage change in carbon stock in forest cover
+SDG 15,Life on Land,Percentage of degraded land over total land area
+SDG 15,Life on Land,Percentage increase in area of desertification 
+SDG 15,Life on Land,Number of cases under Wildlife Protection Act (1972) per million hectares of protected area
+SDG 16,"Peace, Justice and Strong Institutions",Murders per 1 lakh population
+SDG 16,"Peace, Justice and Strong Institutions",Cognizable crimes against children per 1 lakh population
+SDG 16,"Peace, Justice and Strong Institutions",Number of victims of human trafficking per 10 lakh population
+SDG 16,"Peace, Justice and Strong Institutions","Number of missing children per 1,00,000 child population "
+SDG 16,"Peace, Justice and Strong Institutions","No. of courts per 1,00,000 population"
+SDG 16,"Peace, Justice and Strong Institutions",Cases  under Prevention of Corruption Act and related sections of IPC per 10 lakh population
+SDG 16,"Peace, Justice and Strong Institutions",Charge sheeting rate of IPC crime 
+SDG 16,"Peace, Justice and Strong Institutions",Percentage of children under 5 years whose birth was registered
+SDG 16,"Peace, Justice and Strong Institutions",Percentage of population covered under Aadhaar
