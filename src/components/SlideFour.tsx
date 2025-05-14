@@ -108,6 +108,12 @@ export default function SlideFiveContent(props: Props) {
     }
   });
 
+  const indiaValue = Number(
+    rawData.find(d => d.area === 'India' && d.year === selectedYear!.value)?.[
+      selectedIndicator!.value
+    ],
+  );
+
   const filteredData = rawData
     .filter(row => String(row.year) === selectedYear?.value)
     .map(row => {
@@ -119,6 +125,7 @@ export default function SlideFiveContent(props: Props) {
       };
     });
 
+  console.log(indiaValue);
   return (
     graphData && (
       <div className='flex flex-col justify-between grow w-full gap-2'>
@@ -266,7 +273,6 @@ export default function SlideFiveContent(props: Props) {
                 fileType: 'csv',
               }}
               graphType='choroplethMap'
-              debugMode
               dataFilters={[
                 {
                   column: 'year',
@@ -324,7 +330,6 @@ export default function SlideFiveContent(props: Props) {
                   chartConfigId: 'size',
                 },
               ]}
-              debugMode
               graphSettings={{
                 graphID: 'slide-3-chart',
                 colorLegendTitle: undefined,
@@ -343,6 +348,15 @@ export default function SlideFiveContent(props: Props) {
                     minWidth: '150px',
                   },
                 },
+                refValues: indiaValue
+                  ? [
+                      {
+                        value: indiaValue,
+                        text: 'India Average',
+                        color: '#000000',
+                      },
+                    ]
+                  : undefined,
               }}
             />
           )}
@@ -353,7 +367,6 @@ export default function SlideFiveContent(props: Props) {
                 fileType: 'csv',
               }}
               graphType='multiLineAltChart'
-              debugMode
               graphDataConfiguration={[
                 { columnId: 'yearFormatted', chartConfigId: 'date' },
                 { columnId: 'area', chartConfigId: 'label' },

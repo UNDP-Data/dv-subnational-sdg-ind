@@ -51,4 +51,5 @@ export interface RawDataType {
   'Indicator 1': number;
   'Indicator 2': number;
   'Indicator 3': number;
+  [key: string]: string | number | null;
 }
