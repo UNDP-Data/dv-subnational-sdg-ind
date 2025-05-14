@@ -26,7 +26,7 @@ const getIndexGroup = (value: number) => {
 };
 
 const isValidGraphEntry = (label: string) =>
-  label.startsWith('SDG ') || label === 'Composite Score';
+  label.startsWith('SDG ') || label === 'Comp. Score';
 
 const transformGraphData = (data: RawDataType[]) => {
   return data.flatMap(({ year, area, ...rest }) => {
@@ -68,14 +68,17 @@ export function App() {
   useEffect(() => {
     fetchAndParseCSV('/data/sdg-ind-index.csv')
       .then(d => {
-        const raw = d as RawDataType[];
+        const raw = (d as RawDataType[]).map(row => ({
+          ...row,
+          year: `${row.year}`,
+        }));
         const transformed = transformGraphData(raw);
 
-        const yearOptions = Array.from(new Set(transformed.map(d => d.year)))
+        const yearsOptions = Array.from(new Set(transformed.map(d => d.year)))
           .sort()
           .map(year => ({ label: `${year}`, value: `${year}` }));
 
-        const latestYear = yearOptions[yearOptions.length - 1]?.value;
+        const latestYear = yearsOptions[yearsOptions.length - 1]?.value;
 
         const latestGroupMap = new Map<string, string>();
         transformed.forEach(({ area, sdg, year, value }) => {
@@ -107,9 +110,9 @@ export function App() {
             value: sdg,
           }));
 
-        setRawData(d as RawDataType[]);
+        setRawData(raw);
         setGraphData(dataWithLatestGroup);
-        setYearsOptions(yearOptions);
+        setYearsOptions(yearsOptions);
         setAreaOptions(areaOptions);
         setSDGOptions(sdgOptions);
       })
@@ -208,7 +211,7 @@ export function App() {
                 graphData={graphData}
                 areaOptions={areaOptions}
                 sdgOptions={sdgOptions}
-                yearOptions={yearsOptions}
+                yearsOptions={yearsOptions}
               />
             ),
           },
@@ -240,7 +243,7 @@ export function App() {
         ]}
         vizWidth='full'
         vizStyle={{
-          height: '800px',
+          height: '916px',
         }}
       />
     </div>

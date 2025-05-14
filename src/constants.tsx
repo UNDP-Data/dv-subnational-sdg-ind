@@ -1,4 +1,4 @@
-export const TABLE_HEIGHT = 680;
+export const TABLE_HEIGHT = 780;
 
 export const SDGS = [
   { label: 'SDG 1 – No Poverty', value: 'SDG 1' },
@@ -17,8 +17,8 @@ export const SDGS = [
   { label: 'SDG 14 – Life Below Water', value: 'SDG 14' },
   { label: 'SDG 15 – Life on Land', value: 'SDG 15' },
   { label: 'SDG 16 – Peace, Justice and Strong Institutions', value: 'SDG 16' },
-  { label: 'SDG 17 – Partnerships for the goals', value: 'SDG 17' },
-  { label: 'Composite Score', value: 'Composite Score' },
+  // { label: 'SDG 17 – Partnerships for the goals', value: 'SDG 17' },
+  { label: 'Comp. Score', value: 'Comp. Score' },
 ];
 
 export const YEARS = [

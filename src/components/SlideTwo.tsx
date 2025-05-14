@@ -7,6 +7,7 @@ import IconGrid from './IconGrid';
 
 import { GraphDataType, OptionsDataType } from '@/types';
 import { colorMap, SDGS, TABLE_HEIGHT } from '@/constants';
+import { pivotData } from '@/utils/pivotData';
 
 interface Props {
   graphData: GraphDataType[];
@@ -21,16 +22,20 @@ export default function SlideTwoContent(props: Props) {
   );
   const [selectedArea, setSelectedArea] = useState(areaOptions[0]);
   const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
-  const indiaValue = graphData.find(
-    d => d.area === 'India' && d.year === selectedYear.value,
-  )?.value;
+  const sdgOrder = SDGS.filter(sdg => sdg.value !== 'Comp. Score').map(
+    sdg => sdg.value,
+  );
 
-  const sdgOrder = SDGS.map(sdg => sdg.value);
+  const pivotedDataByYears = pivotData(graphData);
 
-  const filteredData = graphData.filter(
-    row =>
-      String(row.year) === selectedYear?.value &&
-      row.area === selectedArea?.label,
+  const filteredData = pivotedDataByYears.filter(
+    row => String(row.area) === selectedArea?.value,
+  );
+
+  const compScoreValue = Number(
+    graphData.find(
+      d => d['sdg'] === 'Comp. Score' && d['year'] === selectedYear.label,
+    )?.['value'],
   );
 
   return (
@@ -53,6 +58,7 @@ export default function SlideTwoContent(props: Props) {
             <DropdownSelect
               onChange={option => setSelectedYear(option as OptionsDataType)}
               options={yearsOptions}
+              isDisabled={selectedView === 'table'}
               size='sm'
               placeholder='Select year'
               isClearable={false}
@@ -121,6 +127,10 @@ export default function SlideTwoContent(props: Props) {
                   includeValues: [selectedYear.value],
                 },
                 {
+                  column: 'sdg',
+                  excludeValues: ['Comp. Score'],
+                },
+                {
                   column: 'area',
                   includeValues: selectedArea ? [selectedArea.value] : [],
                 },
@@ -132,73 +142,163 @@ export default function SlideTwoContent(props: Props) {
               ]}
               graphSettings={{
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
+                colorDomain: [
+                  'Aspirant (0–49)',
+                  'Performer (50–64)',
+                  'Front Runner (65–99)',
+                  'Achiever (100)',
+                ],
                 graphID: `slide-2-chart`,
                 labelOrder: sdgOrder,
                 showNAColor: false,
                 colorLegendTitle: undefined,
                 showLabels: true,
+                filterNA: false,
+                maxValue: 100,
                 bottomMargin: 40,
-                refValues: indiaValue
-                  ? [
-                      {
-                        value: indiaValue,
-                        text: 'India SDG Index Score',
-                        color: '#000000',
-                      },
-                    ]
-                  : undefined,
+                refValues: [
+                  {
+                    value: compScoreValue,
+                    text: `Composite Score (${compScoreValue})`,
+                    color: '#000000',
+                  },
+                ],
               }}
             />
           )}
           {selectedView === 'table' && (
-            <div className='grow flex mt-4'>
+            <div className='w-full'>
               <div
-                className='overflow-y-auto undp-scrollbar w-full'
-                style={{ height: `${TABLE_HEIGHT}px` }}
+                className='flex leading-0'
+                aria-label='Color legend'
+                style={{ maxWidth: 'none' }}
               >
-                <table
-                  className='w-full'
-                  style={{ borderCollapse: 'collapse' }}
+                <div>
+                  <div className='flex flex-wrap gap-3.5 mb-0'>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(203, 54, 75)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Aspirant (0–49)
+                      </p>
+                    </div>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(246, 198, 70)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Performer (50–64)
+                      </p>
+                    </div>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(71, 158, 133)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Front Runner (65–99)
+                      </p>
+                    </div>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(78, 171, 233)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Achiever (100)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='grow flex mt-4 w-full'>
+                <div
+                  className='overflow-y-auto undp-scrollbar w-full'
+                  style={{ height: `${TABLE_HEIGHT}px` }}
                 >
-                  <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
-                    <tr>
-                      <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
-                        SDG
-                      </th>
-                      <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
-                        SDG Index Score
-                      </th>
-                      <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
-                        Category
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredData.map((row, idx) => (
-                      <tr
-                        key={`${row.sdg}-${idx}`}
-                        className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
-                      >
-                        <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
-                          {row.sdg}
-                        </td>
-                        <td className='text-sm text-left p-4'>{row.value}</td>
-                        <td className='text-sm text-left p-4'>
-                          <span
-                            className='rounded-full px-4 py-1 text-white text-primary-white'
-                            style={{
-                              backgroundColor:
-                                colorMap[row.group as keyof typeof colorMap] ??
-                                '#fafafa',
-                            }}
+                  <table
+                    className='w-full'
+                    style={{ borderCollapse: 'collapse' }}
+                  >
+                    <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
+                      <tr>
+                        <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
+                          SDGs
+                        </th>
+                        {yearsOptions.map(option => (
+                          <th
+                            key={option.value}
+                            className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'
                           >
-                            {row.group}
-                          </span>
-                        </td>
+                            {option.label}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredData.map((row, idx) => (
+                        <tr
+                          key={`${row.sdg}-${idx}`}
+                          className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
+                        >
+                          <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
+                            {row.sdg}
+                          </td>
+
+                          {yearsOptions.map(option => {
+                            const value =
+                              row[option.value as keyof GraphDataType];
+                            let category = '';
+                            if (value === 100) {
+                              category = 'Achiever (100)';
+                            } else if (
+                              typeof value === 'number' &&
+                              value >= 65
+                            ) {
+                              category = 'Front Runner (65–99)';
+                            } else if (
+                              typeof value === 'number' &&
+                              value >= 50
+                            ) {
+                              category = 'Performer (50–64)';
+                            } else if (
+                              typeof value === 'number' &&
+                              value >= 0
+                            ) {
+                              category = 'Aspirant (0–49)';
+                            }
+
+                            return (
+                              <td
+                                key={option.value}
+                                className='text-sm text-left p-4'
+                              >
+                                {value != null ? (
+                                  <span
+                                    className='rounded-full px-4 py-1 text-white text-sm text-primary-white'
+                                    style={{
+                                      backgroundColor:
+                                        colorMap[
+                                          category as keyof typeof colorMap
+                                        ] ?? '#ccc',
+                                    }}
+                                  >
+                                    {value}
+                                  </span>
+                                ) : (
+                                  ''
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}

@@ -21,6 +21,7 @@ export default function SlideOneContent(props: Props) {
     yearsOptions[yearsOptions.length - 1],
   );
   const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
+
   return (
     graphData &&
     rawData && (
@@ -97,7 +98,7 @@ export default function SlideOneContent(props: Props) {
               dataFilters={[
                 {
                   column: 'year',
-                  includeValues: [selectedYear.value],
+                  includeValues: [`${selectedYear.value}`],
                 },
                 {
                   column: 'value',
@@ -111,6 +112,8 @@ export default function SlideOneContent(props: Props) {
               ]}
               graphSettings={{
                 graphID: `slide-1-chart`,
+                footNote:
+                  'Note: From 2020, Dādra and Nagar Haveli and Damān and Diu were merged into one Union Territory.',
                 colorDomain: [
                   'Aspirant (0–49)',
                   'Performer (50–64)',
@@ -118,9 +121,11 @@ export default function SlideOneContent(props: Props) {
                   'Achiever (100)',
                 ],
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                showNAColor: false,
+                showNAColor: true,
                 scaleType: 'categorical',
-                truncateBy: 10,
+                showValues: false,
+                truncateBy: 25,
+                leftMargin: 170,
                 tooltip: '<b>{{row}}</b></br> {{column}} – {{value}}',
                 styles: {
                   tooltip: {
@@ -142,7 +147,7 @@ export default function SlideOneContent(props: Props) {
                 dataFilters={[
                   {
                     column: 'year',
-                    includeValues: [selectedYear.value],
+                    includeValues: [selectedYear.label],
                   },
                 ]}
                 graphSettings={{
@@ -151,12 +156,14 @@ export default function SlideOneContent(props: Props) {
                     {
                       columnTitle: 'Area',
                       columnId: 'area',
-                      sortable: true,
+                      columnWidth: 5,
                     },
                     ...sdgOptions.map(option => ({
-                      columnTitle: option.label,
+                      columnTitle: option.label.replace('SDG ', ''),
                       columnId: option.value,
                       sortable: true,
+                      columnWidth:
+                        option.label === 'Comp. Score' ? 2 : undefined,
                     })),
                   ],
                 }}
