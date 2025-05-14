@@ -14,9 +14,8 @@ import SlideOneContent from './components/SlideOne';
 import SlideTwoContent from './components/SlideTwo';
 import SlideThreeContent from './components/SlideThree';
 import SlideFourContent from './components/SlideFour';
-import SlideFiveContent from './components/SlideFive';
 import { VizCarousel } from './vizCarousel';
-import { SDGS, YEARS } from './constants';
+import { SDGS } from './constants';
 
 const getIndexGroup = (value: number) => {
   if (value < 49.99) return 'Aspirant (0–49)';
@@ -29,15 +28,13 @@ const isValidGraphEntry = (label: string) =>
   label.startsWith('SDG ') || label === 'Comp. Score';
 
 const transformGraphData = (data: RawDataType[]) => {
-  return data.flatMap(({ year, area, ...rest }) => {
-    const yearFormatted = YEARS.find(y => y.value === year)?.label || year;
-
+  return data.flatMap(({ year, yearFormatted, area, ...rest }) => {
     return Object.entries(rest)
       .filter(([label]) => isValidGraphEntry(label))
       .map(([label, value]) => ({
         area,
         year: `${year}`,
-        yearFormatted,
+        yearFormatted: `${yearFormatted}`,
         sdg: label,
         value: value ? (value as number) : undefined,
         group: value ? getIndexGroup(value as number) : '–',
@@ -196,29 +193,6 @@ export function App() {
             content: (
               <div className='flex flex-col'>
                 <H3 marginBottom='2xs'>
-                  How Have SDG Index Changed Over Time?
-                </H3>
-                <P size='xl' marginBottom='sm' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-                  blandit augue eu sagittis facilisis. Class aptent taciti
-                  sociosqu ad litora torquent per conubia nostra, per inceptos
-                  himenaeos.
-                </P>
-              </div>
-            ),
-            viz: (
-              <SlideFourContent
-                graphData={graphData}
-                areaOptions={areaOptions}
-                sdgOptions={sdgOptions}
-                yearsOptions={yearsOptions}
-              />
-            ),
-          },
-          {
-            content: (
-              <div className='flex flex-col'>
-                <H3 marginBottom='2xs'>
                   Exploring the Indicators Behind the SDG Index
                 </H3>
                 <P size='xl' marginBottom='sm' className='text-gray-600'>
@@ -231,11 +205,12 @@ export function App() {
             ),
             viz: (
               <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideFiveContent
+                <SlideFourContent
                   rawData={rawData}
+                  mapData={mapData}
                   graphData={graphData}
                   yearsOptions={yearsOptions}
-                  sdgOptions={sdgOptions}
+                  areaOptions={areaOptions}
                 />
               </div>
             ),

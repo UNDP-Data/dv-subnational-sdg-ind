@@ -126,11 +126,12 @@ export default function SlideOneContent(props: Props) {
                 showValues: false,
                 truncateBy: 25,
                 leftMargin: 170,
-                tooltip: '<b>{{row}}</b></br> {{column}} – {{value}}',
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{row}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{column}}</div><div>{{value}}</div></div>',
                 styles: {
                   tooltip: {
-                    padding: '100px 12px',
-                    backgroundColor: '#000',
+                    padding: '0',
+                    minWidth: '150px',
                   },
                 },
               }}

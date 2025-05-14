@@ -11,7 +11,7 @@ import { useCallback } from 'react';
 import { GraphDataType, OptionsDataType } from '@/types';
 
 interface Props {
-  selectedView: 'chart' | 'table' | 'map';
+  selectedView: 'chart' | 'table' | 'map' | 'trends';
   data: unknown[];
   keys: string[];
   year?: OptionsDataType;

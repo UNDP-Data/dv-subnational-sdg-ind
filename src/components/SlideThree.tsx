@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
 import { DropdownSelect, P, SegmentedControl } from '@undp/design-system-react';
-import { ChartBar, ImageDownIcon, Table2 } from 'lucide-react';
+import { ChartBar, ChartSpline, ImageDownIcon, Table2 } from 'lucide-react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
 import IconGrid from './IconGrid';
@@ -23,15 +23,15 @@ export default function SlideThreeContent(props: Props) {
   const [selectedYear, setSelectedYear] = useState(
     yearsOptions[yearsOptions.length - 1],
   );
-  const [selectedArea, setSelectedArea] = useState<OptionsDataType | null>(
+  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>(
     null,
   );
   const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
     sdgOptions[0],
   );
-  const [selectedView, setSelectedView] = useState<'chart' | 'table' | 'map'>(
-    'map',
-  );
+  const [selectedView, setSelectedView] = useState<
+    'chart' | 'table' | 'map' | 'trends'
+  >('map');
   const indiaValue = graphData.find(
     d => d.area === 'India' && d.year === selectedYear.value,
   )?.value;
@@ -55,23 +55,25 @@ export default function SlideThreeContent(props: Props) {
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
+              onChange={option => setSelectedArea(option as OptionsDataType[])}
+              options={areaOptions}
+              value={selectedArea}
+              isClearable={true}
+              isMulti={true}
+              isDisabled={selectedView === 'table'}
+              defaultValue={selectedArea}
+              size='sm'
+              placeholder='Highlight area'
+              className='min-w-40'
+              variant='light'
+            />
+            <DropdownSelect
               onChange={option => setSelectedSDG(option as OptionsDataType)}
               options={sdgOptions}
               defaultValue={selectedSDG}
               size='sm'
               placeholder='Select SDG'
-              className='min-w-[240px]'
-              variant='light'
-            />
-            <DropdownSelect
-              onChange={option => setSelectedArea(option as OptionsDataType)}
-              options={areaOptions}
-              isClearable={true}
-              isDisabled={selectedView === 'table'}
-              defaultValue={selectedArea}
-              size='sm'
-              placeholder='Highlight area'
-              className='min-w-[240px]'
+              className='min-w-40'
               variant='light'
             />
             <DropdownSelect
@@ -91,7 +93,7 @@ export default function SlideThreeContent(props: Props) {
               value={selectedView}
               color='black'
               onValueChange={value =>
-                setSelectedView(value as 'chart' | 'table' | 'map')
+                setSelectedView(value as 'chart' | 'table' | 'map' | 'trends')
               }
               options={[
                 {
@@ -124,6 +126,19 @@ export default function SlideThreeContent(props: Props) {
                   label: (
                     <div className='flex gap-2 h-fit items-center'>
                       <div className='h-fit'>
+                        <ChartSpline size={16} strokeWidth={1.5} />
+                      </div>
+                      <P marginBottom='none' size='sm'>
+                        Trends
+                      </P>
+                    </div>
+                  ),
+                  value: 'trends',
+                },
+                {
+                  label: (
+                    <div className='flex gap-2 h-fit items-center'>
+                      <div className='h-fit'>
                         <Table2 size={16} strokeWidth={1.5} />
                       </div>
                       <P marginBottom='none' size='sm'>
@@ -137,56 +152,117 @@ export default function SlideThreeContent(props: Props) {
             />
             <IconGrid
               selectedView={selectedView}
-              data={graphData}
-              year={selectedYear}
+              data={pivotedDataByYears}
               sdg={selectedSDG}
-              keys={['area', 'sdg', 'value', 'group', 'year']}
+              keys={['area', 'sdg', '2018', '2019', '2020-21', '2023–24']}
               slideIndex={3}
             />
           </div>
         </div>
         <div className='grow flex mt-4'>
           {selectedView === 'map' && (
-            <SingleGraphDashboard
-              dataSettings={{
-                data: graphData,
-                fileType: 'csv',
-              }}
-              graphType='choroplethMap'
-              dataFilters={[
-                {
-                  column: 'year',
-                  includeValues: [selectedYear.value],
-                },
-                {
-                  column: 'sdg',
-                  includeValues: selectedSDG ? [selectedSDG.value] : [],
-                },
-              ]}
-              graphDataConfiguration={[
-                { columnId: 'area', chartConfigId: 'id' },
-                { columnId: 'group', chartConfigId: 'x' },
-              ]}
-              graphSettings={{
-                graphID: 'slide-3-map',
-                mapData: mapData,
-                isWorldMap: false,
-                scale: 1.1,
-                zoomScaleExtend: [1, 1],
-                colorLegendTitle: 'SDG Index Score groups',
-                mapNoDataColor: '#D4D6D8',
-                categorical: true,
-                tooltip: '{{id}} – <b>{{data.value}}</b>',
-                colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                colorDomain: [
-                  'Aspirant (0–49)',
-                  'Performer (50–64)',
-                  'Front Runner (65–99)',
-                  'Achiever (100)',
-                ],
-                highlightedIds: selectedArea ? [selectedArea.value] : [],
-              }}
-            />
+            <div className='w-full h-full'>
+              <div
+                className='flex leading-0'
+                aria-label='Color legend'
+                style={{ maxWidth: 'none' }}
+              >
+                <div>
+                  <div className='flex flex-wrap gap-4 mb-0'>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(203, 54, 75)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Aspirant (0–49)
+                      </p>
+                    </div>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(246, 198, 70)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Performer (50–64)
+                      </p>
+                    </div>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(71, 158, 133)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Front Runner (65–99)
+                      </p>
+                    </div>
+                    <div className='flex items-center gap-1 cursor-pointer'>
+                      <div
+                        className='w-3 h-3 rounded-full'
+                        style={{ backgroundColor: 'rgb(78, 171, 233)' }}
+                      />
+                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                        Achiever (100)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <SingleGraphDashboard
+                dataSettings={{
+                  data: graphData,
+                  fileType: 'csv',
+                }}
+                graphType='choroplethMap'
+                dataFilters={[
+                  {
+                    column: 'year',
+                    includeValues: [selectedYear.value],
+                  },
+                  {
+                    column: 'area',
+                    excludeValues: ['India'],
+                  },
+                  {
+                    column: 'sdg',
+                    includeValues: selectedSDG ? [selectedSDG.value] : [],
+                  },
+                ]}
+                graphDataConfiguration={[
+                  { columnId: 'area', chartConfigId: 'id' },
+                  { columnId: 'group', chartConfigId: 'x' },
+                ]}
+                graphSettings={{
+                  graphID: 'slide-3-map',
+                  mapData: mapData,
+                  isWorldMap: false,
+                  height: TABLE_HEIGHT,
+                  scale: 1.1,
+                  zoomScaleExtend: [1, 1],
+                  mapNoDataColor: '#D4D6D8',
+                  showColorScale: false,
+                  scaleType: 'categorical',
+                  colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
+                  colorDomain: [
+                    'Aspirant (0–49)',
+                    'Performer (50–64)',
+                    'Front Runner (65–99)',
+                    'Achiever (100)',
+                  ],
+                  highlightedIds: selectedArea
+                    ? selectedArea.map(area => area.value)
+                    : [],
+                  tooltip:
+                    '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{id}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{data.value}}</div></div>',
+                  styles: {
+                    tooltip: {
+                      padding: '0',
+                      minWidth: '150px',
+                    },
+                  },
+                }}
+              />
+            </div>
           )}
           {selectedView === 'chart' && (
             <SingleGraphDashboard
@@ -204,6 +280,10 @@ export default function SlideThreeContent(props: Props) {
                   column: 'sdg',
                   includeValues: selectedSDG ? [selectedSDG.value] : [],
                 },
+                {
+                  column: 'area',
+                  excludeValues: ['India'],
+                },
               ]}
               graphDataConfiguration={[
                 { columnId: 'area', chartConfigId: 'label' },
@@ -213,7 +293,9 @@ export default function SlideThreeContent(props: Props) {
               graphSettings={{
                 graphID: 'slide-3-chart',
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                highlightedDataPoints: selectedArea ? [selectedArea.value] : [],
+                highlightedDataPoints: selectedArea
+                  ? selectedArea.map(area => area.value)
+                  : [],
                 colorLegendTitle: undefined,
                 colorDomain: [
                   'Aspirant (0–49)',
@@ -232,11 +314,80 @@ export default function SlideThreeContent(props: Props) {
                         text:
                           selectedSDG?.label === 'Comp. Score'
                             ? 'India Composite Index Score'
-                            : `India ${selectedSDG?.label} Index Score`,
+                            : `India ${selectedSDG?.label} Index Score (${indiaValue})`,
                         color: '#000000',
                       },
                     ]
                   : undefined,
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
+                  },
+                },
+              }}
+            />
+          )}
+          {selectedView === 'trends' && (
+            <SingleGraphDashboard
+              dataSettings={{
+                data: graphData,
+                fileType: 'csv',
+              }}
+              graphType='multiLineAltChart'
+              dataFilters={[
+                {
+                  column: 'sdg',
+                  includeValues: selectedSDG ? [selectedSDG.value] : [],
+                },
+                {
+                  column: 'groupLatest',
+                  excludeValues: ['', NaN, undefined, null],
+                },
+              ]}
+              graphDataConfiguration={[
+                { columnId: 'yearFormatted', chartConfigId: 'date' },
+                { columnId: 'area', chartConfigId: 'label' },
+                {
+                  columnId: 'value',
+                  chartConfigId: 'y',
+                },
+                {
+                  columnId: 'groupLatest',
+                  chartConfigId: 'color',
+                },
+              ]}
+              graphSettings={{
+                graphID: 'slide-4-chart',
+                curveType: 'curve',
+                noOfXTicks: window.innerWidth < 768 ? 5 : 12,
+                showNAColor: false,
+                valueColor: '#000000',
+                showLabels: false,
+                strokeWidth: 1.5,
+                showDots: true,
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{y}}</div></div>',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
+                  },
+                },
+                colorDomain: [
+                  'Aspirant (0–49)',
+                  'Performer (50–64)',
+                  'Front Runner (65–99)',
+                  'Achiever (100)',
+                ],
+                colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
+                footNote:
+                  'Colors are assigned based on the latest available SDG Index data (2023–24).',
+                highlightedLines: selectedArea
+                  ? selectedArea.map(area => area.value)
+                  : [],
               }}
             />
           )}

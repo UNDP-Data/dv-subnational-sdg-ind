@@ -1,80 +1,207 @@
-import { useState } from 'react';
-import { SingleGraphDashboard } from '@undp/data-viz';
+import { useEffect, useState } from 'react';
 import { DropdownSelect, P, SegmentedControl } from '@undp/design-system-react';
-import { ChartBar, Table2 } from 'lucide-react';
+import {
+  fetchAndParseCSV,
+  getUniqValue,
+  SingleGraphDashboard,
+} from '@undp/data-viz';
+import { ChartBar, ChartSpline, ImageDownIcon, Table2 } from 'lucide-react';
+import { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 import IconGrid from './IconGrid';
 
-import { GraphDataType, OptionsDataType } from '@/types';
+import {
+  GraphDataType,
+  MetaDataType,
+  OptionsDataType,
+  RawDataType,
+  GroupedOptionType,
+} from '@/types';
 import { colorMap, TABLE_HEIGHT } from '@/constants';
-import { pivotData } from '@/utils/pivotData';
 
 interface Props {
+  rawData: RawDataType[];
+  mapData: FeatureCollection<Polygon | MultiPolygon>;
   graphData: GraphDataType[];
-  areaOptions: OptionsDataType[];
-  sdgOptions: OptionsDataType[];
   yearsOptions: OptionsDataType[];
+  areaOptions: OptionsDataType[];
 }
 
-export default function SlideFourContent(props: Props) {
-  const { graphData, areaOptions, sdgOptions, yearsOptions } = props;
-  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>(
-    null,
+export default function SlideFiveContent(props: Props) {
+  const { rawData, graphData, yearsOptions, mapData, areaOptions } = props;
+  const [metaData, setMetaData] = useState<MetaDataType[]>([]);
+  const [indicatorOptions, setIndicatorOptions] = useState<GroupedOptionType[]>(
+    [],
   );
+  const [sdgOptions, setSDGOptions] = useState<OptionsDataType[]>([]);
+  const [selectedIndicator, setSelectedIndicator] =
+    useState<OptionsDataType | null>(null);
+  const [selectedYear, setSelectedYear] = useState(
+    yearsOptions[yearsOptions.length - 1],
+  );
+  const [selectedView, setSelectedView] = useState<
+    'chart' | 'table' | 'map' | 'trends'
+  >('chart');
   const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
     sdgOptions[0],
   );
-  const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
-
-  const pivotedDataByYears = pivotData(graphData);
-
-  const filteredData = pivotedDataByYears.filter(
-    row => String(row.sdg) === selectedSDG?.value,
+  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>(
+    null,
   );
 
+  useEffect(() => {
+    fetchAndParseCSV('/data/meta-placeholder.csv')
+      .then(d => {
+        setMetaData(d as MetaDataType[]);
+
+        const sdgOptions = getUniqValue(d, 'sdg').map(sdg => ({
+          label: sdg,
+          value: sdg,
+        }));
+        setSDGOptions(sdgOptions);
+
+        const grouped = (d as MetaDataType[]).reduce(
+          (acc, { sdg, label, indicator }) => {
+            const groupKey = `${sdg} - ${label}`;
+            if (!acc[groupKey]) acc[groupKey] = [];
+            acc[groupKey].push({ label: indicator, value: indicator });
+            return acc;
+          },
+          {} as Record<string, OptionsDataType[]>,
+        );
+
+        const groupedOptions: GroupedOptionType[] = Object.entries(grouped).map(
+          ([groupLabel, options]) => ({
+            label: groupLabel,
+            options,
+          }),
+        );
+
+        setIndicatorOptions(groupedOptions);
+
+        if (
+          !selectedIndicator &&
+          groupedOptions.length > 0 &&
+          groupedOptions[0].options.length > 0
+        ) {
+          setSelectedIndicator(groupedOptions[0].options[0]);
+          setSelectedSDG(sdgOptions[0]);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  if (!metaData.length) return null;
+
+  const activeIndicators = metaData.filter(
+    item => item.sdg === selectedSDG?.value,
+  );
+  const indicatorNames = activeIndicators.map(item => item.indicator);
+
+  const sdgScoreMap = new Map();
+  graphData.forEach(d => {
+    if (
+      d.sdg === selectedSDG?.value &&
+      String(d.year) === selectedYear?.value
+    ) {
+      sdgScoreMap.set(d.area, { value: d.value, group: d.group });
+    }
+  });
+
+  const filteredData = rawData
+    .filter(row => String(row.year) === selectedYear?.value)
+    .map(row => {
+      const sdg = sdgScoreMap.get(row.area);
+      return {
+        ...row,
+        sdgValue: sdg?.value ?? null,
+        group: sdg?.group ?? null,
+      };
+    });
+
   return (
-    graphData &&
-    filteredData && (
-      <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
+    graphData && (
+      <div className='flex flex-col justify-between grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
-            Performance of States/UTs on{' '}
-            {selectedSDG?.label === 'Comp. Score'
-              ? 'Composite Index Score'
-              : `${selectedSDG?.label}`}{' '}
-            over Time
+            Performance of States and UTs on {selectedIndicator?.value} (
+            {selectedYear?.value})
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
+            {selectedView === 'table' ? (
+              <DropdownSelect
+                onChange={option => setSelectedSDG(option as OptionsDataType)}
+                options={sdgOptions}
+                value={selectedSDG}
+                defaultValue={selectedSDG}
+                isClearable={false}
+                size='sm'
+                placeholder='Select SDG'
+                className='min-w-40'
+                variant='light'
+              />
+            ) : null}
+            {selectedView !== 'table' ? (
+              <>
+                <DropdownSelect
+                  onChange={option =>
+                    setSelectedArea(option as OptionsDataType[])
+                  }
+                  options={areaOptions}
+                  value={selectedArea}
+                  isClearable={true}
+                  isMulti={true}
+                  defaultValue={selectedArea}
+                  size='sm'
+                  placeholder='Highlight area'
+                  className='min-w-40'
+                  variant='light'
+                />
+                <DropdownSelect
+                  onChange={option =>
+                    setSelectedIndicator(option as OptionsDataType)
+                  }
+                  options={indicatorOptions}
+                  value={selectedIndicator}
+                  size='sm'
+                  placeholder='Select indicator'
+                  className='min-w-40'
+                  variant='light'
+                />
+              </>
+            ) : null}
             <DropdownSelect
-              onChange={option => setSelectedSDG(option as OptionsDataType)}
-              options={sdgOptions}
-              defaultValue={selectedSDG}
+              onChange={option => setSelectedYear(option as OptionsDataType)}
+              options={yearsOptions}
               size='sm'
-              placeholder='Select SDG'
-              className='min-w-[240px]'
-              variant='light'
-            />
-            <DropdownSelect
-              onChange={option => setSelectedArea(option as OptionsDataType[])}
-              options={areaOptions}
-              isClearable={true}
-              defaultValue={selectedArea}
-              isDisabled={selectedView === 'table' ? true : false}
-              size='sm'
-              isMulti={true}
-              placeholder='Highlight area'
-              className='min-w-[240px]'
+              placeholder='Select year'
+              isClearable={false}
+              defaultValue={selectedYear}
+              className='min-w-40'
               variant='light'
             />
             <SegmentedControl
-              defaultValue='chart'
+              defaultValue='map'
               size='sm'
               value={selectedView}
               color='black'
               onValueChange={value =>
-                setSelectedView(value as 'chart' | 'table')
+                setSelectedView(value as 'chart' | 'table' | 'map' | 'trends')
               }
               options={[
+                {
+                  label: (
+                    <div className='flex gap-2 h-fit items-center'>
+                      <div className='h-fit'>
+                        <ImageDownIcon size={16} strokeWidth={1.5} />
+                      </div>
+                      <P marginBottom='none' size='sm'>
+                        Map
+                      </P>
+                    </div>
+                  ),
+                  value: 'map',
+                },
                 {
                   label: (
                     <div className='flex gap-2 h-fit items-center'>
@@ -87,6 +214,19 @@ export default function SlideFourContent(props: Props) {
                     </div>
                   ),
                   value: 'chart',
+                },
+                {
+                  label: (
+                    <div className='flex gap-2 h-fit items-center'>
+                      <div className='h-fit'>
+                        <ChartSpline size={16} strokeWidth={1.5} />
+                      </div>
+                      <P marginBottom='none' size='sm'>
+                        Trends
+                      </P>
+                    </div>
+                  ),
+                  value: 'trends',
                 },
                 {
                   label: (
@@ -105,62 +245,142 @@ export default function SlideFourContent(props: Props) {
             />
             <IconGrid
               selectedView={selectedView}
-              slideIndex={4}
-              data={pivotedDataByYears}
-              sdg={selectedSDG}
-              keys={['area', 'sdg', '2018', '2019', '2020-21', '2023–24']}
+              data={filteredData}
+              year={selectedYear}
+              keys={[
+                'area',
+                'Indicator 1',
+                'Indicator 2',
+                'Indicator 3',
+                'year',
+              ]}
+              slideIndex={5}
             />
           </div>
         </div>
         <div className='grow flex mt-4'>
+          {selectedView === 'map' && (
+            <SingleGraphDashboard
+              dataSettings={{
+                data: rawData,
+                fileType: 'csv',
+              }}
+              graphType='choroplethMap'
+              debugMode
+              dataFilters={[
+                {
+                  column: 'year',
+                  includeValues: [selectedYear.value],
+                },
+              ]}
+              graphDataConfiguration={[
+                { columnId: 'area', chartConfigId: 'id' },
+                {
+                  columnId: selectedIndicator
+                    ? selectedIndicator.value
+                    : 'Indicator 1',
+                  chartConfigId: 'x',
+                },
+              ]}
+              graphSettings={{
+                graphID: 'slide-4-map',
+                mapData: mapData,
+                isWorldMap: false,
+                height: TABLE_HEIGHT,
+                scale: 1.1,
+                zoomScaleExtend: [1, 1],
+                mapNoDataColor: '#D4D6D8',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
+                  },
+                },
+                highlightedIds: selectedArea
+                  ? selectedArea.map(area => area.value)
+                  : [],
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{id}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{xColumns}}</div><div>{{x}}</div></div>',
+              }}
+            />
+          )}
           {selectedView === 'chart' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: graphData,
+                data: rawData,
+                fileType: 'csv',
+              }}
+              graphType='barChart'
+              dataFilters={[
+                {
+                  column: 'year',
+                  includeValues: [selectedYear.value],
+                },
+              ]}
+              graphDataConfiguration={[
+                { columnId: 'area', chartConfigId: 'label' },
+                {
+                  columnId: selectedIndicator ? selectedIndicator.value : '',
+                  chartConfigId: 'size',
+                },
+              ]}
+              debugMode
+              graphSettings={{
+                graphID: 'slide-3-chart',
+                colorLegendTitle: undefined,
+                showNAColor: false,
+                sortData: 'desc',
+                showLabels: true,
+                truncateBy: 3,
+                highlightedDataPoints: selectedArea
+                  ? selectedArea.map(area => area.value)
+                  : [],
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{sizeColumns}}</div><div>{{size}}</div></div>',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
+                  },
+                },
+              }}
+            />
+          )}
+          {selectedView === 'trends' && (
+            <SingleGraphDashboard
+              dataSettings={{
+                data: rawData,
                 fileType: 'csv',
               }}
               graphType='multiLineAltChart'
-              dataFilters={[
-                {
-                  column: 'sdg',
-                  includeValues: selectedSDG ? [selectedSDG.value] : [],
-                },
-                {
-                  column: 'groupLatest',
-                  excludeValues: ['', NaN, undefined, null],
-                },
-              ]}
+              debugMode
               graphDataConfiguration={[
                 { columnId: 'yearFormatted', chartConfigId: 'date' },
                 { columnId: 'area', chartConfigId: 'label' },
                 {
-                  columnId: 'value',
+                  columnId: selectedIndicator
+                    ? selectedIndicator.value
+                    : 'Indicator 1',
                   chartConfigId: 'y',
-                },
-                {
-                  columnId: 'groupLatest',
-                  chartConfigId: 'color',
                 },
               ]}
               graphSettings={{
                 graphID: 'slide-4-chart',
                 curveType: 'curve',
                 noOfXTicks: window.innerWidth < 768 ? 5 : 12,
-                rightMargin: window.innerWidth < 768 ? 18 : 164,
                 showNAColor: false,
                 valueColor: '#000000',
+                showLabels: false,
                 strokeWidth: 1.5,
                 showDots: true,
-                tooltip: '<b>{{label}} ({{data.year}})</b></br>{{y}}',
-                colorDomain: [
-                  'Aspirant (0–49)',
-                  'Performer (50–64)',
-                  'Front Runner (65–99)',
-                  'Achiever (100)',
-                ],
-                colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                footNote:
-                  'Colors are assigned based on the latest available SDG Index data (2023–24).',
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{yColumns}}</div><div>{{y}}</div></div>',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
+                  },
+                },
                 highlightedLines: selectedArea
                   ? selectedArea.map(area => area.value)
                   : [],
@@ -168,139 +388,60 @@ export default function SlideFourContent(props: Props) {
             />
           )}
           {selectedView === 'table' && (
-            <div className='w-full'>
-              <div
-                className='flex leading-0'
-                aria-label='Color legend'
-                style={{ maxWidth: 'none' }}
-              >
-                <div>
-                  <div className='flex flex-wrap gap-3.5 mb-0'>
-                    <div className='flex items-center gap-1 cursor-pointer'>
-                      <div
-                        className='w-3 h-3 rounded-full'
-                        style={{ backgroundColor: 'rgb(203, 54, 75)' }}
-                      />
-                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                        Aspirant (0–49)
-                      </p>
-                    </div>
-                    <div className='flex items-center gap-1 cursor-pointer'>
-                      <div
-                        className='w-3 h-3 rounded-full'
-                        style={{ backgroundColor: 'rgb(246, 198, 70)' }}
-                      />
-                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                        Performer (50–64)
-                      </p>
-                    </div>
-                    <div className='flex items-center gap-1 cursor-pointer'>
-                      <div
-                        className='w-3 h-3 rounded-full'
-                        style={{ backgroundColor: 'rgb(71, 158, 133)' }}
-                      />
-                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                        Front Runner (65–99)
-                      </p>
-                    </div>
-                    <div className='flex items-center gap-1 cursor-pointer'>
-                      <div
-                        className='w-3 h-3 rounded-full'
-                        style={{ backgroundColor: 'rgb(78, 171, 233)' }}
-                      />
-                      <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                        Achiever (100)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='grow flex mt-4 w-full'>
-                <div
-                  className='overflow-y-auto undp-scrollbar w-full'
-                  style={{ height: `${TABLE_HEIGHT}px` }}
-                >
-                  <table
-                    className='w-full'
-                    style={{ borderCollapse: 'collapse' }}
-                  >
-                    <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
-                      <tr>
-                        <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
-                          States/UTs
-                        </th>
-                        {yearsOptions.map(option => (
-                          <th
-                            key={option.value}
-                            className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'
-                          >
-                            {option.label}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredData.map((row, idx) => (
-                        <tr
-                          key={`${row.area}-${idx}`}
-                          className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
-                        >
-                          <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
-                            {row.area}
-                          </td>
+            <div
+              className='overflow-y-auto undp-scrollbar w-full'
+              style={{ height: `${TABLE_HEIGHT}px` }}
+            >
+              <table className='w-full' style={{ borderCollapse: 'collapse' }}>
+                <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
+                  <tr>
+                    <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
+                      State
+                    </th>
+                    {indicatorNames.map(indicator => (
+                      <th
+                        key={indicator}
+                        className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'
+                      >
+                        {indicator}
+                      </th>
+                    ))}
+                    <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
+                      SDG Index Score
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredData.map((row, idx) => (
+                    <tr
+                      key={`${row.area}-${idx}`}
+                      className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
+                    >
+                      <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
+                        {row.area}
+                      </td>
 
-                          {yearsOptions.map(option => {
-                            const value =
-                              row[option.value as keyof GraphDataType];
-                            let category = '';
-                            if (value === 100) {
-                              category = 'Achiever (100)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 65
-                            ) {
-                              category = 'Front Runner (65–99)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 50
-                            ) {
-                              category = 'Performer (50–64)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 0
-                            ) {
-                              category = 'Aspirant (0–49)';
-                            }
-
-                            return (
-                              <td
-                                key={option.value}
-                                className='text-sm text-left p-4'
-                              >
-                                {value != null ? (
-                                  <span
-                                    className='rounded-full px-4 py-1 text-white text-sm text-primary-white'
-                                    style={{
-                                      backgroundColor:
-                                        colorMap[
-                                          category as keyof typeof colorMap
-                                        ] ?? '#ccc',
-                                    }}
-                                  >
-                                    {value}
-                                  </span>
-                                ) : (
-                                  ''
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
+                      {indicatorNames.map(indicator => (
+                        <td key={indicator} className='text-sm text-left p-4'>
+                          {row?.[indicator as keyof typeof row] ?? '-'}
+                        </td>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                      <td className='text-sm text-left p-4'>
+                        <span
+                          className='rounded-full px-4 py-1 text-white text-primary-white'
+                          style={{
+                            backgroundColor:
+                              colorMap[row.group as keyof typeof colorMap] ??
+                              '#fafafa',
+                          }}
+                        >
+                          {row.sdgValue ?? '-'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

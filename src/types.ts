@@ -1,5 +1,6 @@
 export interface GraphDataType {
   year: string;
+  yearFormatted: string;
   area: string;
   value: number | undefined;
   sdg: string;
@@ -17,6 +18,11 @@ export interface OptionsDataType {
   value: string;
 }
 
+export interface GroupedOptionType {
+  label: string;
+  options: OptionsDataType[];
+}
+
 export interface PivotedRowType {
   area: string;
   sdg: string;
@@ -26,6 +32,7 @@ export interface PivotedRowType {
 export interface RawDataType {
   area: string;
   year: string;
+  yearFormatted: string;
   'SDG 1': number;
   'SDG 2': number;
   'SDG 3': number;

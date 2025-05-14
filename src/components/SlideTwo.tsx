@@ -52,7 +52,7 @@ export default function SlideTwoContent(props: Props) {
               defaultValue={selectedArea}
               size='sm'
               placeholder='Select area'
-              className='w-full'
+              className='min-w-40'
               variant='light'
             />
             <DropdownSelect
@@ -163,6 +163,14 @@ export default function SlideTwoContent(props: Props) {
                     color: '#000000',
                   },
                 ],
+                tooltip:
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{data.area}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
+                  },
+                },
               }}
             />
           )}
