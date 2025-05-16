@@ -15,30 +15,44 @@ import SlideTwoContent from './components/SlideTwo';
 import SlideThreeContent from './components/SlideThree';
 import SlideFourContent from './components/SlideFour';
 import { VizCarousel } from './vizCarousel';
-import { SDGS } from './constants';
+import { sdgList, SDGS } from './constants';
+import { getIndexGroup } from './utils/getIndexGroup';
 
-const getIndexGroup = (value: number) => {
-  if (value < 49.99) return 'Aspirant (0–49)';
-  if (value < 64.99) return 'Performer (50–64)';
-  if (value < 99.99) return 'Front Runner (65–99)';
-  return 'Achiever (100)';
-};
+function transformDataWideFormat(data: RawDataType[]) {
+  return data.map(row => {
+    const sdgGroups: Record<string, string> = {};
 
-const isValidGraphEntry = (label: string) =>
-  label.startsWith('SDG ') || label === 'Comp. Score';
+    SDGS.filter(sdg => sdg.value.startsWith('SDG')).forEach(sdg => {
+      const key = sdg.value;
+      const groupKey = `${key} Group`;
+      const value = row[key as keyof RawDataType];
 
-const transformGraphData = (data: RawDataType[]) => {
+      sdgGroups[groupKey] =
+        value != null && typeof value === 'number'
+          ? getIndexGroup(value)
+          : 'NA';
+    });
+
+    return {
+      ...row,
+      rowStyle:
+        row.area === 'India' ? { backgroundColor: '#F7F7F7' } : undefined,
+      year: `${row.year}`,
+      ...sdgGroups,
+    };
+  });
+}
+
+const transformDataLongFormat = (data: RawDataType[]) => {
   return data.flatMap(({ year, yearFormatted, area, ...rest }) => {
-    return Object.entries(rest)
-      .filter(([label]) => isValidGraphEntry(label))
-      .map(([label, value]) => ({
-        area,
-        year: `${year}`,
-        yearFormatted: `${yearFormatted}`,
-        sdg: label,
-        value: value ? (value as number) : undefined,
-        group: value ? getIndexGroup(value as number) : '–',
-      }));
+    return Object.entries(rest).map(([label, value]) => ({
+      area,
+      year: `${year}`,
+      yearFormatted: `${yearFormatted}`,
+      sdg: label,
+      value: value ? (value as number) : undefined,
+      group: value ? getIndexGroup(value as number) : 'NA',
+    }));
   });
 };
 
@@ -46,13 +60,12 @@ export function App() {
   const [mapData, setMapData] = useState<
     FeatureCollection<Polygon | MultiPolygon> | undefined
   >(undefined);
-  const [rawData, setRawData] = useState<RawDataType[]>([]);
-  const [graphData, setGraphData] = useState<GraphDataType[]>([]);
-  const [yearsOptions, setYearsOptions] = useState<OptionsDataType[]>([]);
+  const [wideData, setWideData] = useState<RawDataType[]>([]);
+  const [longData, setLongData] = useState<GraphDataType[]>([]);
+  const [yearOptions, setYearsOptions] = useState<OptionsDataType[]>([]);
   const [areaOptions, setAreaOptions] = useState<OptionsDataType[]>([]);
   const [sdgOptions, setSDGOptions] = useState<OptionsDataType[]>([]);
 
-  // Fetch the map data
   useEffect(() => {
     fetchAndParseJSON(
       'https://raw.githubusercontent.com/UNDP-Data/dv-country-geojson/refs/heads/main/ADM1/IND.json',
@@ -61,62 +74,46 @@ export function App() {
       .catch(console.error);
   }, []);
 
-  // Fetch the graph data
   useEffect(() => {
     fetchAndParseCSV('/data/sdg-ind-index.csv')
       .then(d => {
-        const raw = (d as RawDataType[]).map(row => ({
-          ...row,
-          year: `${row.year}`,
-        }));
-        const transformed = transformGraphData(raw);
-
-        const yearsOptions = Array.from(new Set(transformed.map(d => d.year)))
-          .sort()
-          .map(year => ({ label: `${year}`, value: `${year}` }));
-
-        const latestYear = yearsOptions[yearsOptions.length - 1]?.value;
-
-        const latestGroupMap = new Map<string, string>();
-        transformed.forEach(({ area, sdg, year, value }) => {
-          if (year === latestYear && value !== undefined) {
-            latestGroupMap.set(`${area}|||${sdg}`, getIndexGroup(value));
-          }
-        });
-
-        const dataWithLatestGroup = transformed.map(d => {
-          const key = `${d.area}|||${d.sdg}`;
-          return {
-            ...d,
-            groupLatest: latestGroupMap.get(key),
-          };
-        });
-
-        const areaOptions = getUniqValue(dataWithLatestGroup, 'area').map(
-          area => ({
-            label: area,
-            value: area,
-          }),
+        const transformedWideFormat = transformDataWideFormat(
+          d as RawDataType[],
         );
 
-        const sdgOrder = SDGS.map(sdg => sdg.value);
-        const sdgOptions = getUniqValue(dataWithLatestGroup, 'sdg')
-          .sort((a, b) => sdgOrder.indexOf(a) - sdgOrder.indexOf(b))
+        const transformedLongFormat = transformDataLongFormat(
+          transformedWideFormat,
+        );
+
+        const yearOptions = getUniqValue(d, 'year')
+          .sort()
+          .map(year => ({
+            label: `${year}`,
+            value: `${year}`,
+          }));
+        const areaOptions = getUniqValue(d, 'area').map(area => ({
+          label: area,
+          value: area,
+        }));
+
+        const sdgOptions = getUniqValue(transformedLongFormat, 'sdg')
+          .filter(sdg => sdgList.includes(sdg))
+          .sort((a, b) => sdgList.indexOf(a) - sdgList.indexOf(b))
           .map((sdg: string) => ({
             label: sdg,
             value: sdg,
           }));
 
-        setRawData(raw);
-        setGraphData(dataWithLatestGroup);
-        setYearsOptions(yearsOptions);
+        setWideData(transformedWideFormat);
+        setLongData(transformedLongFormat);
+        setYearsOptions(yearOptions);
         setAreaOptions(areaOptions);
         setSDGOptions(sdgOptions);
       })
       .catch(error => console.error('Error loading SDG data:', error));
   }, []);
 
-  if (!mapData || !graphData || !rawData) return null;
+  if (!mapData || !longData || !wideData) return null;
   return (
     <div className='bg-primary-gray-200 p-6 py-20'>
       <VizCarousel
@@ -138,9 +135,9 @@ export function App() {
             ),
             viz: (
               <SlideOneContent
-                graphData={graphData}
-                rawData={rawData}
-                yearsOptions={yearsOptions}
+                longData={longData}
+                wideData={wideData}
+                yearOptions={yearOptions}
                 sdgOptions={sdgOptions}
               />
             ),
@@ -159,8 +156,8 @@ export function App() {
             ),
             viz: (
               <SlideTwoContent
-                graphData={graphData}
-                yearsOptions={yearsOptions}
+                longData={longData}
+                yearOptions={yearOptions}
                 areaOptions={areaOptions}
               />
             ),
@@ -182,8 +179,8 @@ export function App() {
             viz: (
               <SlideThreeContent
                 mapData={mapData}
-                graphData={graphData}
-                yearsOptions={yearsOptions}
+                longData={longData}
+                yearOptions={yearOptions}
                 areaOptions={areaOptions}
                 sdgOptions={sdgOptions}
               />
@@ -206,10 +203,10 @@ export function App() {
             viz: (
               <div className='bg-primary-white w-full p-6 flex flex-col'>
                 <SlideFourContent
-                  rawData={rawData}
+                  wideData={wideData}
                   mapData={mapData}
-                  graphData={graphData}
-                  yearsOptions={yearsOptions}
+                  longData={longData}
+                  yearOptions={yearOptions}
                   areaOptions={areaOptions}
                 />
               </div>

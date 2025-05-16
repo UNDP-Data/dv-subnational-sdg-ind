@@ -1,13 +1,16 @@
 import { GraphDataType, PivotedRowType } from '@/types';
+import { getIndexGroup } from '@/utils/getIndexGroup';
 
-export const pivotData = (graphData: GraphDataType[]): PivotedRowType[] => {
+export const pivotData = (longData: GraphDataType[]): PivotedRowType[] => {
   const resultMap: Record<string, PivotedRowType> = {};
 
-  graphData.forEach(row => {
+  longData.forEach(row => {
     const indicator = row.value;
 
     if (row.area && row.year && row.sdg && indicator != null) {
       const rowKey = `${row.area}_${row.sdg}`;
+      const groupKey = `group${row.year}`;
+
       if (!resultMap[rowKey]) {
         resultMap[rowKey] = {
           area: row.area,
@@ -15,7 +18,10 @@ export const pivotData = (graphData: GraphDataType[]): PivotedRowType[] => {
         };
       }
 
+      // Assign value and calculated group
       resultMap[rowKey][row.year] = indicator;
+      resultMap[rowKey][groupKey] =
+        typeof indicator === 'number' ? getIndexGroup(indicator) : 'NA';
     }
   });
 

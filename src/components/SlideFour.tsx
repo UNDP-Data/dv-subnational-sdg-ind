@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { DropdownSelect, P, SegmentedControl } from '@undp/design-system-react';
+import { DropdownSelect, P } from '@undp/design-system-react';
 import {
   fetchAndParseCSV,
   getUniqValue,
   SingleGraphDashboard,
 } from '@undp/data-viz';
-import { ChartBar, ChartSpline, ImageDownIcon, Table2 } from 'lucide-react';
 import { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 import IconGrid from './IconGrid';
+import ViewSelection from './ViewSelection';
 
 import {
   GraphDataType,
@@ -20,16 +20,19 @@ import {
 import { colorMap, TABLE_HEIGHT } from '@/constants';
 
 interface Props {
-  rawData: RawDataType[];
+  wideData: RawDataType[];
   mapData: FeatureCollection<Polygon | MultiPolygon>;
-  graphData: GraphDataType[];
-  yearsOptions: OptionsDataType[];
+  longData: GraphDataType[];
+  yearOptions: OptionsDataType[];
   areaOptions: OptionsDataType[];
 }
 
 export default function SlideFiveContent(props: Props) {
-  const { rawData, graphData, yearsOptions, mapData, areaOptions } = props;
+  const { wideData, longData, yearOptions, mapData, areaOptions } = props;
   const [metaData, setMetaData] = useState<MetaDataType[]>([]);
+  const [selectedView, setSelectedView] = useState<
+    'chart' | 'table' | 'map' | 'trends'
+  >('chart');
   const [indicatorOptions, setIndicatorOptions] = useState<GroupedOptionType[]>(
     [],
   );
@@ -37,17 +40,14 @@ export default function SlideFiveContent(props: Props) {
   const [selectedIndicator, setSelectedIndicator] =
     useState<OptionsDataType | null>(null);
   const [selectedYear, setSelectedYear] = useState(
-    yearsOptions[yearsOptions.length - 1],
+    yearOptions[yearOptions.length - 1],
   );
-  const [selectedView, setSelectedView] = useState<
-    'chart' | 'table' | 'map' | 'trends'
-  >('chart');
   const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
     sdgOptions[0],
   );
-  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>(
-    null,
-  );
+  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>([
+    { label: 'India', value: 'India' },
+  ]);
 
   useEffect(() => {
     fetchAndParseCSV('/data/meta-placeholder.csv')
@@ -99,7 +99,7 @@ export default function SlideFiveContent(props: Props) {
   const indicatorNames = activeIndicators.map(item => item.indicator);
 
   const sdgScoreMap = new Map();
-  graphData.forEach(d => {
+  longData.forEach(d => {
     if (
       d.sdg === selectedSDG?.value &&
       String(d.year) === selectedYear?.value
@@ -109,12 +109,12 @@ export default function SlideFiveContent(props: Props) {
   });
 
   const indiaValue = Number(
-    rawData.find(d => d.area === 'India' && d.year === selectedYear!.value)?.[
-      selectedIndicator!.value
+    wideData.find(d => d.area === 'India' && d.year === selectedYear!.value)?.[
+      selectedIndicator!.value as keyof RawDataType
     ],
   );
 
-  const filteredData = rawData
+  const filteredData = wideData
     .filter(row => String(row.year) === selectedYear?.value)
     .map(row => {
       const sdg = sdgScoreMap.get(row.area);
@@ -125,14 +125,16 @@ export default function SlideFiveContent(props: Props) {
       };
     });
 
-  console.log(indiaValue);
   return (
-    graphData && (
+    longData &&
+    metaData && (
       <div className='flex flex-col justify-between grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
-            Performance of States and UTs on {selectedIndicator?.value} (
-            {selectedYear?.value})
+            {selectedView !== 'table'
+              ? `Performance of States and UTs on ${selectedIndicator?.value}`
+              : `Performance of States and UTs on indicators behind ${selectedSDG?.value}`}{' '}
+            ({selectedYear?.value})
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
             {selectedView === 'table' ? (
@@ -148,38 +150,38 @@ export default function SlideFiveContent(props: Props) {
                 variant='light'
               />
             ) : null}
+            {selectedView === 'trends' ? (
+              <DropdownSelect
+                onChange={option =>
+                  setSelectedArea(option as OptionsDataType[])
+                }
+                options={areaOptions}
+                value={selectedArea}
+                isClearable={true}
+                isMulti={true}
+                defaultValue={selectedArea}
+                size='sm'
+                placeholder='Highlight area'
+                className='min-w-40'
+                variant='light'
+              />
+            ) : null}
             {selectedView !== 'table' ? (
-              <>
-                <DropdownSelect
-                  onChange={option =>
-                    setSelectedArea(option as OptionsDataType[])
-                  }
-                  options={areaOptions}
-                  value={selectedArea}
-                  isClearable={true}
-                  isMulti={true}
-                  defaultValue={selectedArea}
-                  size='sm'
-                  placeholder='Highlight area'
-                  className='min-w-40'
-                  variant='light'
-                />
-                <DropdownSelect
-                  onChange={option =>
-                    setSelectedIndicator(option as OptionsDataType)
-                  }
-                  options={indicatorOptions}
-                  value={selectedIndicator}
-                  size='sm'
-                  placeholder='Select indicator'
-                  className='min-w-40'
-                  variant='light'
-                />
-              </>
+              <DropdownSelect
+                onChange={option =>
+                  setSelectedIndicator(option as OptionsDataType)
+                }
+                options={indicatorOptions}
+                value={selectedIndicator}
+                size='sm'
+                placeholder='Select indicator'
+                className='min-w-40'
+                variant='light'
+              />
             ) : null}
             <DropdownSelect
               onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={yearsOptions}
+              options={yearOptions}
               size='sm'
               placeholder='Select year'
               isClearable={false}
@@ -187,68 +189,10 @@ export default function SlideFiveContent(props: Props) {
               className='min-w-40'
               variant='light'
             />
-            <SegmentedControl
-              defaultValue='map'
-              size='sm'
-              value={selectedView}
-              color='black'
-              onValueChange={value =>
-                setSelectedView(value as 'chart' | 'table' | 'map' | 'trends')
-              }
-              options={[
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ImageDownIcon size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Map
-                      </P>
-                    </div>
-                  ),
-                  value: 'map',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ChartBar size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Chart
-                      </P>
-                    </div>
-                  ),
-                  value: 'chart',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ChartSpline size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Trends
-                      </P>
-                    </div>
-                  ),
-                  value: 'trends',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <Table2 size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Table
-                      </P>
-                    </div>
-                  ),
-                  value: 'table',
-                },
-              ]}
+            <ViewSelection
+              selectedView={selectedView}
+              setSelectedView={setSelectedView}
+              slideIndex={4}
             />
             <IconGrid
               selectedView={selectedView}
@@ -269,7 +213,7 @@ export default function SlideFiveContent(props: Props) {
           {selectedView === 'map' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: rawData,
+                data: wideData,
                 fileType: 'csv',
               }}
               graphType='choroplethMap'
@@ -302,9 +246,6 @@ export default function SlideFiveContent(props: Props) {
                     minWidth: '150px',
                   },
                 },
-                highlightedIds: selectedArea
-                  ? selectedArea.map(area => area.value)
-                  : [],
                 tooltip:
                   '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{id}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{xColumns}}</div><div>{{x}}</div></div>',
               }}
@@ -313,7 +254,7 @@ export default function SlideFiveContent(props: Props) {
           {selectedView === 'chart' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: rawData,
+                data: wideData,
                 fileType: 'csv',
               }}
               graphType='barChart'
@@ -333,13 +274,13 @@ export default function SlideFiveContent(props: Props) {
               graphSettings={{
                 graphID: 'slide-3-chart',
                 colorLegendTitle: undefined,
+                orientation: 'horizontal',
+                showTicks: false,
+                leftMargin: 170,
+                truncateBy: 20,
                 showNAColor: false,
                 sortData: 'desc',
                 showLabels: true,
-                truncateBy: 3,
-                highlightedDataPoints: selectedArea
-                  ? selectedArea.map(area => area.value)
-                  : [],
                 tooltip:
                   '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{sizeColumns}}</div><div>{{size}}</div></div>',
                 styles: {
@@ -352,7 +293,7 @@ export default function SlideFiveContent(props: Props) {
                   ? [
                       {
                         value: indiaValue,
-                        text: 'India Average',
+                        text: `India Average ${indiaValue}`,
                         color: '#000000',
                       },
                     ]
@@ -363,7 +304,7 @@ export default function SlideFiveContent(props: Props) {
           {selectedView === 'trends' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: rawData,
+                data: wideData,
                 fileType: 'csv',
               }}
               graphType='multiLineAltChart'
@@ -383,7 +324,8 @@ export default function SlideFiveContent(props: Props) {
                 noOfXTicks: window.innerWidth < 768 ? 5 : 12,
                 showNAColor: false,
                 valueColor: '#000000',
-                showLabels: false,
+                rightMargin: 170,
+                showLabels: true,
                 strokeWidth: 1.5,
                 showDots: true,
                 tooltip:
@@ -405,7 +347,40 @@ export default function SlideFiveContent(props: Props) {
               className='overflow-y-auto undp-scrollbar w-full'
               style={{ height: `${TABLE_HEIGHT}px` }}
             >
-              <table className='w-full' style={{ borderCollapse: 'collapse' }}>
+              <SingleGraphDashboard
+                dataSettings={{
+                  data: wideData,
+                }}
+                graphType='dataTable'
+                debugMode
+                dataFilters={[
+                  {
+                    column: 'year',
+                    includeValues: [selectedYear.label],
+                  },
+                ]}
+                graphSettings={{
+                  height: TABLE_HEIGHT,
+                  columnData: [
+                    {
+                      columnTitle: 'States/UTs',
+                      columnId: 'area',
+                    },
+                    {
+                      columnTitle: selectedSDG.value,
+                      columnId: selectedSDG.value,
+                      chip: true,
+                      chipColumnId: `${selectedSDG.value} Group`,
+                      chipColors: colorMap,
+                    },
+                    ...indicatorNames.map(ind => ({
+                      columnTitle: ind,
+                      columnId: ind,
+                    })),
+                  ],
+                }}
+              />
+              {/* <table className='w-full' style={{ borderCollapse: 'collapse' }}>
                 <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
                   <tr>
                     <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
@@ -420,41 +395,63 @@ export default function SlideFiveContent(props: Props) {
                       </th>
                     ))}
                     <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
-                      SDG Index Score
+                      {selectedSDG ? selectedSDG.label : 'SDG'} Index Score
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.map((row, idx) => (
-                    <tr
-                      key={`${row.area}-${idx}`}
-                      className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
-                    >
-                      <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
-                        {row.area}
-                      </td>
+                  {filteredData.map((row, idx) => {
+                    const isIndia = row.area.toLowerCase() === 'india';
 
-                      {indicatorNames.map(indicator => (
-                        <td key={indicator} className='text-sm text-left p-4'>
-                          {row?.[indicator as keyof typeof row] ?? '-'}
-                        </td>
-                      ))}
-                      <td className='text-sm text-left p-4'>
-                        <span
-                          className='rounded-full px-4 py-1 text-white text-primary-white'
-                          style={{
-                            backgroundColor:
-                              colorMap[row.group as keyof typeof colorMap] ??
-                              '#fafafa',
-                          }}
+                    return (
+                      <tr
+                        key={`${row.area}-${idx}`}
+                        className={`cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 ${
+                          isIndia ? 'bg-primary-gray-100' : 'bg-transparent'
+                        }`}
+                      >
+                        <td
+                          className={`text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4 ${
+                            isIndia ? 'font-bold' : ''
+                          }`}
                         >
-                          {row.sdgValue ?? '-'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                          {row.area}
+                        </td>
+
+                        {indicatorNames.map(indicator => (
+                          <td key={indicator} className='text-sm text-left p-4'>
+                            {row?.[indicator as keyof typeof row] ?? (
+                              <span className='text-primary-gray-500 italic'>
+                                No data
+                              </span>
+                            )}
+                          </td>
+                        ))}
+
+                        <td className='text-sm text-left p-4'>
+                          {row.sdgValue != null ? (
+                            <span
+                              className='rounded-full px-4 py-1 text-white text-primary-white'
+                              style={{
+                                backgroundColor:
+                                  colorMap[
+                                    row.group as keyof typeof colorMap
+                                  ] ?? '#fafafa',
+                              }}
+                            >
+                              {row.sdgValue}
+                            </span>
+                          ) : (
+                            <span className='text-primary-gray-500 italic'>
+                              No data
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
-              </table>
+              </table> */}
             </div>
           )}
         </div>

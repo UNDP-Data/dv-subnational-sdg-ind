@@ -1,45 +1,54 @@
 import { useState } from 'react';
-import { SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect, P, SegmentedControl } from '@undp/design-system-react';
-import { ChartBar, Table2 } from 'lucide-react';
+import { getUniqValue, SingleGraphDashboard } from '@undp/data-viz';
+import { DropdownSelect, P } from '@undp/design-system-react';
 
 import IconGrid from './IconGrid';
+import ViewSelection from './ViewSelection';
 
 import { GraphDataType, OptionsDataType } from '@/types';
-import { colorMap, SDGS, TABLE_HEIGHT } from '@/constants';
+import { colorMap, sdgList, SDGS, TABLE_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
-  graphData: GraphDataType[];
-  yearsOptions: OptionsDataType[];
+  longData: GraphDataType[];
+  yearOptions: OptionsDataType[];
   areaOptions: OptionsDataType[];
 }
 
 export default function SlideTwoContent(props: Props) {
-  const { graphData, yearsOptions, areaOptions } = props;
+  const { longData, yearOptions, areaOptions } = props;
+  const [selectedView, setSelectedView] = useState<
+    'chart' | 'table' | 'map' | 'trends'
+  >('chart');
   const [selectedYear, setSelectedYear] = useState(
-    yearsOptions[yearsOptions.length - 1],
+    yearOptions[yearOptions.length - 1],
   );
   const [selectedArea, setSelectedArea] = useState(areaOptions[0]);
-  const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
   const sdgOrder = SDGS.filter(sdg => sdg.value !== 'Comp. Score').map(
     sdg => sdg.value,
   );
 
-  const pivotedDataByYears = pivotData(graphData);
+  const pivotedDataByYears = pivotData(longData);
 
-  const filteredData = pivotedDataByYears.filter(
-    row => String(row.area) === selectedArea?.value,
+  const filteredBySelectedYear = longData.filter(
+    row => String(row.year) === String(selectedYear?.value),
   );
+  const areaOptionsForSeletedYear = getUniqValue(
+    filteredBySelectedYear,
+    'area',
+  ).map(area => ({
+    label: area,
+    value: area,
+  }));
 
-  const compScoreValue = Number(
-    graphData.find(
-      d => d['sdg'] === 'Comp. Score' && d['year'] === selectedYear.label,
-    )?.['value'],
-  );
+  // const compScoreValue = Number(
+  //   longData.find(
+  //     d => d['sdg'] === 'Comp. Score' && d['year'] === selectedYear.label,
+  //   )?.['value'],
+  // );
 
   return (
-    graphData && (
+    longData && (
       <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
@@ -48,7 +57,7 @@ export default function SlideTwoContent(props: Props) {
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
               onChange={option => setSelectedArea(option as OptionsDataType)}
-              options={areaOptions}
+              options={areaOptionsForSeletedYear}
               defaultValue={selectedArea}
               size='sm'
               placeholder='Select area'
@@ -57,7 +66,7 @@ export default function SlideTwoContent(props: Props) {
             />
             <DropdownSelect
               onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={yearsOptions}
+              options={yearOptions}
               isDisabled={selectedView === 'table'}
               size='sm'
               placeholder='Select year'
@@ -66,46 +75,14 @@ export default function SlideTwoContent(props: Props) {
               className='min-w-40'
               variant='light'
             />
-            <SegmentedControl
-              defaultValue='chart'
-              size='sm'
-              value={selectedView}
-              color='black'
-              onValueChange={value =>
-                setSelectedView(value as 'chart' | 'table')
-              }
-              options={[
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ChartBar size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Chart
-                      </P>
-                    </div>
-                  ),
-                  value: 'chart',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <Table2 size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Table
-                      </P>
-                    </div>
-                  ),
-                  value: 'table',
-                },
-              ]}
+            <ViewSelection
+              selectedView={selectedView}
+              setSelectedView={setSelectedView}
+              slideIndex={2}
             />
             <IconGrid
               selectedView={selectedView}
-              data={graphData}
+              data={longData}
               year={selectedYear}
               area={selectedArea}
               keys={['area', 'sdg', 'value', 'group', 'year']}
@@ -117,7 +94,7 @@ export default function SlideTwoContent(props: Props) {
           {selectedView === 'chart' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: graphData,
+                data: longData,
                 fileType: 'csv',
               }}
               graphType='barChart'
@@ -128,7 +105,7 @@ export default function SlideTwoContent(props: Props) {
                 },
                 {
                   column: 'sdg',
-                  excludeValues: ['Comp. Score'],
+                  includeValues: sdgList,
                 },
                 {
                   column: 'area',
@@ -141,13 +118,8 @@ export default function SlideTwoContent(props: Props) {
                 { columnId: 'group', chartConfigId: 'color' },
               ]}
               graphSettings={{
-                colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                colorDomain: [
-                  'Aspirant (0–49)',
-                  'Performer (50–64)',
-                  'Front Runner (65–99)',
-                  'Achiever (100)',
-                ],
+                colors: colorMap.map(item => item.color),
+                colorDomain: colorMap.map(item => item.value),
                 graphID: `slide-2-chart`,
                 labelOrder: sdgOrder,
                 showNAColor: false,
@@ -156,13 +128,13 @@ export default function SlideTwoContent(props: Props) {
                 filterNA: false,
                 maxValue: 100,
                 bottomMargin: 40,
-                refValues: [
-                  {
-                    value: compScoreValue,
-                    text: `Composite Score (${compScoreValue})`,
-                    color: '#000000',
-                  },
-                ],
+                // refValues: [
+                //   {
+                //     value: compScoreValue ? compScoreValue : null,
+                //     text: `Composite Score (${compScoreValue})`,
+                //     color: '#000000',
+                //   },
+                // ],
                 tooltip:
                   '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{data.area}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
                 styles: {
@@ -223,90 +195,66 @@ export default function SlideTwoContent(props: Props) {
                 </div>
               </div>
               <div className='grow flex mt-4 w-full'>
-                <div
-                  className='overflow-y-auto undp-scrollbar w-full'
-                  style={{ height: `${TABLE_HEIGHT}px` }}
-                >
-                  <table
-                    className='w-full'
-                    style={{ borderCollapse: 'collapse' }}
-                  >
-                    <thead className='text-left bg-primary-gray-300 dark:bg-primary-gray-550'>
-                      <tr>
-                        <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
-                          SDGs
-                        </th>
-                        {yearsOptions.map(option => (
-                          <th
-                            key={option.value}
-                            className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'
-                          >
-                            {option.label}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredData.map((row, idx) => (
-                        <tr
-                          key={`${row.sdg}-${idx}`}
-                          className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
-                        >
-                          <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
-                            {row.sdg}
-                          </td>
-
-                          {yearsOptions.map(option => {
-                            const value =
-                              row[option.value as keyof GraphDataType];
-                            let category = '';
-                            if (value === 100) {
-                              category = 'Achiever (100)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 65
-                            ) {
-                              category = 'Front Runner (65–99)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 50
-                            ) {
-                              category = 'Performer (50–64)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 0
-                            ) {
-                              category = 'Aspirant (0–49)';
-                            }
-
-                            return (
-                              <td
-                                key={option.value}
-                                className='text-sm text-left p-4'
-                              >
-                                {value != null ? (
-                                  <span
-                                    className='rounded-full px-4 py-1 text-white text-sm text-primary-white'
-                                    style={{
-                                      backgroundColor:
-                                        colorMap[
-                                          category as keyof typeof colorMap
-                                        ] ?? '#ccc',
-                                    }}
-                                  >
-                                    {value}
-                                  </span>
-                                ) : (
-                                  ''
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <SingleGraphDashboard
+                  dataSettings={{
+                    data: pivotedDataByYears,
+                  }}
+                  graphType='dataTable'
+                  dataFilters={[
+                    {
+                      column: 'area',
+                      includeValues: [selectedArea.label],
+                    },
+                    {
+                      column: '2023–24',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: '2020–21',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: '2018',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: '2019',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: 'group2023–24',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: 'group2020–21',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: 'group2018',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                    {
+                      column: 'group2019',
+                      excludeValues: [NaN, null, undefined],
+                    },
+                  ]}
+                  graphSettings={{
+                    height: TABLE_HEIGHT,
+                    columnData: [
+                      {
+                        columnTitle: 'SDGs',
+                        columnId: 'sdg',
+                      },
+                      {
+                        columnTitle: '2023–24',
+                        columnId: '2023–24',
+                        chip: true,
+                        chipColumnId: 'group2023–24',
+                        chipColors: colorMap,
+                      },
+                    ],
+                  }}
+                />
               </div>
             </div>
           )}

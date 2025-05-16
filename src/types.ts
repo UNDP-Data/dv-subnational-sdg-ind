@@ -4,7 +4,7 @@ export interface GraphDataType {
   area: string;
   value: number | undefined;
   sdg: string;
-  group: string;
+  group: string | undefined;
 }
 
 export interface MetaDataType {
@@ -26,13 +26,14 @@ export interface GroupedOptionType {
 export interface PivotedRowType {
   area: string;
   sdg: string;
-  [year: string]: string | number;
+  [year: string]: string | number | undefined;
 }
 
 export interface RawDataType {
   area: string;
   year: string;
   yearFormatted: string;
+  rawStyle: React.CSSProperties;
   'SDG 1': number;
   'SDG 2': number;
   'SDG 3': number;
@@ -51,5 +52,4 @@ export interface RawDataType {
   'Indicator 1': number;
   'Indicator 2': number;
   'Indicator 3': number;
-  [key: string]: string | number | null;
 }

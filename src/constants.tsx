@@ -1,4 +1,4 @@
-export const TABLE_HEIGHT = 720;
+export const TABLE_HEIGHT = 800;
 
 export const SDGS = [
   { label: 'SDG 1 – No Poverty', value: 'SDG 1' },
@@ -28,9 +28,46 @@ export const YEARS = [
   { label: '2018', value: '2018' },
 ];
 
-export const colorMap = {
-  'Aspirant (0–49)': '#CB364B',
-  'Performer (50–64)': '#F6C646',
-  'Front Runner (65–99)': '#479E85',
-  'Achiever (100)': '#4EABE9',
-};
+export const colorMap = [
+  {
+    value: 'Aspirant (0–49)',
+    color: '#CB364B',
+  },
+  {
+    value: 'Performer (50–64)',
+    color: '#F6C646',
+  },
+  {
+    value: 'Front Runner (65–99)',
+    color: '#479E85',
+  },
+  {
+    value: 'Achiever (100)',
+    color: '#4EABE9',
+  },
+  {
+    value: 'NA',
+    color: '#D4D6D8',
+  },
+];
+
+export const indicatorList = ['Indicator 1', 'Indicator 2', 'Indicator 3'];
+export const sdgList = [
+  'SDG 1',
+  'SDG 2',
+  'SDG 3',
+  'SDG 4',
+  'SDG 5',
+  'SDG 6',
+  'SDG 7',
+  'SDG 8',
+  'SDG 9',
+  'SDG 10',
+  'SDG 11',
+  'SDG 12',
+  'SDG 13',
+  'SDG 14',
+  'SDG 15',
+  'SDG 16',
+  'Comp. Score',
+];

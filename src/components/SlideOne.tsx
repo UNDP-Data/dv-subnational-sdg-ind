@@ -1,30 +1,32 @@
 import { useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect, P, SegmentedControl } from '@undp/design-system-react';
-import { ChartBar, Table2 } from 'lucide-react';
+import { DropdownSelect, P } from '@undp/design-system-react';
 
 import IconGrid from './IconGrid';
+import ViewSelection from './ViewSelection';
 
 import { GraphDataType, OptionsDataType, RawDataType } from '@/types';
-import { TABLE_HEIGHT } from '@/constants';
+import { colorMap, sdgList, TABLE_HEIGHT } from '@/constants';
 
 interface Props {
-  graphData: GraphDataType[];
-  rawData: RawDataType[];
-  yearsOptions: OptionsDataType[];
+  longData: GraphDataType[];
+  wideData: RawDataType[];
+  yearOptions: OptionsDataType[];
   sdgOptions: OptionsDataType[];
 }
 
 export default function SlideOneContent(props: Props) {
-  const { graphData, rawData, yearsOptions, sdgOptions } = props;
+  const { longData, wideData, yearOptions, sdgOptions } = props;
   const [selectedYear, setSelectedYear] = useState(
-    yearsOptions[yearsOptions.length - 1],
+    yearOptions[yearOptions.length - 1],
   );
-  const [selectedView, setSelectedView] = useState<'chart' | 'table'>('chart');
+  const [selectedView, setSelectedView] = useState<
+    'chart' | 'table' | 'map' | 'trends'
+  >('chart');
 
   return (
-    graphData &&
-    rawData && (
+    longData &&
+    wideData && (
       <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
@@ -33,7 +35,7 @@ export default function SlideOneContent(props: Props) {
           <div className='flex gap-4 flex-wrap items-center'>
             <DropdownSelect
               onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={[...yearsOptions].reverse()}
+              options={[...yearOptions].reverse()}
               size='sm'
               placeholder='Select year'
               isClearable={false}
@@ -41,46 +43,14 @@ export default function SlideOneContent(props: Props) {
               className='min-w-40'
               variant='light'
             />
-            <SegmentedControl
-              defaultValue='chart'
-              size='sm'
-              value={selectedView}
-              color='black'
-              onValueChange={value =>
-                setSelectedView(value as 'chart' | 'table')
-              }
-              options={[
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ChartBar size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Chart
-                      </P>
-                    </div>
-                  ),
-                  value: 'chart',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <Table2 size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Table
-                      </P>
-                    </div>
-                  ),
-                  value: 'table',
-                },
-              ]}
+            <ViewSelection
+              selectedView={selectedView}
+              setSelectedView={setSelectedView}
+              slideIndex={1}
             />
             <IconGrid
               selectedView={selectedView}
-              data={rawData}
+              data={wideData}
               year={selectedYear}
               keys={['area', 'year', ...sdgOptions.map(opt => opt.value)]}
               slideIndex={1}
@@ -91,8 +61,7 @@ export default function SlideOneContent(props: Props) {
           {selectedView === 'chart' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: graphData,
-                fileType: 'csv',
+                data: longData,
               }}
               graphType='heatMap'
               dataFilters={[
@@ -101,33 +70,27 @@ export default function SlideOneContent(props: Props) {
                   includeValues: [`${selectedYear.value}`],
                 },
                 {
-                  column: 'value',
-                  excludeValues: [null, NaN],
+                  column: 'sdg',
+                  includeValues: sdgList,
                 },
               ]}
               graphDataConfiguration={[
                 { columnId: 'area', chartConfigId: 'row' },
-                { columnId: 'value', chartConfigId: 'value' },
+                { columnId: 'group', chartConfigId: 'value' },
                 { columnId: 'sdg', chartConfigId: 'column' },
               ]}
               graphSettings={{
                 graphID: `slide-1-chart`,
                 footNote:
-                  'Note: From 2020, Dādra and Nagar Haveli and Damān and Diu were merged into one Union Territory.',
-                colorDomain: [
-                  'Aspirant (0–49)',
-                  'Performer (50–64)',
-                  'Front Runner (65–99)',
-                  'Achiever (100)',
-                ],
-                colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                showNAColor: true,
+                  'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                colors: colorMap.map(item => item.color),
+                colorDomain: colorMap.map(item => item.value),
+                showNAColor: false,
                 scaleType: 'categorical',
-                showValues: false,
                 truncateBy: 25,
                 leftMargin: 170,
                 tooltip:
-                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{row}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{column}}</div><div>{{value}}</div></div>',
+                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{row}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{column}}</div><div>{{data.value}}</div></div>',
                 styles: {
                   tooltip: {
                     padding: '0',
@@ -138,11 +101,10 @@ export default function SlideOneContent(props: Props) {
             />
           )}
           {selectedView === 'table' && (
-            <>
+            <div className='w-full overflow-y-hidden'>
               <SingleGraphDashboard
                 dataSettings={{
-                  data: rawData,
-                  fileType: 'csv',
+                  data: wideData,
                 }}
                 graphType='dataTable'
                 dataFilters={[
@@ -153,23 +115,23 @@ export default function SlideOneContent(props: Props) {
                 ]}
                 graphSettings={{
                   height: TABLE_HEIGHT,
+                  minWidth: '2400px',
                   columnData: [
                     {
-                      columnTitle: 'Area',
+                      columnTitle: 'States/UTs',
                       columnId: 'area',
-                      columnWidth: 5,
+                      columnWidth: 3,
                     },
-                    ...sdgOptions.map(option => ({
-                      columnTitle: option.label.replace('SDG ', ''),
-                      columnId: option.value,
+                    ...sdgList.map(i => ({
+                      columnTitle: i,
+                      columnId: i,
                       sortable: true,
-                      columnWidth:
-                        option.label === 'Comp. Score' ? 2 : undefined,
+                      columnWidth: i === 'Comp. Score' ? 1.5 : undefined,
                     })),
                   ],
                 }}
               />
-            </>
+            </div>
           )}
         </div>
       </div>

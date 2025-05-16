@@ -1,49 +1,63 @@
 import { useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect, P, SegmentedControl } from '@undp/design-system-react';
-import { ChartBar, ChartSpline, ImageDownIcon, Table2 } from 'lucide-react';
+import { DropdownSelect, P } from '@undp/design-system-react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
 import IconGrid from './IconGrid';
+import ViewSelection from './ViewSelection';
 
 import { GraphDataType, OptionsDataType } from '@/types';
 import { colorMap, TABLE_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
+import { getIndexGroup } from '@/utils/getIndexGroup';
 
 interface Props {
-  graphData: GraphDataType[];
+  longData: GraphDataType[];
   mapData: FeatureCollection<Polygon | MultiPolygon>;
-  yearsOptions: OptionsDataType[];
+  yearOptions: OptionsDataType[];
   areaOptions: OptionsDataType[];
   sdgOptions: OptionsDataType[];
 }
 
 export default function SlideThreeContent(props: Props) {
-  const { graphData, mapData, yearsOptions, areaOptions, sdgOptions } = props;
-  const [selectedYear, setSelectedYear] = useState(
-    yearsOptions[yearsOptions.length - 1],
-  );
-  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>(
-    null,
-  );
-  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
-    sdgOptions[0],
-  );
+  const { longData, mapData, yearOptions, areaOptions, sdgOptions } = props;
   const [selectedView, setSelectedView] = useState<
     'chart' | 'table' | 'map' | 'trends'
   >('map');
-  const indiaValue = graphData.find(
+  const [selectedYear, setSelectedYear] = useState(
+    yearOptions[yearOptions.length - 1],
+  );
+  const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>([
+    { label: 'India', value: 'India' },
+  ]);
+  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
+    sdgOptions[0],
+  );
+  const indiaValue = longData.find(
     d => d.area === 'India' && d.year === selectedYear.value,
   )?.value;
 
-  const pivotedDataByYears = pivotData(graphData);
+  const latestYear = yearOptions[yearOptions.length - 1]?.value;
 
-  const filteredData = pivotedDataByYears.filter(
-    row => row.sdg === selectedSDG?.label,
-  );
+  const latestGroupMap = new Map<string, string>();
+  longData.forEach(({ area, sdg, year, value }) => {
+    if (year === latestYear && value !== undefined) {
+      latestGroupMap.set(`${area}|||${sdg}`, getIndexGroup(value));
+    }
+  });
+
+  const dataWithLatestGroup = longData.map(d => {
+    const key = `${d.area}|||${d.sdg}`;
+    return {
+      ...d,
+      groupLatest: latestGroupMap.get(key),
+    };
+  });
+
+  const pivotedDataByYears = pivotData(longData);
 
   return (
-    graphData && (
+    longData && (
       <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
         <div className='flex justify-between items-center gap-4 flex-wrap'>
           <P size='lg' marginBottom='none'>
@@ -54,19 +68,22 @@ export default function SlideThreeContent(props: Props) {
             ({selectedYear?.value})
           </P>
           <div className='flex gap-4 flex-wrap items-center'>
-            <DropdownSelect
-              onChange={option => setSelectedArea(option as OptionsDataType[])}
-              options={areaOptions}
-              value={selectedArea}
-              isClearable={true}
-              isMulti={true}
-              isDisabled={selectedView === 'table'}
-              defaultValue={selectedArea}
-              size='sm'
-              placeholder='Highlight area'
-              className='min-w-40'
-              variant='light'
-            />
+            {selectedView === 'trends' ? (
+              <DropdownSelect
+                onChange={option =>
+                  setSelectedArea(option as OptionsDataType[])
+                }
+                options={areaOptions}
+                value={selectedArea}
+                isClearable={true}
+                isMulti={true}
+                defaultValue={selectedArea}
+                size='sm'
+                placeholder='Highlight area'
+                className='min-w-40'
+                variant='light'
+              />
+            ) : null}
             <DropdownSelect
               onChange={option => setSelectedSDG(option as OptionsDataType)}
               options={sdgOptions}
@@ -78,7 +95,7 @@ export default function SlideThreeContent(props: Props) {
             />
             <DropdownSelect
               onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={yearsOptions}
+              options={yearOptions}
               isDisabled={selectedView === 'table'}
               size='sm'
               placeholder='Select year'
@@ -87,68 +104,10 @@ export default function SlideThreeContent(props: Props) {
               className='min-w-40'
               variant='light'
             />
-            <SegmentedControl
-              defaultValue='map'
-              size='sm'
-              value={selectedView}
-              color='black'
-              onValueChange={value =>
-                setSelectedView(value as 'chart' | 'table' | 'map' | 'trends')
-              }
-              options={[
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ImageDownIcon size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Map
-                      </P>
-                    </div>
-                  ),
-                  value: 'map',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ChartBar size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Chart
-                      </P>
-                    </div>
-                  ),
-                  value: 'chart',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <ChartSpline size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Trends
-                      </P>
-                    </div>
-                  ),
-                  value: 'trends',
-                },
-                {
-                  label: (
-                    <div className='flex gap-2 h-fit items-center'>
-                      <div className='h-fit'>
-                        <Table2 size={16} strokeWidth={1.5} />
-                      </div>
-                      <P marginBottom='none' size='sm'>
-                        Table
-                      </P>
-                    </div>
-                  ),
-                  value: 'table',
-                },
-              ]}
+            <ViewSelection
+              selectedView={selectedView}
+              setSelectedView={setSelectedView}
+              slideIndex={3}
             />
             <IconGrid
               selectedView={selectedView}
@@ -210,8 +169,7 @@ export default function SlideThreeContent(props: Props) {
               </div>
               <SingleGraphDashboard
                 dataSettings={{
-                  data: graphData,
-                  fileType: 'csv',
+                  data: longData,
                 }}
                 graphType='choroplethMap'
                 dataFilters={[
@@ -249,9 +207,6 @@ export default function SlideThreeContent(props: Props) {
                     'Front Runner (65–99)',
                     'Achiever (100)',
                   ],
-                  highlightedIds: selectedArea
-                    ? selectedArea.map(area => area.value)
-                    : [],
                   tooltip:
                     '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{id}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{data.value}}</div></div>',
                   styles: {
@@ -267,8 +222,7 @@ export default function SlideThreeContent(props: Props) {
           {selectedView === 'chart' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: graphData,
-                fileType: 'csv',
+                data: longData,
               }}
               graphType='barChart'
               dataFilters={[
@@ -292,21 +246,17 @@ export default function SlideThreeContent(props: Props) {
               ]}
               graphSettings={{
                 graphID: 'slide-3-chart',
-                colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-                highlightedDataPoints: selectedArea
-                  ? selectedArea.map(area => area.value)
-                  : [],
+                orientation: 'horizontal',
+                colors: colorMap.map(item => item.color),
+                colorDomain: colorMap.map(item => item.value),
                 colorLegendTitle: undefined,
-                colorDomain: [
-                  'Aspirant (0–49)',
-                  'Performer (50–64)',
-                  'Front Runner (65–99)',
-                  'Achiever (100)',
-                ],
+                leftMargin: 170,
+                showTicks: false,
+
                 showNAColor: false,
                 sortData: 'desc',
                 showLabels: true,
-                truncateBy: 3,
+                truncateBy: 20,
                 refValues: indiaValue
                   ? [
                       {
@@ -333,8 +283,7 @@ export default function SlideThreeContent(props: Props) {
           {selectedView === 'trends' && (
             <SingleGraphDashboard
               dataSettings={{
-                data: graphData,
-                fileType: 'csv',
+                data: dataWithLatestGroup,
               }}
               graphType='multiLineAltChart'
               dataFilters={[
@@ -365,11 +314,9 @@ export default function SlideThreeContent(props: Props) {
                 noOfXTicks: window.innerWidth < 768 ? 5 : 12,
                 showNAColor: false,
                 valueColor: '#000000',
-                showLabels: false,
                 strokeWidth: 1.5,
+                rightMargin: 150,
                 showDots: true,
-                tooltip:
-                  '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{y}}</div></div>',
                 styles: {
                   tooltip: {
                     padding: '0',
@@ -444,7 +391,7 @@ export default function SlideThreeContent(props: Props) {
                   className='overflow-y-auto undp-scrollbar w-full'
                   style={{ height: `${TABLE_HEIGHT}px` }}
                 >
-                  <table
+                  {/* <table
                     className='w-full'
                     style={{ borderCollapse: 'collapse' }}
                   >
@@ -453,7 +400,7 @@ export default function SlideThreeContent(props: Props) {
                         <th className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'>
                           States/UTs
                         </th>
-                        {yearsOptions.map(option => (
+                        {yearOptions.map(option => (
                           <th
                             key={option.value}
                             className='text-primary-gray-700 dark:text-primary-gray-100 text-sm p-4'
@@ -464,65 +411,77 @@ export default function SlideThreeContent(props: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((row, idx) => (
-                        <tr
-                          key={`${row.area}-${idx}`}
-                          className='cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 bg-transparent'
-                        >
-                          <td className='text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4'>
-                            {row.area}
-                          </td>
+                      {filteredData.map((row, idx) => {
+                        const isIndia = row.area.toLowerCase() === 'india';
 
-                          {yearsOptions.map(option => {
-                            const value =
-                              row[option.value as keyof GraphDataType];
-                            let category = '';
-                            if (value === 100) {
-                              category = 'Achiever (100)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 65
-                            ) {
-                              category = 'Front Runner (65–99)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 50
-                            ) {
-                              category = 'Performer (50–64)';
-                            } else if (
-                              typeof value === 'number' &&
-                              value >= 0
-                            ) {
-                              category = 'Aspirant (0–49)';
-                            }
+                        return (
+                          <tr
+                            key={`${row.area}-${idx}`}
+                            className={`cursor-auto border-b border-b-primary-gray-400 dark:border-b-primary-gray-500 ${
+                              isIndia ? 'bg-primary-gray-100' : 'bg-transparent'
+                            }`}
+                          >
+                            <td
+                              className={`text-sm text-left text-primary-gray-700 dark:text-primary-gray-100 p-4 ${
+                                isIndia ? 'font-bold' : ''
+                              }`}
+                            >
+                              {row.area}
+                            </td>
 
-                            return (
-                              <td
-                                key={option.value}
-                                className='text-sm text-left p-4'
-                              >
-                                {value != null ? (
-                                  <span
-                                    className='rounded-full px-4 py-1 text-white text-sm text-primary-white'
-                                    style={{
-                                      backgroundColor:
-                                        colorMap[
-                                          category as keyof typeof colorMap
-                                        ] ?? '#ccc',
-                                    }}
-                                  >
-                                    {value}
-                                  </span>
-                                ) : (
-                                  ''
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))}
+                            {yearOptions.map(option => {
+                              const value =
+                                row[option.value as keyof GraphDataType];
+                              let category = '';
+                              if (value === 100) {
+                                category = 'Achiever (100)';
+                              } else if (
+                                typeof value === 'number' &&
+                                value >= 65
+                              ) {
+                                category = 'Front Runner (65–99)';
+                              } else if (
+                                typeof value === 'number' &&
+                                value >= 50
+                              ) {
+                                category = 'Performer (50–64)';
+                              } else if (
+                                typeof value === 'number' &&
+                                value >= 0
+                              ) {
+                                category = 'Aspirant (0–49)';
+                              }
+
+                              return (
+                                <td
+                                  key={option.value}
+                                  className='text-sm text-left p-4'
+                                >
+                                  {value != null ? (
+                                    <span
+                                      className='rounded-full px-4 py-1 text-white text-sm text-primary-white'
+                                      style={{
+                                        backgroundColor:
+                                          colorMap[
+                                            category as keyof typeof colorMap
+                                          ] ?? '#ccc',
+                                      }}
+                                    >
+                                      {value}
+                                    </span>
+                                  ) : (
+                                    <span className='text-primary-gray-500'>
+                                      No data
+                                    </span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
                     </tbody>
-                  </table>
+                  </table> */}
                 </div>
               </div>
             </div>
