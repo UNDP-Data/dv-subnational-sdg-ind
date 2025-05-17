@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
 import { DropdownSelect, P } from '@undp/design-system-react';
 
-import IconGrid from './IconGrid';
-import ViewSelection from './ViewSelection';
+import IconGrid from '../IconGrid';
+import ViewSelection from '../ViewSelection';
 
 import { GraphDataType, OptionsDataType, RawDataType } from '@/types';
 import { colorMap, sdgList, TABLE_HEIGHT } from '@/constants';

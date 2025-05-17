@@ -3,8 +3,8 @@ import { SingleGraphDashboard } from '@undp/data-viz';
 import { DropdownSelect, P } from '@undp/design-system-react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
-import IconGrid from './IconGrid';
-import ViewSelection from './ViewSelection';
+import IconGrid from '../IconGrid';
+import ViewSelection from '../ViewSelection';
 
 import { GraphDataType, OptionsDataType } from '@/types';
 import { colorMap, TABLE_HEIGHT } from '@/constants';

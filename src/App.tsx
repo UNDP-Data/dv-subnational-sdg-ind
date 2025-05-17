@@ -10,10 +10,10 @@ import { useEffect, useState } from 'react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
 import { GraphDataType, OptionsDataType, RawDataType } from './types';
-import SlideOneContent from './components/SlideOne';
-import SlideTwoContent from './components/SlideTwo';
-import SlideThreeContent from './components/SlideThree';
-import SlideFourContent from './components/SlideFour';
+import SlideOneContent from './components/Slides/01';
+import SlideTwoContent from './components/Slides/02';
+import SlideThreeContent from './components/Slides/03';
+import SlideFourContent from './components/Slides/04';
 import { VizCarousel } from './vizCarousel';
 import { sdgList, SDGS } from './constants';
 import { getIndexGroup } from './utils/getIndexGroup';

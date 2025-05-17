@@ -12,7 +12,7 @@
     "lint": "npx eslint --fix && npx prettier . --write"
   },
   "dependencies": {
-    "@undp/data-viz": "^0.0.79",
+    "@undp/data-viz": "^0.0.81",
     "@undp/design-system-react": "^0.0.68",
     "lucide-react": "^0.507.0",
     "react": "^19.1.0",
