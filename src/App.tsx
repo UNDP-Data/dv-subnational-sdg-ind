@@ -1,6 +1,6 @@
 import '@/styles/fonts.css';
 import '@undp/design-system-react/dist/style.css';
-import { H3, P } from '@undp/design-system-react';
+import { H3, P, VizCarousel } from '@undp/design-system-react';
 import {
   fetchAndParseCSV,
   fetchAndParseJSON,
@@ -14,7 +14,6 @@ import SlideOneContent from './components/Slides/01';
 import SlideTwoContent from './components/Slides/02';
 import SlideThreeContent from './components/Slides/03';
 import SlideFourContent from './components/Slides/04';
-import { VizCarousel } from './vizCarousel';
 import { sdgList, SDGS } from './constants';
 import { getIndexGroup } from './utils/getIndexGroup';
 
