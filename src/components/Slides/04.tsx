@@ -16,8 +16,9 @@ import {
   OptionsDataType,
   RawDataType,
   GroupedOptionType,
+  ChartTypes,
 } from '@/types';
-import { colorMap, TABLE_HEIGHT } from '@/constants';
+import { COLOR_MAP, TABLE_HEIGHT } from '@/constants';
 
 interface Props {
   wideData: RawDataType[];
@@ -30,9 +31,7 @@ interface Props {
 export default function SlideFiveContent(props: Props) {
   const { wideData, longData, yearOptions, mapData, areaOptions } = props;
   const [metaData, setMetaData] = useState<MetaDataType[]>([]);
-  const [selectedView, setSelectedView] = useState<
-    'chart' | 'table' | 'map' | 'trends'
-  >('chart');
+  const [selectedView, setSelectedView] = useState<ChartTypes>('chart');
   const [indicatorOptions, setIndicatorOptions] = useState<GroupedOptionType[]>(
     [],
   );
@@ -357,7 +356,7 @@ export default function SlideFiveContent(props: Props) {
                     columnId: selectedSDG.value,
                     chip: true,
                     chipColumnId: `${selectedSDG.value} Group`,
-                    chipColors: colorMap,
+                    chipColors: COLOR_MAP,
                   },
                   ...indicatorNames.map(ind => ({
                     columnTitle: ind,

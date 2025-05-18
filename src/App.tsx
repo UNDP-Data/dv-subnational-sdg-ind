@@ -1,7 +1,8 @@
 import '@/styles/fonts.css';
 import '@undp/design-system-react/dist/style.css';
-import { H3, P, VizCarousel } from '@undp/design-system-react';
+import { H3, P, Spinner, VizCarousel } from '@undp/design-system-react';
 import {
+  checkIfNullOrUndefined,
   fetchAndParseCSV,
   fetchAndParseJSON,
   getUniqValue,
@@ -14,46 +15,8 @@ import SlideOneContent from './components/Slides/01';
 import SlideTwoContent from './components/Slides/02';
 import SlideThreeContent from './components/Slides/03';
 import SlideFourContent from './components/Slides/04';
-import { sdgList, SDGS } from './constants';
+import { SDG_OPTIONS } from './constants';
 import { getIndexGroup } from './utils/getIndexGroup';
-
-function transformDataWideFormat(data: RawDataType[]) {
-  return data.map(row => {
-    const sdgGroups: Record<string, string> = {};
-
-    SDGS.filter(sdg => sdg.value.startsWith('SDG')).forEach(sdg => {
-      const key = sdg.value;
-      const groupKey = `${key} Group`;
-      const value = row[key as keyof RawDataType];
-
-      sdgGroups[groupKey] =
-        value != null && typeof value === 'number'
-          ? getIndexGroup(value)
-          : 'NA';
-    });
-
-    return {
-      ...row,
-      rowStyle:
-        row.area === 'India' ? { backgroundColor: '#F7F7F7' } : undefined,
-      year: `${row.year}`,
-      ...sdgGroups,
-    };
-  });
-}
-
-const transformDataLongFormat = (data: RawDataType[]) => {
-  return data.flatMap(({ year, yearFormatted, area, ...rest }) => {
-    return Object.entries(rest).map(([label, value]) => ({
-      area,
-      year: `${year}`,
-      yearFormatted: `${yearFormatted}`,
-      sdg: label,
-      value: value ? (value as number) : undefined,
-      group: value ? getIndexGroup(value as number) : 'NA',
-    }));
-  });
-};
 
 export function App() {
   const [mapData, setMapData] = useState<
@@ -76,35 +39,71 @@ export function App() {
   useEffect(() => {
     fetchAndParseCSV('/data/sdg-ind-index.csv')
       .then(d => {
-        const transformedWideFormat = transformDataWideFormat(
-          d as RawDataType[],
-        );
+        const transformedWideFormat = (d as RawDataType[]).map(row => {
+          const sdgGroups: Record<string, string> = {};
 
-        const transformedLongFormat = transformDataLongFormat(
-          transformedWideFormat,
-        );
+          SDG_OPTIONS.forEach(sdg => {
+            const key = sdg.value;
+            const groupKey = `${key} Group`;
+            const value = row[key as keyof RawDataType];
+            sdgGroups[groupKey] =
+              value != null && typeof value === 'number'
+                ? getIndexGroup(value)
+                : 'NA';
+          });
+          return {
+            ...row,
+            rowStyle:
+              row.area === 'India' ? { backgroundColor: '#F7F7F7' } : undefined,
+            year: `${row.year}`,
+            ...sdgGroups,
+          };
+        });
 
+        const transformedLongFormat = (d as RawDataType[]).flatMap(
+          ({ year, yearFormatted, area, ...rest }) =>
+            Object.entries(rest).map(([label, value]) => ({
+              area,
+              year: `${year}`,
+              yearFormatted: `${yearFormatted}`,
+              sdg: label,
+              value: !checkIfNullOrUndefined(value)
+                ? (value as number)
+                : undefined,
+              group: getIndexGroup(value as number | undefined),
+            })),
+        );
         const yearOptions = getUniqValue(d, 'year')
           .sort()
           .map(year => ({
             label: `${year}`,
             value: `${year}`,
           }));
+
         const areaOptions = getUniqValue(d, 'area').map(area => ({
           label: area,
           value: area,
         }));
 
-        const sdgOptions = getUniqValue(transformedLongFormat, 'sdg')
-          .filter(sdg => sdgList.includes(sdg))
-          .sort((a, b) => sdgList.indexOf(a) - sdgList.indexOf(b))
-          .map((sdg: string) => ({
-            label: sdg,
-            value: sdg,
-          }));
-
+        const sdgOptions = SDG_OPTIONS.map(sdg => ({
+          label: sdg.value,
+          value: sdg.value,
+        }));
+        const transformedLongFormatWithLatestGroup = transformedLongFormat.map(
+          d => ({
+            ...d,
+            groupLatest: getIndexGroup(
+              transformedLongFormat.find(
+                el =>
+                  el.area === d.area &&
+                  el.sdg === d.sdg &&
+                  el.year === yearOptions[yearOptions.length - 1].value,
+              )?.value,
+            ),
+          }),
+        );
         setWideData(transformedWideFormat);
-        setLongData(transformedLongFormat);
+        setLongData(transformedLongFormatWithLatestGroup);
         setYearsOptions(yearOptions);
         setAreaOptions(areaOptions);
         setSDGOptions(sdgOptions);
@@ -112,7 +111,12 @@ export function App() {
       .catch(error => console.error('Error loading SDG data:', error));
   }, []);
 
-  if (!mapData || !longData || !wideData) return null;
+  if (!mapData || !longData || !wideData)
+    return (
+      <div className='p-4'>
+        <Spinner />
+      </div>
+    );
   return (
     <div className='bg-primary-gray-200 p-6 py-20'>
       <VizCarousel
@@ -155,7 +159,7 @@ export function App() {
             ),
             viz: (
               <SlideTwoContent
-                longData={longData}
+                data={longData}
                 yearOptions={yearOptions}
                 areaOptions={areaOptions}
               />
@@ -178,7 +182,7 @@ export function App() {
             viz: (
               <SlideThreeContent
                 mapData={mapData}
-                longData={longData}
+                data={longData}
                 yearOptions={yearOptions}
                 areaOptions={areaOptions}
                 sdgOptions={sdgOptions}

@@ -29,6 +29,8 @@ export interface PivotedRowType {
   [year: string]: string | number | undefined;
 }
 
+export type ChartTypes = 'chart' | 'table' | 'map' | 'trends';
+
 export interface RawDataType {
   area: string;
   year: string;

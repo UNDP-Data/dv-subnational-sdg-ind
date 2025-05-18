@@ -8,10 +8,10 @@ import {
 import { ImageDown } from 'lucide-react';
 import { useCallback } from 'react';
 
-import { GraphDataType, OptionsDataType } from '@/types';
+import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
 
 interface Props {
-  selectedView: 'chart' | 'table' | 'map' | 'trends';
+  selectedView: ChartTypes;
   data: unknown[];
   keys: string[];
   year?: OptionsDataType;

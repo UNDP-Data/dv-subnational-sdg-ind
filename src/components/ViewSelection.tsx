@@ -1,9 +1,11 @@
 import { SegmentedControl, P } from '@undp/design-system-react';
 import { ChartBar, ImageDownIcon, ChartSpline, Table2 } from 'lucide-react';
 
+import { ChartTypes } from '@/types';
+
 interface Props {
-  selectedView: 'chart' | 'table' | 'map' | 'trends';
-  setSelectedView: (view: 'chart' | 'table' | 'map' | 'trends') => void;
+  selectedView: ChartTypes;
+  setSelectedView: (view: ChartTypes) => void;
   slideIndex: number;
 }
 
@@ -14,9 +16,7 @@ export default function ViewSelection(props: Props) {
       size='sm'
       value={selectedView}
       color='black'
-      onValueChange={value =>
-        setSelectedView(value as 'chart' | 'table' | 'map' | 'trends')
-      }
+      onValueChange={value => setSelectedView(value as ChartTypes)}
       options={[
         {
           label: (
