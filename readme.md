@@ -1,6 +1,6 @@
-# UI Starter Kit (replace with the title of the Project)
+# Subnational SDG Data Explorer for India
 
-This is a template to initiate project with preinstalled library for design system and data visualization and tooling for linting and prettier.
+This project aims to provide interactive visualization of the subnational SDG Data for India country page on the Data Futures Exchange platform.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ This is a template to initiate project with preinstalled library for design syst
 
 ## Link for the visualization<a name="section-01"></a>
 
-[{{link to the site here}}]({{link to the site here}})
+[https://witty-coast-0f76d7203.6.azurestaticapps.net/](https://witty-coast-0f76d7203.6.azurestaticapps.net/)
 
 ## Deployment<a name="deployment"></a>
 
@@ -34,13 +34,13 @@ Add the following div in the page
 Apart from the mentioned `div` above the following `script` and `link` needs to be added to the `head` or in the embed code
 
 ```
-<script defer="defer" type="module" src="<Link to the Visualization Mentioned Above>/index.js"></script>
-<link rel="stylesheet" src="<Link to the Visualization Mentioned Above>/style.css"></link>
+<script defer="defer" type="module" src="https://witty-coast-0f76d7203.6.azurestaticapps.net/index.js"></script>
+<link rel="stylesheet" src="https://witty-coast-0f76d7203.6.azurestaticapps.net/style.css"></link>
 ```
 
 ## Pages on DFx Where the Visualization is Used<a name="section-03"></a>
 
-_All the pages on the DFx or other places like viva topics etc. where this visualization is embedded or used._
+[India Country Page on DFx](https://data.undp.org/countries-and-territories/IND)
 
 ## Related Repos<a name="section-04"></a>
 
