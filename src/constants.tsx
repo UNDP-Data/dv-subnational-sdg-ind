@@ -1,4 +1,4 @@
-export const TABLE_HEIGHT = 760;
+export const TABLE_HEIGHT = 730;
 
 export const SDG_OPTIONS = [
   { label: 'SDG 1 – No Poverty', value: 'SDG 1' },

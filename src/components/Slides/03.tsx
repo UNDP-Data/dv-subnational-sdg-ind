@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect, P } from '@undp/design-system-react';
+import { DropdownSelect } from '@undp/design-system-react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import { COLOR_MAP, TABLE_HEIGHT } from '@/constants';
+import { COLOR_MAP, INDICATOR_LIST, TABLE_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -53,13 +53,11 @@ export default function SlideThreeContent(props: Props) {
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
-        <P size='lg' marginBottom='none'>
-          Performance of States/UTs on{' '}
-          {selectedSDG?.label === 'Comp. Score'
-            ? 'Composite Index Score'
-            : `${selectedSDG?.label}`}{' '}
-          ({selectedYear?.value})
-        </P>
+        <ViewSelection
+          selectedView={selectedView}
+          setSelectedView={setSelectedView}
+          slideIndex={3}
+        />
         <div className='flex gap-4 flex-wrap items-center'>
           {selectedView === 'trends' ? (
             <DropdownSelect
@@ -94,11 +92,6 @@ export default function SlideThreeContent(props: Props) {
             defaultValue={selectedYear}
             className='min-w-40'
             variant='light'
-          />
-          <ViewSelection
-            selectedView={selectedView}
-            setSelectedView={setSelectedView}
-            slideIndex={3}
           />
           <IconGrid
             selectedView={selectedView}
@@ -378,9 +371,57 @@ export default function SlideThreeContent(props: Props) {
               </div>
             </div>
             <div className='grow flex mt-4 w-full'>
-              <div
-                className='overflow-y-auto undp-scrollbar w-full'
-                style={{ height: `${TABLE_HEIGHT}px` }}
+              <SingleGraphDashboard
+                dataSettings={{
+                  data: pivotData(data),
+                }}
+                graphType='dataTable'
+                dataFilters={[
+                  {
+                    column: 'sdg',
+                    includeValues: [selectedSDG.value],
+                    excludeValues: INDICATOR_LIST,
+                  },
+                ]}
+                graphSettings={{
+                  height: TABLE_HEIGHT,
+                  footNote:
+                    'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                  columnData: [
+                    {
+                      columnTitle: 'area',
+                      columnId: 'area',
+                    },
+                    {
+                      columnTitle: '2018',
+                      columnId: '2018',
+                      chip: true,
+                      chipColumnId: 'group2018',
+                      chipColors: COLOR_MAP,
+                    },
+                    {
+                      columnTitle: '2019',
+                      columnId: '2019',
+                      chip: true,
+                      chipColumnId: 'group2019',
+                      chipColors: COLOR_MAP,
+                    },
+                    {
+                      columnTitle: '2020–21',
+                      columnId: '2020–21',
+                      chip: true,
+                      chipColumnId: 'group2020–21',
+                      chipColors: COLOR_MAP,
+                    },
+                    {
+                      columnTitle: '2023–24',
+                      columnId: '2023–24',
+                      chip: true,
+                      chipColumnId: 'group2023–24',
+                      chipColors: COLOR_MAP,
+                    },
+                  ],
+                }}
               />
             </div>
           </div>

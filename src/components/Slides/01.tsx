@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect, P } from '@undp/design-system-react';
+import { DropdownSelect } from '@undp/design-system-react';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
@@ -30,9 +30,11 @@ export default function SlideOneContent(props: Props) {
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
-        <P size='lg' marginBottom='none'>
-          Performance of States and UTs on SDGs ({selectedYear?.value})
-        </P>
+        <ViewSelection
+          selectedView={selectedView}
+          setSelectedView={setSelectedView}
+          slideIndex={1}
+        />
         <div className='flex gap-4 flex-wrap items-center'>
           <DropdownSelect
             onChange={option => setSelectedYear(option as OptionsDataType)}
@@ -43,11 +45,6 @@ export default function SlideOneContent(props: Props) {
             defaultValue={selectedYear}
             className='min-w-40'
             variant='light'
-          />
-          <ViewSelection
-            selectedView={selectedView}
-            setSelectedView={setSelectedView}
-            slideIndex={1}
           />
           <IconGrid
             selectedView={selectedView}

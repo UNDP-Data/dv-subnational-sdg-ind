@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { getUniqValue, SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect, P } from '@undp/design-system-react';
+import { DropdownSelect } from '@undp/design-system-react';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
+import {
+  COLOR_MAP,
+  INDICATOR_LIST,
+  SDG_OPTIONS,
+  TABLE_HEIGHT,
+} from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -26,9 +31,11 @@ export default function SlideTwoContent(props: Props) {
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
-        <P size='lg' marginBottom='none'>
-          SDG Index Score for {selectedArea?.value} ({selectedYear?.value})
-        </P>
+        <ViewSelection
+          selectedView={selectedView}
+          setSelectedView={setSelectedView}
+          slideIndex={2}
+        />
         <div className='flex gap-4 flex-wrap items-center'>
           <DropdownSelect
             onChange={option => setSelectedArea(option as OptionsDataType)}
@@ -55,11 +62,6 @@ export default function SlideTwoContent(props: Props) {
             defaultValue={selectedYear}
             className='min-w-40'
             variant='light'
-          />
-          <ViewSelection
-            selectedView={selectedView}
-            setSelectedView={setSelectedView}
-            slideIndex={2}
           />
           <IconGrid
             selectedView={selectedView}
@@ -182,36 +184,8 @@ export default function SlideTwoContent(props: Props) {
                     includeValues: [selectedArea.label],
                   },
                   {
-                    column: '2023–24',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: '2020–21',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: '2018',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: '2019',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: 'group2023–24',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: 'group2020–21',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: 'group2018',
-                    excludeValues: [NaN, null, undefined],
-                  },
-                  {
-                    column: 'group2019',
-                    excludeValues: [NaN, null, undefined],
+                    column: 'sdg',
+                    excludeValues: INDICATOR_LIST,
                   },
                 ]}
                 graphSettings={{
@@ -220,6 +194,27 @@ export default function SlideTwoContent(props: Props) {
                     {
                       columnTitle: 'SDGs',
                       columnId: 'sdg',
+                    },
+                    {
+                      columnTitle: '2018',
+                      columnId: '2018',
+                      chip: true,
+                      chipColumnId: 'group2018',
+                      chipColors: COLOR_MAP,
+                    },
+                    {
+                      columnTitle: '2019',
+                      columnId: '2019',
+                      chip: true,
+                      chipColumnId: 'group2019',
+                      chipColors: COLOR_MAP,
+                    },
+                    {
+                      columnTitle: '2020–21',
+                      columnId: '2020–21',
+                      chip: true,
+                      chipColumnId: 'group2020–21',
+                      chipColors: COLOR_MAP,
                     },
                     {
                       columnTitle: '2023–24',

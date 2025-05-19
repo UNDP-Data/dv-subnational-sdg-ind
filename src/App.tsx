@@ -1,5 +1,5 @@
 import '@/styles/fonts.css';
-import '@undp/design-system-react/dist/style.css';
+import '@undp/data-viz/style.css';
 import { H3, P, Spinner, VizCarousel } from '@undp/design-system-react';
 import {
   checkIfNullOrUndefined,
@@ -126,7 +126,7 @@ export function App() {
             content: (
               <div className='flex flex-col'>
                 <H3 marginBottom='2xs'>
-                  Explore subnational SDG India Index data
+                  Performance of States and UTs on SDGs
                 </H3>
                 <P size='xl' marginBottom='sm' className='text-gray-600'>
                   Lorem ipsum dolor sit amet consectetur. Integer velit nibh

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DropdownSelect, P } from '@undp/design-system-react';
+import { DropdownSelect } from '@undp/design-system-react';
 import {
   fetchAndParseCSV,
   getUniqValue,
@@ -123,12 +123,11 @@ export default function SlideFiveContent(props: Props) {
   return (
     <div className='flex flex-col justify-between grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
-        <P size='lg' marginBottom='none'>
-          {selectedView !== 'table'
-            ? `Performance of States and UTs on ${selectedIndicator?.value}`
-            : `Performance of States and UTs on indicators behind ${selectedSDG?.value}`}{' '}
-          ({selectedYear?.value})
-        </P>
+        <ViewSelection
+          selectedView={selectedView}
+          setSelectedView={setSelectedView}
+          slideIndex={4}
+        />
         <div className='flex gap-4 flex-wrap items-center'>
           {selectedView === 'table' ? (
             <DropdownSelect
@@ -179,11 +178,6 @@ export default function SlideFiveContent(props: Props) {
             defaultValue={selectedYear}
             className='min-w-40'
             variant='light'
-          />
-          <ViewSelection
-            selectedView={selectedView}
-            setSelectedView={setSelectedView}
-            slideIndex={4}
           />
           <IconGrid
             selectedView={selectedView}
@@ -328,43 +322,89 @@ export default function SlideFiveContent(props: Props) {
           />
         )}
         {selectedView === 'table' && (
-          <div
-            className='overflow-y-auto undp-scrollbar w-full'
-            style={{ height: `${TABLE_HEIGHT}px` }}
-          >
-            <SingleGraphDashboard
-              dataSettings={{
-                data: wideData,
-              }}
-              graphType='dataTable'
-              debugMode
-              dataFilters={[
-                {
-                  column: 'year',
-                  includeValues: [selectedYear.label],
-                },
-              ]}
-              graphSettings={{
-                height: TABLE_HEIGHT,
-                columnData: [
+          <div className='w-full'>
+            <div
+              className='flex leading-0'
+              aria-label='Color legend'
+              style={{ maxWidth: 'none' }}
+            >
+              <div>
+                <div className='flex flex-wrap gap-3.5 mb-0'>
+                  <div className='flex items-center gap-1 cursor-pointer'>
+                    <div
+                      className='w-3 h-3 rounded-full'
+                      style={{ backgroundColor: 'rgb(203, 54, 75)' }}
+                    />
+                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                      Aspirant (0–49)
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-1 cursor-pointer'>
+                    <div
+                      className='w-3 h-3 rounded-full'
+                      style={{ backgroundColor: 'rgb(246, 198, 70)' }}
+                    />
+                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                      Performer (50–64)
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-1 cursor-pointer'>
+                    <div
+                      className='w-3 h-3 rounded-full'
+                      style={{ backgroundColor: 'rgb(71, 158, 133)' }}
+                    />
+                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                      Front Runner (65–99)
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-1 cursor-pointer'>
+                    <div
+                      className='w-3 h-3 rounded-full'
+                      style={{ backgroundColor: 'rgb(78, 171, 233)' }}
+                    />
+                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
+                      Achiever (100)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='grow flex mt-4 w-full'>
+              <SingleGraphDashboard
+                dataSettings={{
+                  data: wideData,
+                }}
+                graphType='dataTable'
+                dataFilters={[
                   {
-                    columnTitle: 'States/UTs',
-                    columnId: 'area',
+                    column: 'year',
+                    includeValues: [selectedYear.label],
                   },
-                  {
-                    columnTitle: selectedSDG.value,
-                    columnId: selectedSDG.value,
-                    chip: true,
-                    chipColumnId: `${selectedSDG.value} Group`,
-                    chipColors: COLOR_MAP,
-                  },
-                  ...indicatorNames.map(ind => ({
-                    columnTitle: ind,
-                    columnId: ind,
-                  })),
-                ],
-              }}
-            />
+                ]}
+                graphSettings={{
+                  height: TABLE_HEIGHT,
+                  footNote:
+                    'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                  columnData: [
+                    {
+                      columnTitle: 'States/UTs',
+                      columnId: 'area',
+                    },
+                    {
+                      columnTitle: selectedSDG.value,
+                      columnId: selectedSDG.value,
+                      chip: true,
+                      chipColumnId: `${selectedSDG.value} Group`,
+                      chipColors: COLOR_MAP,
+                    },
+                    ...indicatorNames.map(ind => ({
+                      columnTitle: ind,
+                      columnId: ind,
+                    })),
+                  ],
+                }}
+              />
+            </div>
           </div>
         )}
       </div>
