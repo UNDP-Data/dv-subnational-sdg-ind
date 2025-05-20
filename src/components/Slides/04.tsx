@@ -91,8 +91,6 @@ export default function SlideFiveContent(props: Props) {
   const activeIndicators = metaData.filter(
     item => item.sdg === selectedSDG?.value,
   );
-  const indicatorNames = activeIndicators.map(item => item.indicator);
-
   const sdgScoreMap = new Map();
   longData.forEach(d => {
     if (
@@ -183,7 +181,11 @@ export default function SlideFiveContent(props: Props) {
             selectedView={selectedView}
             data={filteredData}
             year={selectedYear}
-            keys={['area', 'Indicator 1', 'Indicator 2', 'Indicator 3', 'year']}
+            keys={[
+              'area',
+              ...activeIndicators.map(item => item.indicator),
+              'year',
+            ]}
             slideIndex={5}
           />
         </div>
@@ -397,9 +399,9 @@ export default function SlideFiveContent(props: Props) {
                       chipColumnId: `${selectedSDG.value} Group`,
                       chipColors: COLOR_MAP,
                     },
-                    ...indicatorNames.map(ind => ({
-                      columnTitle: ind,
-                      columnId: ind,
+                    ...activeIndicators.map(item => ({
+                      columnTitle: item.indicator,
+                      columnId: item.indicator,
                     })),
                   ],
                 }}

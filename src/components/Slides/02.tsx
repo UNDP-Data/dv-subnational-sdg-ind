@@ -28,6 +28,16 @@ export default function SlideTwoContent(props: Props) {
   );
   const [selectedArea, setSelectedArea] = useState(areaOptions[0]);
 
+  const compScoreValue = Number(
+    data.find(
+      d =>
+        d['sdg'] === 'Comp. Score' &&
+        d['year'] === selectedYear.label &&
+        d['area'] === selectedArea.label,
+    )?.['value'],
+  );
+
+  const allowedSDGs = SDG_OPTIONS.map(option => option.value);
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
@@ -65,10 +75,10 @@ export default function SlideTwoContent(props: Props) {
           />
           <IconGrid
             selectedView={selectedView}
-            data={data}
+            data={data.filter(item => allowedSDGs.includes(item.sdg))}
             year={selectedYear}
             area={selectedArea}
-            keys={['area', 'sdg', 'value', 'group', 'year']}
+            keys={['area', 'sdg', 'value', 'year']}
             slideIndex={2}
           />
         </div>
@@ -109,6 +119,13 @@ export default function SlideTwoContent(props: Props) {
               ),
               showNAColor: false,
               colorLegendTitle: undefined,
+              refValues: [
+                {
+                  value: compScoreValue ? compScoreValue : null,
+                  text: `Composite Score (${compScoreValue})`,
+                  color: '#000000',
+                },
+              ],
               showLabels: true,
               filterNA: false,
               maxValue: 100,

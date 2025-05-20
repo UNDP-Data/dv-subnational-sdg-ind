@@ -97,7 +97,7 @@ export default function SlideThreeContent(props: Props) {
             selectedView={selectedView}
             data={pivotedDataByYears}
             sdg={selectedSDG}
-            keys={['area', 'sdg', '2018', '2019', '2020-21', '2023–24']}
+            keys={['area', 'sdg', '2018', '2019', '2020–21', '2023–24']}
             slideIndex={3}
           />
         </div>
