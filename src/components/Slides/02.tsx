@@ -87,7 +87,7 @@ export default function SlideTwoContent(props: Props) {
           />
         </div>
       </div>
-      <div className='grow flex mt-4'>
+      <div className='grow flex'>
         {selectedView === 'chart' && (
           <SingleGraphDashboard
             dataSettings={{

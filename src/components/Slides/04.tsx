@@ -20,6 +20,38 @@ import {
 } from '@/types';
 import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
 
+const footnotesBySDG = {
+  'SDG 10': [
+    'The "Percentage of SC/ST seats in State Legislative Assemblies" indicator is excluded from index computation due to the absence of a uniform target across all States/UTs.',
+    'The number of crime cases against SCs for Mizoram stands at 5.',
+  ],
+  'SDG 14': [
+    'The "Mean shore zone coastal water quality (DO) - Biochemical Oxygen Demand (BOD) (mg/l)" indicator has not been used to assess the performance of coastal States due to the absence of fixed quantitative targets.',
+  ],
+  'SDG 15': ['The absolute number of Wildlife cases for Delhi stands at 4128.'],
+};
+
+const generalNote =
+  'From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.';
+
+const renderFootnotes = (selectedSDG: OptionsDataType | null) => {
+  const sdgKey = selectedSDG?.value;
+  const sdgNotes =
+    (footnotesBySDG as Record<string, string[]>)[sdgKey ?? ''] || [];
+
+  const allNotes = [...sdgNotes, generalNote];
+
+  if (allNotes.length === 1) {
+    return `{{{<div class="text-sm text-primary-gray-550">Note: ${allNotes[0]}</div>}}}`;
+  } else {
+    const notesHtml = allNotes
+      .map(note => `<div class="text-sm text-primary-gray-550">${note}</div>`)
+      .join('');
+
+    return `{{{<div class="text-sm text-primary-gray-550">Notes:</div>${notesHtml}}}}`;
+  }
+};
+
 interface Props {
   wideData: RawDataType[];
   mapData: FeatureCollection<Polygon | MultiPolygon>;
@@ -177,6 +209,7 @@ export default function SlideFiveContent(props: Props) {
             onChange={option => setSelectedYear(option as OptionsDataType)}
             options={yearOptions}
             size='sm'
+            isDisabled={selectedView === 'trends'}
             placeholder='Select year'
             isClearable={false}
             defaultValue={selectedYear}
@@ -376,7 +409,7 @@ export default function SlideFiveContent(props: Props) {
                 </div>
               </div>
             </div>
-            <div className='grow flex mt-4 w-full'>
+            <div className='w-full mt-4 overflow-y-hidden'>
               <SingleGraphDashboard
                 dataSettings={{
                   data: wideData,
@@ -389,9 +422,13 @@ export default function SlideFiveContent(props: Props) {
                   },
                 ]}
                 graphSettings={{
-                  height: TABLE_HEIGHT,
-                  footNote:
-                    'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                  height:
+                    selectedSDG?.value === 'SDG 10'
+                      ? TABLE_HEIGHT - 50
+                      : TABLE_HEIGHT,
+                  minWidth:
+                    selectedSDG.value !== 'SDG 7' ? '2400px' : undefined,
+                  footNote: renderFootnotes(selectedSDG),
                   columnData: [
                     {
                       columnTitle: 'States/UTs',
@@ -399,7 +436,7 @@ export default function SlideFiveContent(props: Props) {
                       sortable: true,
                     },
                     {
-                      columnTitle: selectedSDG.value,
+                      columnTitle: `${selectedSDG.value} Index Score`,
                       columnId: selectedSDG.value,
                       chip: true,
                       chipColumnId: `${selectedSDG.value} Group`,

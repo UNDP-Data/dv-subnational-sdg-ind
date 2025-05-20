@@ -4,7 +4,7 @@ SDG 1,No Poverty,Percentage of households with any usual member covered by a hea
 SDG 1,No Poverty,Persons offered employment as a percentage of persons who demanded employment under Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA),2023–24
 SDG 1,No Poverty,Percentage of the population (out of total eligible population) receiving social protection benefits under Pradhan Mantri Matru Vandana Yojana (PMMVY),2023–24
 SDG 1,No Poverty,Percentage of households living in Kachha houses,2023–24
-SDG 2,Zero Hunger,"Percentage of beneficiaries covered under National Food Security Act (NFSA),2013",2023–24
+SDG 2,Zero Hunger,"Percentage of beneficiaries covered under National Food Security Act (NFSA), 2013",2023–24
 SDG 2,Zero Hunger,Percentage of children under five years who are underweight,2023–24
 SDG 2,Zero Hunger,Percentage of children under five years who are stunted,2023–24
 SDG 2,Zero Hunger,Percentage of pregnant women aged 15-49 years who are anaemic,2023–24
@@ -40,7 +40,7 @@ SDG 5,Gender Equality,Percentage of ever married women aged 18-49 years who have
 SDG 5,Gender Equality,Ratio of female to male Labour Force Participation Rate (LFPR) (15-59 years),2023–24
 SDG 5,Gender Equality,"Proportion of women in managerial positions including women in board of directors, in listed companies (per 1,000 persons)",2023–24
 SDG 5,Gender Equality,Percentage of currently married women aged 15-49 years who have their demand for family planning satisfied by any modern method,2023–24
-SDG 5,Gender Equality,Percentage of  female operated operational land holdings,2023–24
+SDG 5,Gender Equality,Percentage of female operated operational land holdings,2023–24
 SDG 5,Gender Equality,Percentage of women (aged 15-49 years) who own a mobile phone that they themselves use,2023–24
 SDG 5,Gender Equality,Percentage of currently married women (aged 15-49 years) who usually participate in three household decisions,2023–24
 SDG 6,Clean Water and Sanitation,Percentage of rural households getting safe and adequate drinking water within premises through Piped Water Supply (PWS),2023–24
@@ -54,7 +54,7 @@ SDG 7,Affordable and Clean Energy,Percentage of households electrified,2023–24
 SDG 7,Affordable and Clean Energy,Percentage of LPG+PNG connections against number of households,2023–24
 SDG 8,Decent Work and Economic Growth,Annual growth rate of GDP (constant prices) per capita (%),2023–24
 SDG 8,Decent Work and Economic Growth,Unemployment rate (%) (15-59 years),2023–24
-SDG 8,Decent Work and Economic Growth,Labour Force Participation Rate (LFPR) (%) (15-59 years) ,2023–24
+SDG 8,Decent Work and Economic Growth,Labour Force Participation Rate (LFPR) (%) (15-59 years),2023–24
 SDG 8,Decent Work and Economic Growth,Percentage of regular wage/ salaried employees in non-agriculture sector without any social security benefit,2023–24
 SDG 8,Decent Work and Economic Growth,Percentage of households with any usual member with a bank or post office account,2023–24
 SDG 8,Decent Work and Economic Growth,"Number of functioning branches of commercial banks per 1,00,000 population",2023–24
@@ -70,7 +70,7 @@ SDG 9,"Industry, Innovation and Infrastructure",Percentage of households that ow
 SDG 9,"Industry, Innovation and Infrastructure",Percentage of inhabited villages with 3G/4G mobile internet coverage,2023–24
 SDG 10,Reduced Inequalities,Gini coefficient,2023–24
 SDG 10,Reduced Inequalities,Percentage of seats held by women in Panchayat Raj Institutions (PRIs),2023–24
-SDG 10,Reduced Inequalities,Percentage of SC/ST seats in State Legislative Assemblies* ,2023–24
+SDG 10,Reduced Inequalities,Percentage of SC/ST seats in State Legislative Assemblies*,2023–24
 SDG 10,Reduced Inequalities,Ratio (in percent) of female workers to male workers working as Professionals and Technical Workers,2023–24
 SDG 10,Reduced Inequalities,"Rate of total crimes against SCs (per 1,00,000 SC population)",2023–24
 SDG 10,Reduced Inequalities,"Rate of total crime against STs (per 1,00,000 ST population)",2023–24
@@ -85,10 +85,10 @@ SDG 12,Responsible Consumption and Production,Per capita fossil fuel consumption
 SDG 12,Responsible Consumption and Production,"Percentage use of nitrogenous fertilizer out of total N,P,K, (Nitrogen, Phosphorous, Potassium)",2023–24
 SDG 12,Responsible Consumption and Production,Quantity of hazardous waste recycled/utilized to total hazardous waste generated (%),2023–24
 SDG 12,Responsible Consumption and Production,"Plastic waste generated per 1,000 population (Tonnes/Annum)",2023–24
-SDG 12,Responsible Consumption and Production,Percentage of Bio Medical Waste (BMW) treated to total quantity of BMW generated  ,2023–24
+SDG 12,Responsible Consumption and Production,Percentage of Bio Medical Waste (BMW) treated to total quantity of BMW generated,2023–24
 SDG 13,Climate Action,Number of human lives lost per 1 crore population due to extreme weather events,2023–24
 SDG 13,Climate Action,Disaster preparedness score as per Disaster Resilience Index,2023–24
-SDG 13,Climate Action,Percentage of renewable energy out of total installed generating capacity (Including allocated shares) ,2023–24
+SDG 13,Climate Action,Percentage of renewable energy out of total installed generating capacity (Including allocated shares),2023–24
 SDG 13,Climate Action,"Disability Adjusted Life Years (DALY) rate attributable to air pollution (per 1,00,000 population)",2023–24
 SDG 13,Climate Action,Percentage of industries complying with environmental standards,2023–24
 SDG 14,Life Below Water,Mean shore zone coastal water quality (DO) - Biochemical Oxygen Demand (BOD) (mg/l)*,2023–24
@@ -102,7 +102,7 @@ SDG 15,Life on Land,Combined 15.1+15.2,2023–24
 SDG 15,Life on Land,Percentage of area covered under afforestation schemes to the total geographical area,2023–24
 SDG 15,Life on Land,Percentage change in carbon stock in forest cover,2023–24
 SDG 15,Life on Land,Percentage of degraded land over total land area,2023–24
-SDG 15,Life on Land,Percentage increase in area of desertification ,2023–24
+SDG 15,Life on Land,Percentage increase in area of desertification,2023–24
 SDG 15,Life on Land,Number of cases under Wildlife Protection Act (1972) per million hectares of protected area,2023–24
 SDG 16,"Peace, Justice and Strong Institutions",Murders per 1 lakh population,2023–24
 SDG 16,"Peace, Justice and Strong Institutions",Cognizable crimes against children per 1 lakh population,2023–24
@@ -110,6 +110,6 @@ SDG 16,"Peace, Justice and Strong Institutions",Number of victims of human traff
 SDG 16,"Peace, Justice and Strong Institutions","Number of missing children per 1,00,000 child population ",2023–24
 SDG 16,"Peace, Justice and Strong Institutions","No. of courts per 1,00,000 population",2023–24
 SDG 16,"Peace, Justice and Strong Institutions",Cases under Prevention of Corruption Act and related sections of IPC per 10 lakh population,2023–24
-SDG 16,"Peace, Justice and Strong Institutions",Charge sheeting rate of IPC crime ,2023–24
+SDG 16,"Peace, Justice and Strong Institutions",Charge sheeting rate of IPC crime,2023–24
 SDG 16,"Peace, Justice and Strong Institutions",Percentage of children under 5 years whose birth was registered,2023–24
 SDG 16,"Peace, Justice and Strong Institutions",Percentage of population covered under Aadhaar,2023–24
