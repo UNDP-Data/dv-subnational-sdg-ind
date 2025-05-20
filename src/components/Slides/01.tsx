@@ -71,6 +71,10 @@ export default function SlideOneContent(props: Props) {
                 column: 'sdg',
                 includeValues: SDG_OPTIONS.map(d => d.value),
               },
+              {
+                column: 'area',
+                excludeValues: ['Target'],
+              },
             ]}
             graphDataConfiguration={[
               { columnId: 'area', chartConfigId: 'row' },
