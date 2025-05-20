@@ -11,6 +11,10 @@ export const pivotData = (longData: GraphDataType[]): PivotedRowType[] => {
       if (!resultMap[rowKey]) {
         resultMap[rowKey] = {
           area: row.area,
+          rowStyle:
+            row.area === 'India' || row.area === 'Target'
+              ? { backgroundColor: '#F7F7F7' }
+              : undefined,
           sdg: row.sdg,
         };
       }

@@ -6,12 +6,7 @@ import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import {
-  COLOR_MAP,
-  INDICATOR_LIST,
-  SDG_OPTIONS,
-  TABLE_HEIGHT,
-} from '@/constants';
+import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -26,7 +21,7 @@ export default function SlideTwoContent(props: Props) {
   const [selectedYear, setSelectedYear] = useState(
     yearOptions[yearOptions.length - 1],
   );
-  const [selectedArea, setSelectedArea] = useState(areaOptions[0]);
+  const [selectedArea, setSelectedArea] = useState(areaOptions[1]);
 
   const compScoreValue = Number(
     data.find(
@@ -36,6 +31,21 @@ export default function SlideTwoContent(props: Props) {
         d['area'] === selectedArea.label,
     )?.['value'],
   );
+
+  const filteredAreas = getUniqValue(
+    data.filter(row => `${row.year}` === `${selectedYear?.value}`),
+    'area',
+  )
+    .filter(area => area !== 'Target')
+    .sort((a, b) => {
+      if (a === 'India') return -1;
+      if (b === 'India') return 1;
+      return a.localeCompare(b);
+    })
+    .map(area => ({
+      label: area,
+      value: area,
+    }));
 
   const allowedSDGs = SDG_OPTIONS.map(option => option.value);
   return (
@@ -49,17 +59,11 @@ export default function SlideTwoContent(props: Props) {
         <div className='flex gap-4 flex-wrap items-center'>
           <DropdownSelect
             onChange={option => setSelectedArea(option as OptionsDataType)}
-            options={getUniqValue(
-              data.filter(row => `${row.year}` === `${selectedYear?.value}`),
-              'area',
-            ).map(area => ({
-              label: area,
-              value: area,
-            }))}
+            options={filteredAreas}
             defaultValue={selectedArea}
             size='sm'
-            placeholder='Select area'
-            className='min-w-40'
+            placeholder='Select state/UT'
+            className='w-[320px]'
             variant='light'
           />
           <DropdownSelect
@@ -88,7 +92,6 @@ export default function SlideTwoContent(props: Props) {
           <SingleGraphDashboard
             dataSettings={{
               data: data,
-              fileType: 'csv',
             }}
             graphType='barChart'
             dataFilters={[
@@ -202,7 +205,7 @@ export default function SlideTwoContent(props: Props) {
                   },
                   {
                     column: 'sdg',
-                    excludeValues: INDICATOR_LIST,
+                    includeValues: SDG_OPTIONS.map(item => item.value),
                   },
                 ]}
                 graphSettings={{

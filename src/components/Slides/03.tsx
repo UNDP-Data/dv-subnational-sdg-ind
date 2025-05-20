@@ -7,7 +7,7 @@ import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import { COLOR_MAP, INDICATOR_LIST, TABLE_HEIGHT } from '@/constants';
+import { COLOR_MAP, TABLE_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -29,7 +29,8 @@ export default function SlideThreeContent(props: Props) {
     data.find(
       d =>
         d.area === 'India' &&
-        d.year === yearOptions[yearOptions.length - 1].value,
+        d.year === yearOptions[yearOptions.length - 1].value &&
+        d.sdg === sdgOptions[0].value,
     )?.value,
   );
   const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>([
@@ -45,10 +46,14 @@ export default function SlideThreeContent(props: Props) {
 
   useEffect(() => {
     setRefValue(
-      data.find(d => d.area === 'India' && d.year === selectedYear.value)
-        ?.value,
+      data.find(
+        d =>
+          d.area === 'India' &&
+          d.year === selectedYear.value &&
+          d.sdg === selectedSDG.value,
+      )?.value,
     );
-  }, [selectedYear, data]);
+  }, [selectedYear, selectedSDG, data]);
 
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
@@ -69,7 +74,7 @@ export default function SlideThreeContent(props: Props) {
               defaultValue={selectedArea}
               size='sm'
               placeholder='Highlight area'
-              className='min-w-40'
+              className='w-[320px]'
               variant='light'
             />
           ) : null}
@@ -220,7 +225,7 @@ export default function SlideThreeContent(props: Props) {
               },
               {
                 column: 'area',
-                excludeValues: ['India'],
+                excludeValues: ['India', 'Target'],
               },
             ]}
             graphDataConfiguration={[
@@ -270,6 +275,7 @@ export default function SlideThreeContent(props: Props) {
               data: data,
             }}
             graphType='multiLineAltChart'
+            debugMode
             dataFilters={[
               {
                 column: 'sdg',
@@ -380,7 +386,6 @@ export default function SlideThreeContent(props: Props) {
                   {
                     column: 'sdg',
                     includeValues: [selectedSDG.value],
-                    excludeValues: INDICATOR_LIST,
                   },
                 ]}
                 graphSettings={{

@@ -26,7 +26,8 @@ export interface GroupedOptionType {
 export interface PivotedRowType {
   area: string;
   sdg: string;
-  [year: string]: string | number | undefined;
+  rowStyle?: { backgroundColor: string } | undefined;
+  [year: string]: { backgroundColor: string } | string | number | undefined;
 }
 
 export type ChartTypes = 'chart' | 'table' | 'map' | 'trends';

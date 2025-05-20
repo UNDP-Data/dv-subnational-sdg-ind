@@ -18,7 +18,7 @@ import {
   GroupedOptionType,
   ChartTypes,
 } from '@/types';
-import { COLOR_MAP, TABLE_HEIGHT } from '@/constants';
+import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
 
 interface Props {
   wideData: RawDataType[];
@@ -49,14 +49,20 @@ export default function SlideFiveContent(props: Props) {
   ]);
 
   useEffect(() => {
-    fetchAndParseCSV('/data/meta-placeholder.csv')
+    fetchAndParseCSV('/data/subnational-sdg-meta.csv')
       .then(d => {
         setMetaData(d as MetaDataType[]);
 
-        const sdgOptions = getUniqValue(d, 'sdg').map(sdg => ({
-          label: sdg,
-          value: sdg,
-        }));
+        const sdgOrder = SDG_OPTIONS.map(opt => opt.value);
+
+        const sdgOptions = getUniqValue(d, 'sdg')
+          .map(sdg => ({
+            label: sdg,
+            value: sdg,
+          }))
+          .sort(
+            (a, b) => sdgOrder.indexOf(a.value) - sdgOrder.indexOf(b.value),
+          );
         setSDGOptions(sdgOptions);
 
         const grouped = (d as MetaDataType[]).reduce(
@@ -149,8 +155,8 @@ export default function SlideFiveContent(props: Props) {
               isMulti={true}
               defaultValue={selectedArea}
               size='sm'
-              placeholder='Highlight area'
-              className='min-w-40'
+              placeholder='Highlight state/UT'
+              className='w-[320px]'
               variant='light'
             />
           ) : null}
@@ -163,7 +169,7 @@ export default function SlideFiveContent(props: Props) {
               value={selectedIndicator}
               size='sm'
               placeholder='Select indicator'
-              className='min-w-40'
+              className='w-[320px]'
               variant='light'
             />
           ) : null}
@@ -195,7 +201,6 @@ export default function SlideFiveContent(props: Props) {
           <SingleGraphDashboard
             dataSettings={{
               data: wideData,
-              fileType: 'csv',
             }}
             graphType='choroplethMap'
             dataFilters={[
@@ -209,7 +214,7 @@ export default function SlideFiveContent(props: Props) {
               {
                 columnId: selectedIndicator
                   ? selectedIndicator.value
-                  : 'Indicator 1',
+                  : 'Head count ratio as per the Multidimensional Poverty Index (%)',
                 chartConfigId: 'x',
               },
             ]}
@@ -236,7 +241,6 @@ export default function SlideFiveContent(props: Props) {
           <SingleGraphDashboard
             dataSettings={{
               data: wideData,
-              fileType: 'csv',
             }}
             graphType='barChart'
             dataFilters={[
@@ -248,7 +252,9 @@ export default function SlideFiveContent(props: Props) {
             graphDataConfiguration={[
               { columnId: 'area', chartConfigId: 'label' },
               {
-                columnId: selectedIndicator ? selectedIndicator.value : '',
+                columnId: selectedIndicator
+                  ? selectedIndicator.value
+                  : 'Head count ratio as per the Multidimensional Poverty Index (%)',
                 chartConfigId: 'size',
               },
             ]}
@@ -286,7 +292,6 @@ export default function SlideFiveContent(props: Props) {
           <SingleGraphDashboard
             dataSettings={{
               data: wideData,
-              fileType: 'csv',
             }}
             graphType='multiLineAltChart'
             graphDataConfiguration={[
@@ -295,7 +300,7 @@ export default function SlideFiveContent(props: Props) {
               {
                 columnId: selectedIndicator
                   ? selectedIndicator.value
-                  : 'Indicator 1',
+                  : 'Head count ratio as per the Multidimensional Poverty Index (%)',
                 chartConfigId: 'y',
               },
             ]}
@@ -391,6 +396,7 @@ export default function SlideFiveContent(props: Props) {
                     {
                       columnTitle: 'States/UTs',
                       columnId: 'area',
+                      sortable: true,
                     },
                     {
                       columnTitle: selectedSDG.value,
@@ -398,10 +404,12 @@ export default function SlideFiveContent(props: Props) {
                       chip: true,
                       chipColumnId: `${selectedSDG.value} Group`,
                       chipColors: COLOR_MAP,
+                      sortable: true,
                     },
                     ...activeIndicators.map(item => ({
                       columnTitle: item.indicator,
                       columnId: item.indicator,
+                      sortable: true,
                     })),
                   ],
                 }}

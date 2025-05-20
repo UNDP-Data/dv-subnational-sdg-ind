@@ -37,7 +37,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    fetchAndParseCSV('/data/sdg-ind-index.csv')
+    fetchAndParseCSV('/data/subnational-sdg-data.csv')
       .then(d => {
         const transformedWideFormat = (d as RawDataType[]).map(row => {
           const sdgGroups: Record<string, string> = {};
@@ -54,7 +54,9 @@ export function App() {
           return {
             ...row,
             rowStyle:
-              row.area === 'India' ? { backgroundColor: '#F7F7F7' } : undefined,
+              row.area === 'India' || row.area === 'Target'
+                ? { backgroundColor: '#F7F7F7' }
+                : undefined,
             year: `${row.year}`,
             ...sdgGroups,
           };
@@ -71,6 +73,10 @@ export function App() {
                 ? (value as number)
                 : undefined,
               group: getIndexGroup(value as number | undefined),
+              rowStyle:
+                area === 'India' || area === 'Target'
+                  ? { backgroundColor: '#F7F7F7' }
+                  : undefined,
             })),
         );
         const yearOptions = getUniqValue(d, 'year')
@@ -80,10 +86,17 @@ export function App() {
             value: `${year}`,
           }));
 
-        const areaOptions = getUniqValue(d, 'area').map(area => ({
-          label: area,
-          value: area,
-        }));
+        const areaOptions = getUniqValue(d, 'area')
+          .filter(area => area !== 'Target')
+          .sort((a, b) => {
+            if (a === 'India') return -1;
+            if (b === 'India') return 1;
+            return a.localeCompare(b);
+          })
+          .map(area => ({
+            label: area,
+            value: area,
+          }));
 
         const sdgOptions = SDG_OPTIONS.map(sdg => ({
           label: sdg.value,
@@ -117,6 +130,7 @@ export function App() {
         <Spinner />
       </div>
     );
+
   return (
     <div className='bg-primary-gray-200 p-6 py-20'>
       <VizCarousel

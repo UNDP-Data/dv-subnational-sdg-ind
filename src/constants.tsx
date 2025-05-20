@@ -50,5 +50,3 @@ export const COLOR_MAP = [
     color: '#D4D6D8',
   },
 ];
-
-export const INDICATOR_LIST = ['Indicator 1', 'Indicator 2', 'Indicator 3'];
