@@ -4,6 +4,7 @@ import { DropdownSelect } from '@undp/design-system-react';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
+import Legend from '../Legend';
 
 import {
   ChartTypes,
@@ -12,7 +13,6 @@ import {
   RawDataType,
 } from '@/types';
 import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
-import Legend from '../Legend';
 
 interface Props {
   longData: GraphDataType[];

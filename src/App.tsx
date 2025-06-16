@@ -1,5 +1,6 @@
 import '@/styles/fonts.css';
 import '@/styles/styles.css';
+import '@undp/design-system-react/style.css';
 import '@undp/data-viz/style.css';
 import { H3, P, Spinner, VizCarousel } from '@undp/design-system-react';
 import {
