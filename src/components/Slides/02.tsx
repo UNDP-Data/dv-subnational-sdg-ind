@@ -4,6 +4,7 @@ import { DropdownSelect } from '@undp/design-system-react';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
+import Legend from '../Legend';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
 import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
@@ -18,9 +19,7 @@ interface Props {
 export default function SlideTwoContent(props: Props) {
   const { data, yearOptions, areaOptions } = props;
   const [selectedView, setSelectedView] = useState<ChartTypes>('chart');
-  const [selectedYear, setSelectedYear] = useState(
-    yearOptions[yearOptions.length - 1],
-  );
+  const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
   const [selectedArea, setSelectedArea] = useState(areaOptions[1]);
 
   const compScoreValue = Number(
@@ -87,7 +86,7 @@ export default function SlideTwoContent(props: Props) {
           />
         </div>
       </div>
-      <div className='grow flex'>
+      <div className='grow flex mt-4 overflow-y-hidden'>
         {selectedView === 'chart' && (
           <SingleGraphDashboard
             dataSettings={{
@@ -97,7 +96,7 @@ export default function SlideTwoContent(props: Props) {
             dataFilters={[
               {
                 column: 'year',
-                includeValues: [selectedYear.value],
+                includeValues: [selectedYear.label],
               },
               {
                 column: 'sdg',
@@ -146,53 +145,8 @@ export default function SlideTwoContent(props: Props) {
         )}
         {selectedView === 'table' && (
           <div className='w-full'>
-            <div
-              className='flex leading-0'
-              aria-label='Color legend'
-              style={{ maxWidth: 'none' }}
-            >
-              <div>
-                <div className='flex flex-wrap gap-3.5 mb-0'>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(203, 54, 75)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Aspirant (0–49)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(246, 198, 70)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Performer (50–64)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(71, 158, 133)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Front Runner (65–99)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(78, 171, 233)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Achiever (100)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='grow flex mt-4 w-full'>
+            <Legend />
+            <div className='grow flex w-full'>
               <SingleGraphDashboard
                 dataSettings={{
                   data: pivotData(data),

@@ -11,6 +11,7 @@ export interface MetaDataType {
   sdg: string;
   label: string;
   indicator: string;
+  year: number;
 }
 
 export interface OptionsDataType {

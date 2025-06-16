@@ -5,6 +5,7 @@ import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
+import Legend from '../Legend';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
 import { COLOR_MAP, TABLE_HEIGHT } from '@/constants';
@@ -21,15 +22,13 @@ interface Props {
 export default function SlideThreeContent(props: Props) {
   const { data, mapData, yearOptions, areaOptions, sdgOptions } = props;
   const [selectedView, setSelectedView] = useState<ChartTypes>('map');
-  const [selectedYear, setSelectedYear] = useState(
-    yearOptions[yearOptions.length - 1],
-  );
+  const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
   const [pivotedDataByYears, setPivotedDataByYears] = useState(pivotData(data));
   const [refValue, setRefValue] = useState(
     data.find(
       d =>
         d.area === 'India' &&
-        d.year === yearOptions[yearOptions.length - 1].value &&
+        d.year === yearOptions[yearOptions.length - 1].label &&
         d.sdg === sdgOptions[0].value,
     )?.value,
   );
@@ -49,7 +48,7 @@ export default function SlideThreeContent(props: Props) {
       data.find(
         d =>
           d.area === 'India' &&
-          d.year === selectedYear.value &&
+          d.year === selectedYear.label &&
           d.sdg === selectedSDG.value,
       )?.value,
     );
@@ -164,7 +163,7 @@ export default function SlideThreeContent(props: Props) {
               dataFilters={[
                 {
                   column: 'year',
-                  includeValues: [selectedYear.value],
+                  includeValues: [selectedYear.label],
                 },
                 {
                   column: 'area',
@@ -217,7 +216,7 @@ export default function SlideThreeContent(props: Props) {
             dataFilters={[
               {
                 column: 'year',
-                includeValues: [selectedYear.value],
+                includeValues: [selectedYear.label],
               },
               {
                 column: 'sdg',
@@ -330,52 +329,7 @@ export default function SlideThreeContent(props: Props) {
         )}
         {selectedView === 'table' && (
           <div className='w-full'>
-            <div
-              className='flex leading-0'
-              aria-label='Color legend'
-              style={{ maxWidth: 'none' }}
-            >
-              <div>
-                <div className='flex flex-wrap gap-3.5 mb-0'>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(203, 54, 75)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Aspirant (0–49)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(246, 198, 70)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Performer (50–64)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(71, 158, 133)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Front Runner (65–99)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(78, 171, 233)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Achiever (100)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Legend />
             <div className='grow flex mt-4 w-full'>
               <SingleGraphDashboard
                 dataSettings={{
@@ -386,6 +340,10 @@ export default function SlideThreeContent(props: Props) {
                   {
                     column: 'sdg',
                     includeValues: [selectedSDG.value],
+                  },
+                  {
+                    column: 'area',
+                    excludeValues: ['Target'],
                   },
                 ]}
                 graphSettings={{

@@ -12,6 +12,7 @@ import {
   RawDataType,
 } from '@/types';
 import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
+import Legend from '../Legend';
 
 interface Props {
   longData: GraphDataType[];
@@ -22,9 +23,7 @@ interface Props {
 
 export default function SlideOneContent(props: Props) {
   const { longData, wideData, yearOptions, sdgOptions } = props;
-  const [selectedYear, setSelectedYear] = useState(
-    yearOptions[yearOptions.length - 1],
-  );
+  const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
   const [selectedView, setSelectedView] = useState<ChartTypes>('chart');
 
   return (
@@ -38,7 +37,7 @@ export default function SlideOneContent(props: Props) {
         <div className='flex gap-4 flex-wrap items-center'>
           <DropdownSelect
             onChange={option => setSelectedYear(option as OptionsDataType)}
-            options={[...yearOptions].reverse()}
+            options={[...yearOptions]}
             size='sm'
             placeholder='Select year'
             isClearable={false}
@@ -55,7 +54,7 @@ export default function SlideOneContent(props: Props) {
           />
         </div>
       </div>
-      <div className='grow flex mt-4'>
+      <div className='grow flex mt-4 overflow-y-hidden'>
         {selectedView === 'chart' && (
           <SingleGraphDashboard
             dataSettings={{
@@ -65,7 +64,7 @@ export default function SlideOneContent(props: Props) {
             dataFilters={[
               {
                 column: 'year',
-                includeValues: [`${selectedYear.value}`],
+                includeValues: [`${selectedYear.label}`],
               },
               {
                 column: 'sdg',
@@ -104,6 +103,7 @@ export default function SlideOneContent(props: Props) {
         )}
         {selectedView === 'table' && (
           <div className='w-full overflow-y-hidden'>
+            <Legend />
             <SingleGraphDashboard
               dataSettings={{
                 data: wideData,
@@ -113,6 +113,10 @@ export default function SlideOneContent(props: Props) {
                 {
                   column: 'year',
                   includeValues: [selectedYear.label],
+                },
+                {
+                  column: 'area',
+                  excludeValues: ['Target'],
                 },
               ]}
               graphSettings={{

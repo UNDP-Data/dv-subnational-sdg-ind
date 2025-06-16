@@ -21,6 +21,35 @@ export const SDG_OPTIONS = [
   { label: 'Comp. Score', value: 'Comp. Score' },
 ];
 
+export const SDG_TITLES: Record<string, { title: string; color: string }> = {
+  'SDG 1': { title: 'No Poverty', color: '#e5243b' },
+  'SDG 2': { title: 'Zero Hunger', color: '#dda63a' },
+  'SDG 3': { title: 'Good Health and Well-being', color: '#4c9f38' },
+  'SDG 4': { title: 'Quality Education', color: '#c5192d' },
+  'SDG 5': { title: 'Gender Equality', color: '#ff3a21' },
+  'SDG 6': { title: 'Clean Water and Sanitation', color: '#26bde2' },
+  'SDG 7': { title: 'Affordable and Clean Energy', color: '#fcc30b' },
+  'SDG 8': { title: 'Decent Work and Economic Growth', color: '#a21942' },
+  'SDG 9': {
+    title: 'Industry, Innovation and Infrastructure',
+    color: '#fd6925',
+  },
+  'SDG 10': { title: 'Reduced Inequalities', color: '#dd1367' },
+  'SDG 11': { title: 'Sustainable Cities and Communities', color: '#fd9d24' },
+  'SDG 12': {
+    title: 'Responsible Consumption and Production',
+    color: '#bf8b2e',
+  },
+  'SDG 13': { title: 'Climate Action', color: '#3f7e44' },
+  'SDG 14': { title: 'Life Below Water', color: '#0a97d9' },
+  'SDG 15': { title: 'Life on Land', color: '#56c02b' },
+  'SDG 16': {
+    title: 'Peace, Justice and Strong Institutions',
+    color: '#00689d',
+  },
+  'SDG 17': { title: 'Partnerships for the Goals', color: '#19486a' },
+};
+
 export const YEARS = [
   { label: '2024', value: '2023–24' },
   { label: '2021', value: '2020–21' },

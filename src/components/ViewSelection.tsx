@@ -31,7 +31,7 @@ export default function ViewSelection(props: Props) {
           ),
           value: 'chart',
         },
-        ...(slideIndex === 3 || slideIndex === 4
+        ...(slideIndex === 3
           ? [
               {
                 label: (
@@ -60,7 +60,23 @@ export default function ViewSelection(props: Props) {
                 value: 'trends',
               },
             ]
-          : []),
+          : slideIndex === 4
+            ? [
+                {
+                  label: (
+                    <div className='flex gap-2 h-fit items-center'>
+                      <div className='h-fit'>
+                        <ImageDownIcon size={16} strokeWidth={1.5} />
+                      </div>
+                      <P marginBottom='none' size='sm'>
+                        Map
+                      </P>
+                    </div>
+                  ),
+                  value: 'map',
+                },
+              ]
+            : []),
         {
           label: (
             <div className='flex gap-2 h-fit items-center'>
