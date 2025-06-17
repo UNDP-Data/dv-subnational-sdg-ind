@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { getUniqValue, SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect } from '@undp/design-system-react';
+import { SingleGraphDashboard } from '@undp/data-viz';
+import { DropdownSelect, P } from '@undp/design-system-react';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
@@ -21,7 +21,6 @@ export default function SlideTwoContent(props: Props) {
   const [selectedView, setSelectedView] = useState<ChartTypes>('chart');
   const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
   const [selectedArea, setSelectedArea] = useState(areaOptions[1]);
-
   const compScoreValue = Number(
     data.find(
       d =>
@@ -30,21 +29,6 @@ export default function SlideTwoContent(props: Props) {
         d['area'] === selectedArea.label,
     )?.['value'],
   );
-
-  const filteredAreas = getUniqValue(
-    data.filter(row => `${row.year}` === `${selectedYear?.value}`),
-    'area',
-  )
-    .filter(area => area !== 'Target')
-    .sort((a, b) => {
-      if (a === 'India') return -1;
-      if (b === 'India') return 1;
-      return a.localeCompare(b);
-    })
-    .map(area => ({
-      label: area,
-      value: area,
-    }));
 
   const allowedSDGs = SDG_OPTIONS.map(option => option.value);
   return (
@@ -58,7 +42,7 @@ export default function SlideTwoContent(props: Props) {
         <div className='flex gap-4 flex-wrap items-center'>
           <DropdownSelect
             onChange={option => setSelectedArea(option as OptionsDataType)}
-            options={filteredAreas}
+            options={areaOptions}
             defaultValue={selectedArea}
             size='sm'
             placeholder='Select state/UT'
@@ -88,60 +72,71 @@ export default function SlideTwoContent(props: Props) {
       </div>
       <div className='grow flex mt-4 overflow-y-hidden'>
         {selectedView === 'chart' && (
-          <SingleGraphDashboard
-            dataSettings={{
-              data: data,
-            }}
-            graphType='barChart'
-            dataFilters={[
-              {
-                column: 'year',
-                includeValues: [selectedYear.label],
-              },
-              {
-                column: 'sdg',
-                includeValues: SDG_OPTIONS.map(d => d.value),
-              },
-              {
-                column: 'area',
-                includeValues: selectedArea ? [selectedArea.value] : [],
-              },
-            ]}
-            graphDataConfiguration={[
-              { columnId: 'sdg', chartConfigId: 'label' },
-              { columnId: 'value', chartConfigId: 'size' },
-              { columnId: 'group', chartConfigId: 'color' },
-            ]}
-            graphSettings={{
-              colors: COLOR_MAP.map(item => item.color),
-              colorDomain: COLOR_MAP.map(item => item.value),
-              graphID: `slide-2-chart`,
-              labelOrder: SDG_OPTIONS.map(sdg => sdg.value).filter(
-                sdg => sdg !== 'Comp. Score',
-              ),
-              showNAColor: false,
-              colorLegendTitle: undefined,
-              refValues: [
-                {
-                  value: compScoreValue ? compScoreValue : null,
-                  text: `Composite Score (${compScoreValue})`,
-                  color: '#000000',
-                },
-              ],
-              showLabels: true,
-              filterNA: false,
-              maxValue: 100,
-              bottomMargin: 40,
-              tooltip:
-                '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{data.area}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
-              styles: {
-                tooltip: {
-                  padding: '0',
-                  minWidth: '150px',
-                },
-              },
-            }}
-          />
+          <>
+            {data.filter(
+              d =>
+                d.year === selectedYear.label && d.area === selectedArea.value,
+            ).length !== 0 ? (
+              <SingleGraphDashboard
+                dataSettings={{
+                  data: data.filter(
+                    d =>
+                      d.year === selectedYear.label &&
+                      d.area === selectedArea.value,
+                  ),
+                }}
+                graphType='barChart'
+                graphDataConfiguration={[
+                  { columnId: 'sdg', chartConfigId: 'label' },
+                  { columnId: 'value', chartConfigId: 'size' },
+                  { columnId: 'group', chartConfigId: 'color' },
+                ]}
+                graphSettings={{
+                  colors: COLOR_MAP.map(item => item.color),
+                  colorDomain: COLOR_MAP.map(item => item.value),
+                  graphID: `slide-2-chart`,
+                  labelOrder: SDG_OPTIONS.map(sdg => sdg.value).filter(
+                    sdg => sdg !== 'Comp. Score',
+                  ),
+                  showNAColor: false,
+                  colorLegendTitle: undefined,
+                  refValues: compScoreValue
+                    ? [
+                        {
+                          value: compScoreValue,
+                          text: `Composite Score (${compScoreValue})`,
+                          color: '#000000',
+                        },
+                      ]
+                    : undefined,
+                  showLabels: true,
+                  filterNA: false,
+                  maxValue: 100,
+                  bottomMargin: 40,
+                  tooltip:
+                    '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{data.area}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
+                  styles: {
+                    tooltip: {
+                      padding: '0',
+                      minWidth: '150px',
+                    },
+                  },
+                }}
+              />
+            ) : (
+              <div className='flex w-full flex-col justify-center grow items-center gap-2 p-6'>
+                <P
+                  marginBottom='none'
+                  leading='none'
+                  size='lg'
+                  className='text-primary-gray-550 dark:text-primary-gray-550'
+                >
+                  No data available for <strong>{selectedArea.label}</strong>{' '}
+                  for <strong>{selectedYear.label}</strong>
+                </P>
+              </div>
+            )}
+          </>
         )}
         {selectedView === 'table' && (
           <div className='w-full'>
