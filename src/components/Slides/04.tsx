@@ -55,9 +55,11 @@ interface Props {
   yearOptions: OptionsDataType[];
 }
 
-export default function SlideFiveContent(props: Props) {
+export default function SlideFourContent(props: Props) {
   const { mapData, yearOptions } = props;
-  const [indicatorData, setIndicatorData] = useState<unknown[]>([]);
+  const [indicatorData, setIndicatorData] = useState<
+    Record<string, string | number>[]
+  >([]);
   const [selectedView, setSelectedView] = useState<ChartTypes>('chart');
   const [indicatorOptions, setIndicatorOptions] = useState<GroupedOptionType[]>(
     [],
@@ -67,7 +69,8 @@ export default function SlideFiveContent(props: Props) {
     useState<OptionsDataType | null>(null);
   const [sdgOptions, setSdgOptions] = useState<OptionsDataType[]>([]);
   const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
-  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType[]>([]);
+  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType | null>(null);
+
   useEffect(() => {
     if (!yearOptions || yearOptions.length === 0) return;
 
@@ -76,8 +79,9 @@ export default function SlideFiveContent(props: Props) {
         const parsed = d as MetaDataType[];
         setMetaData(parsed);
 
-        const filtered = parsed.filter(
-          item => String(item.year) === String(selectedYear.label),
+        const filteredByYear = parsed.filter(
+          item =>
+            String(item.year).trim() === String(selectedYear.label).trim(),
         );
 
         type GroupedMap = Record<
@@ -91,7 +95,7 @@ export default function SlideFiveContent(props: Props) {
         const grouped: GroupedMap = {};
         const uniqueSDGs = new Map<string, OptionsDataType>();
 
-        filtered.forEach(item => {
+        filteredByYear.forEach(item => {
           const sdgItem = `${item.sdg}`;
           const sdgMeta = SDG_TITLES[item.sdg] || { title: '', color: '' };
           const groupLabel = `${item.sdg} - ${sdgMeta.title}`;
@@ -116,53 +120,48 @@ export default function SlideFiveContent(props: Props) {
           }
         });
 
-        setIndicatorOptions(Object.values(grouped));
-        const options = Array.from(uniqueSDGs.values());
-        setSdgOptions(options);
+        const groupedIndicatorOptions = Object.values(grouped);
+        const sdgOptionList = Array.from(uniqueSDGs.values());
 
-        if (options.length > 0) {
-          setSelectedSDG([options[0]]);
+        setIndicatorOptions(groupedIndicatorOptions);
+        setSdgOptions(sdgOptionList);
+
+        if (sdgOptionList.length > 0) {
+          setSelectedSDG(sdgOptionList[0]);
+        } else {
+          setSelectedSDG(null);
         }
 
-        const firstGroup = Object.values(grouped)[0];
+        const firstGroup = groupedIndicatorOptions[0];
         if (firstGroup && firstGroup.options.length > 0) {
           setSelectedIndicator(firstGroup.options[0]);
+        } else {
+          setSelectedIndicator(null);
         }
       })
       .catch(console.error);
   }, [selectedYear, yearOptions]);
 
   useEffect(() => {
-    if (!selectedIndicator || !selectedYear || metaData.length === 0) return;
+    if (!selectedSDG || !selectedYear || metaData.length === 0) return;
 
-    const matchedMeta = metaData.find(
-      item =>
-        item.indicator === selectedIndicator.value &&
-        String(item.year) === String(selectedYear.label),
-    );
-
-    if (!matchedMeta) return;
-
-    const path = `/data/SDG/${matchedMeta.sdg}.csv`;
+    const path = `/data/SDG/${selectedSDG.value}.csv`;
 
     fetchAndParseCSV(path)
       .then((rows: unknown) => {
-        const indicatorKey = selectedIndicator.value;
         const typedRows = rows as Record<string, string | number>[];
-
-        const filtered = typedRows
-          .filter(row => String(row.year) === String(selectedYear.label))
-          .map(row => ({
-            area: row['STATEs/UTs'],
-            value: !checkIfNullOrUndefined(row[indicatorKey])
-              ? Number(row[indicatorKey])
-              : undefined,
-          }))
-          .filter(d => d.area && d.value !== undefined);
+        const filtered = typedRows.filter(
+          row => String(row.year) === String(selectedYear.label),
+        );
         setIndicatorData(filtered);
       })
       .catch(console.error);
-  }, [selectedIndicator, selectedYear, metaData]);
+  }, [selectedSDG, selectedYear, metaData]);
+  const activeIndicators = metaData.filter(
+    item =>
+      String(item.sdg).trim() === String(selectedSDG?.value).trim() &&
+      String(item.year).trim() === String(selectedYear.label).trim(),
+  );
 
   useEffect(() => {
     if (!selectedIndicator || !metaData.length) return;
@@ -174,17 +173,53 @@ export default function SlideFiveContent(props: Props) {
     if (!matched) return;
 
     const sdgKey = `${matched.sdg}`;
-    setSelectedSDG([
-      {
-        label: `${sdgKey} - ${SDG_TITLES[matched.sdg]?.title ?? ''}`,
-        value: sdgKey,
-      },
-    ]);
+    setSelectedSDG({
+      label: `${sdgKey} - ${SDG_TITLES[matched.sdg]?.title ?? ''}`,
+      value: sdgKey,
+    });
   }, [selectedIndicator, metaData]);
+
+  const filteredIndicatorData = indicatorData
+    .map(row => {
+      const value = row[selectedIndicator?.value ?? ''];
+      return {
+        area: row['STATEs/UTs'],
+        value: !checkIfNullOrUndefined(value) ? Number(value) : undefined,
+      };
+    })
+    .filter(d => d.area && d.value !== undefined);
+
+  const sortedTableData = [...indicatorData].sort((a, b) => {
+    const priority = (area: string) =>
+      area === 'Target' ? 0 : area === 'India' ? 1 : 2;
+
+    const aPriority = priority(String(a['STATEs/UTs']));
+    const bPriority = priority(String(b['STATEs/UTs']));
+
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
+    }
+
+    return String(a['STATEs/UTs']).localeCompare(String(b['STATEs/UTs']));
+  });
+
+  const styledTableData = sortedTableData.map(row => ({
+    ...row,
+    rowStyle:
+      row['STATEs/UTs'] === 'Target'
+        ? { backgroundColor: '#E6F2FA' }
+        : row['STATEs/UTs'] === 'India'
+          ? { backgroundColor: '#F7F7F7' }
+          : undefined,
+  }));
 
   return (
     <div>
-      {indicatorData.length === 0 ? null : (
+      {indicatorData.length === 0 ? (
+        <div className='text-sm text-red-600 mt-2'>
+          No indicators available for the selected year.
+        </div>
+      ) : (
         <div className='flex flex-col justify-between grow w-full gap-2'>
           <div className='flex justify-between items-center gap-4 flex-wrap'>
             <ViewSelection
@@ -195,9 +230,7 @@ export default function SlideFiveContent(props: Props) {
             <div className='flex gap-4 flex-wrap items-center'>
               {selectedView === 'table' ? (
                 <DropdownSelect
-                  onChange={option =>
-                    setSelectedSDG([option as OptionsDataType])
-                  }
+                  onChange={option => setSelectedSDG(option as OptionsDataType)}
                   options={sdgOptions}
                   value={selectedSDG}
                   isClearable={false}
@@ -246,7 +279,7 @@ export default function SlideFiveContent(props: Props) {
             {selectedView === 'map' && (
               <SingleGraphDashboard
                 dataSettings={{
-                  data: indicatorData,
+                  data: filteredIndicatorData,
                 }}
                 graphType='choroplethMap'
                 graphDataConfiguration={[
@@ -262,8 +295,7 @@ export default function SlideFiveContent(props: Props) {
                   colorLegendTitle: selectedIndicator?.label,
                   isWorldMap: false,
                   height: TABLE_HEIGHT,
-                  scale: 1.1,
-                  zoomScaleExtend: [1, 1],
+                  zoomInteraction: 'button',
                   mapNoDataColor: '#D4D6D8',
                   styles: {
                     tooltip: {
@@ -278,9 +310,15 @@ export default function SlideFiveContent(props: Props) {
             {selectedView === 'chart' && (
               <SingleGraphDashboard
                 dataSettings={{
-                  data: indicatorData,
+                  data: filteredIndicatorData,
                 }}
                 graphType='barChart'
+                dataFilters={[
+                  {
+                    column: 'area',
+                    excludeValues: ['India', 'Target'],
+                  },
+                ]}
                 graphDataConfiguration={[
                   { columnId: 'area', chartConfigId: 'label' },
                   {
@@ -290,7 +328,10 @@ export default function SlideFiveContent(props: Props) {
                 ]}
                 graphSettings={{
                   graphID: 'slide-4-chart',
-                  height: TABLE_HEIGHT + 100,
+                  height: TABLE_HEIGHT - 24,
+                  bottomMargin: 0,
+                  topMargin: 24,
+                  barPadding: 0.1,
                   colorLegendTitle: undefined,
                   orientation: 'horizontal',
                   maxBarThickness: 24,
@@ -322,41 +363,33 @@ export default function SlideFiveContent(props: Props) {
             {selectedView === 'table' && (
               <div className='w-full'>
                 <div className='w-full mt-4 overflow-y-hidden'>
-                  {/* <SingleGraphDashboard
-                dataSettings={{
-                  data: wideData,
-                }}
-                graphType='dataTable'
-                graphSettings={{
-                  height:
-                    selectedSDG?.value === 'SDG 10'
-                      ? TABLE_HEIGHT - 50
-                      : TABLE_HEIGHT,
-                  minWidth:
-                    selectedSDG.value !== 'SDG 7' ? '2400px' : undefined,
-                  footNote: renderFootnotes(selectedSDG),
-                  columnData: [
-                    {
-                      columnTitle: 'States/UTs',
-                      columnId: 'area',
-                      sortable: true,
-                    },
-                    {
-                      columnTitle: `${selectedSDG.value} Index Score`,
-                      columnId: selectedSDG.value,
-                      chip: true,
-                      chipColumnId: `${selectedSDG.value} Group`,
-                      chipColors: COLOR_MAP,
-                      sortable: true,
-                    },
-                    // ...activeIndicators.map(item => ({
-                    //   columnTitle: item.indicator,
-                    //   columnId: item.indicator,
-                    //   sortable: true,
-                    // })),
-                  ],
-                }}
-              /> */}
+                  <SingleGraphDashboard
+                    dataSettings={{
+                      data: styledTableData,
+                    }}
+                    graphType='dataTable'
+                    graphSettings={{
+                      height:
+                        selectedSDG?.value === 'SDG 10'
+                          ? TABLE_HEIGHT - 50
+                          : TABLE_HEIGHT,
+                      minWidth:
+                        selectedSDG?.value !== 'SDG 7' ? '2400px' : undefined,
+                      // footNote: renderFootnotes(selectedSDG),
+                      columnData: [
+                        {
+                          columnTitle: 'States/UTs',
+                          columnId: 'STATEs/UTs',
+                          sortable: true,
+                        },
+                        ...activeIndicators.map(indicator => ({
+                          columnTitle: indicator.indicator,
+                          columnId: indicator.indicator,
+                          sortable: true,
+                        })),
+                      ],
+                    }}
+                  />
                 </div>
               </div>
             )}

@@ -207,7 +207,6 @@ export function App() {
                 data={longData}
                 yearOptions={yearOptions}
                 areaOptions={areaOptions}
-                sdgOptions={sdgOptions}
               />
             ),
           },
@@ -234,7 +233,7 @@ export function App() {
         ]}
         vizWidth='full'
         vizStyle={{
-          height: '916px',
+          height: '816px',
         }}
       />
     </div>

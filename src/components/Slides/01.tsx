@@ -133,6 +133,9 @@ export default function SlideOneContent(props: Props) {
                     columnId: d.value,
                     sortable: true,
                     columnWidth: d.value === 'Comp. Score' ? 1.5 : undefined,
+                    chip: true,
+                    chipColumnId: `${d.value} Group`,
+                    chipColors: COLOR_MAP,
                   })),
                 ],
               }}

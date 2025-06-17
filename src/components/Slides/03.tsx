@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
-import { SingleGraphDashboard } from '@undp/data-viz';
+import { fetchAndParseCSV, SingleGraphDashboard } from '@undp/data-viz';
 import { DropdownSelect } from '@undp/design-system-react';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
-import IconGrid from '../IconGrid';
+// import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
 import Legend from '../Legend';
 
-import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import { COLOR_MAP, TABLE_HEIGHT } from '@/constants';
+import {
+  ChartTypes,
+  GraphDataType,
+  MetaDataType,
+  OptionsDataType,
+} from '@/types';
+import { COLOR_MAP, SDG_TITLES, TABLE_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -16,43 +21,76 @@ interface Props {
   mapData: FeatureCollection<Polygon | MultiPolygon>;
   yearOptions: OptionsDataType[];
   areaOptions: OptionsDataType[];
-  sdgOptions: OptionsDataType[];
 }
 
 export default function SlideThreeContent(props: Props) {
-  const { data, mapData, yearOptions, areaOptions, sdgOptions } = props;
+  const { data, mapData, yearOptions, areaOptions } = props;
   const [selectedView, setSelectedView] = useState<ChartTypes>('map');
   const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
-  const [pivotedDataByYears, setPivotedDataByYears] = useState(pivotData(data));
-  const [refValue, setRefValue] = useState(
-    data.find(
-      d =>
-        d.area === 'India' &&
-        d.year === yearOptions[yearOptions.length - 1].label &&
-        d.sdg === sdgOptions[0].value,
-    )?.value,
-  );
+  // const [pivotedDataByYears, setPivotedDataByYears] = useState(pivotData(data));
   const [selectedArea, setSelectedArea] = useState<OptionsDataType[] | null>([
     { label: 'India', value: 'India' },
   ]);
-  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
-    sdgOptions[0],
-  );
+  const [sdgOptions, setSdgOptions] = useState<OptionsDataType[]>([]);
+  const [selectedSDG, setSelectedSDG] = useState<OptionsDataType | null>(null);
+  // const [refValue, setRefValue] = useState(
+  //   data.find(
+  //     d =>
+  //       d.area === 'India' &&
+  //       d.year === yearOptions[yearOptions.length - 1].label &&
+  //       d.sdg === sdgOptions[0].value,
+  //   )?.value,
+  // );
+
+  // useEffect(() => {
+  //   setPivotedDataByYears(pivotData(data));
+  // }, [data, yearOptions]);
 
   useEffect(() => {
-    setPivotedDataByYears(pivotData(data));
-  }, [data, yearOptions]);
+    if (!yearOptions || yearOptions.length === 0) return;
 
-  useEffect(() => {
-    setRefValue(
-      data.find(
-        d =>
-          d.area === 'India' &&
-          d.year === selectedYear.label &&
-          d.sdg === selectedSDG.value,
-      )?.value,
-    );
-  }, [selectedYear, selectedSDG, data]);
+    fetchAndParseCSV('/data/metaData.csv')
+      .then((d: unknown) => {
+        const parsed = d as MetaDataType[];
+        const filtered = parsed.filter(
+          item => String(item.year) === String(selectedYear.label),
+        );
+
+        const uniqueSDGs = new Map<string, OptionsDataType>();
+
+        filtered.forEach(item => {
+          const sdgItem = `${item.sdg}`;
+          const sdgMeta = SDG_TITLES[item.sdg] || { title: '', color: '' };
+          const groupLabel = `${item.sdg} - ${sdgMeta.title}`;
+
+          if (!uniqueSDGs.has(sdgItem)) {
+            uniqueSDGs.set(sdgItem, {
+              label: groupLabel,
+              value: sdgItem,
+            });
+          }
+        });
+
+        const options = Array.from(uniqueSDGs.values());
+        setSdgOptions(options);
+
+        if (options.length > 0) {
+          setSelectedSDG(options[0]);
+        }
+      })
+      .catch(console.error);
+  }, [selectedYear, yearOptions]);
+
+  // useEffect(() => {
+  //   setRefValue(
+  //     data.find(
+  //       d =>
+  //         d.area === 'India' &&
+  //         d.year === selectedYear.label &&
+  //         d.sdg === selectedSDG.value,
+  //     )?.value,
+  //   );
+  // }, [selectedYear, selectedSDG, data]);
 
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
@@ -80,16 +118,16 @@ export default function SlideThreeContent(props: Props) {
           <DropdownSelect
             onChange={option => setSelectedSDG(option as OptionsDataType)}
             options={sdgOptions}
-            defaultValue={selectedSDG}
+            value={selectedSDG}
             size='sm'
             placeholder='Select SDG'
-            className='min-w-40'
+            className='w-[320px]'
             variant='light'
           />
           <DropdownSelect
             onChange={option => setSelectedYear(option as OptionsDataType)}
             options={yearOptions}
-            isDisabled={selectedView === 'table'}
+            isDisabled={selectedView === 'table' || selectedView === 'trends'}
             size='sm'
             placeholder='Select year'
             isClearable={false}
@@ -97,64 +135,18 @@ export default function SlideThreeContent(props: Props) {
             className='min-w-40'
             variant='light'
           />
-          <IconGrid
+          {/* <IconGrid
             selectedView={selectedView}
             data={pivotedDataByYears}
             sdg={selectedSDG}
             keys={['area', 'sdg', '2018', '2019', '2020–21', '2023–24']}
             slideIndex={3}
-          />
+          /> */}
         </div>
       </div>
       <div className='grow flex mt-4'>
         {selectedView === 'map' && (
           <div className='w-full h-full'>
-            <div
-              className='flex leading-0'
-              aria-label='Color legend'
-              style={{ maxWidth: 'none' }}
-            >
-              <div>
-                <div className='flex flex-wrap gap-4 mb-0'>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(203, 54, 75)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Aspirant (0–49)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(246, 198, 70)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Performer (50–64)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(71, 158, 133)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Front Runner (65–99)
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-1 cursor-pointer'>
-                    <div
-                      className='w-3 h-3 rounded-full'
-                      style={{ backgroundColor: 'rgb(78, 171, 233)' }}
-                    />
-                    <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Achiever (100)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
             <SingleGraphDashboard
               dataSettings={{
                 data: data,
@@ -171,7 +163,7 @@ export default function SlideThreeContent(props: Props) {
                 },
                 {
                   column: 'sdg',
-                  includeValues: selectedSDG ? [selectedSDG.value] : [],
+                  includeValues: selectedSDG?.value ? [selectedSDG.value] : [],
                 },
               ]}
               graphDataConfiguration={[
@@ -181,12 +173,11 @@ export default function SlideThreeContent(props: Props) {
               graphSettings={{
                 graphID: 'slide-3-map',
                 mapData: mapData,
+                zoomInteraction: 'button',
                 isWorldMap: false,
                 height: TABLE_HEIGHT,
-                scale: 1.1,
-                zoomScaleExtend: [1, 1],
                 mapNoDataColor: '#D4D6D8',
-                showColorScale: false,
+                showColorScale: true,
                 scaleType: 'categorical',
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
                 colorDomain: [
@@ -245,18 +236,18 @@ export default function SlideThreeContent(props: Props) {
               sortData: 'desc',
               showLabels: true,
               truncateBy: 20,
-              refValues: refValue
-                ? [
-                    {
-                      value: refValue,
-                      text:
-                        selectedSDG?.label === 'Comp. Score'
-                          ? 'India Composite Index Score'
-                          : `India ${selectedSDG?.label} Index Score (${refValue})`,
-                      color: '#000000',
-                    },
-                  ]
-                : undefined,
+              // refValues: refValue
+              //   ? [
+              //       {
+              //         value: refValue,
+              //         text:
+              //           selectedSDG?.label === 'Comp. Score'
+              //             ? 'India Composite Index Score'
+              //             : `India ${selectedSDG?.label} Index Score (${refValue})`,
+              //         color: '#000000',
+              //       },
+              //     ]
+              //   : undefined,
               tooltip:
                 '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
               styles: {
@@ -274,7 +265,6 @@ export default function SlideThreeContent(props: Props) {
               data: data,
             }}
             graphType='multiLineAltChart'
-            debugMode
             dataFilters={[
               {
                 column: 'sdg',
@@ -282,6 +272,10 @@ export default function SlideThreeContent(props: Props) {
               },
               {
                 column: 'groupLatest',
+                excludeValues: ['', NaN, undefined, null],
+              },
+              {
+                column: 'value',
                 excludeValues: ['', NaN, undefined, null],
               },
             ]}
@@ -298,7 +292,7 @@ export default function SlideThreeContent(props: Props) {
               },
             ]}
             graphSettings={{
-              graphID: 'slide-4-chart',
+              graphID: 'slide-4-trends',
               curveType: 'curve',
               noOfXTicks: window.innerWidth < 768 ? 5 : 12,
               showNAColor: false,
@@ -339,7 +333,9 @@ export default function SlideThreeContent(props: Props) {
                 dataFilters={[
                   {
                     column: 'sdg',
-                    includeValues: [selectedSDG.value],
+                    includeValues: selectedSDG?.value
+                      ? [selectedSDG.value]
+                      : [],
                   },
                   {
                     column: 'area',
@@ -348,6 +344,7 @@ export default function SlideThreeContent(props: Props) {
                 ]}
                 graphSettings={{
                   height: TABLE_HEIGHT,
+                  graphID: 'slide-3-table',
                   footNote:
                     'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
                   columnData: [
