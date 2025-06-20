@@ -7,7 +7,7 @@ import ViewSelection from '../ViewSelection';
 import Legend from '../Legend';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
+import { COLOR_MAP, SDG_OPTIONS, VIS_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -30,7 +30,7 @@ export default function SlideTwoContent(props: Props) {
     )?.['value'],
   );
 
-  const allowedSDGs = SDG_OPTIONS.map(option => option.value);
+  // const allowedSDGs = SDG_OPTIONS.map(option => option.value);
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
@@ -62,10 +62,9 @@ export default function SlideTwoContent(props: Props) {
           />
           <IconGrid
             selectedView={selectedView}
-            data={data.filter(item => allowedSDGs.includes(item.sdg))}
-            year={selectedYear}
+            data={pivotData(data)}
             area={selectedArea}
-            keys={['area', 'sdg', 'value', 'year']}
+            keys={['area', 'sdg', ...yearOptions.map(item => item.label)]}
             slideIndex={2}
           />
         </div>
@@ -94,11 +93,15 @@ export default function SlideTwoContent(props: Props) {
                 graphSettings={{
                   colors: COLOR_MAP.map(item => item.color),
                   colorDomain: COLOR_MAP.map(item => item.value),
+                  footNote:
+                    'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                  graphTitle: `SDG Index Scores for ${selectedArea.label}, ${selectedYear.label}`,
                   graphID: `slide-2-chart`,
                   labelOrder: SDG_OPTIONS.map(sdg => sdg.value).filter(
                     sdg => sdg !== 'Comp. Score',
                   ),
                   showNAColor: false,
+                  height: VIS_HEIGHT,
                   colorLegendTitle: undefined,
                   refValues: compScoreValue
                     ? [
@@ -112,7 +115,7 @@ export default function SlideTwoContent(props: Props) {
                   showLabels: true,
                   filterNA: false,
                   maxValue: 100,
-                  bottomMargin: 40,
+                  bottomMargin: 24,
                   tooltip:
                     '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{data.area}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{data.sdg}}</div><div>{{size}}</div></div>',
                   styles: {
@@ -140,6 +143,9 @@ export default function SlideTwoContent(props: Props) {
         )}
         {selectedView === 'table' && (
           <div className='w-full'>
+            <P marginBottom='sm'>
+              SDG Index Scores for {selectedArea.label}, {selectedYear.label}
+            </P>
             <Legend />
             <div className='grow flex w-full'>
               <SingleGraphDashboard
@@ -158,7 +164,9 @@ export default function SlideTwoContent(props: Props) {
                   },
                 ]}
                 graphSettings={{
-                  height: TABLE_HEIGHT,
+                  height: VIS_HEIGHT,
+                  footNote:
+                    'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
                   columnData: [
                     {
                       columnTitle: 'SDGs',

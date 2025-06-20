@@ -1,4 +1,5 @@
-export const TABLE_HEIGHT = 720;
+export const VIS_HEIGHT = 689;
+export const LEGEND_HEIGHT = 32;
 
 export const SDG_OPTIONS = [
   { label: 'SDG 1 - No Poverty', value: 'SDG 1' },
@@ -18,7 +19,7 @@ export const SDG_OPTIONS = [
   { label: 'SDG 15 - Life on Land', value: 'SDG 15' },
   { label: 'SDG 16 - Peace, Justice and Strong Institutions', value: 'SDG 16' },
   // { label: 'SDG 17 - Partnerships for the goals', value: 'SDG 17' },
-  { label: 'Comp. Score', value: 'Comp. Score' },
+  { label: 'Composite Score', value: 'Comp. Score' },
 ];
 
 export const SDG_TITLES: Record<string, { title: string; color: string }> = {

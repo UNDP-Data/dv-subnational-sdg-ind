@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@undp/data-viz": "^0.0.96",
-    "@undp/design-system-react": "^0.0.74",
+    "@undp/design-system-react": "^0.0.75",
     "lucide-react": "^0.507.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

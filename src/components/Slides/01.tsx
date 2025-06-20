@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SingleGraphDashboard } from '@undp/data-viz';
-import { DropdownSelect } from '@undp/design-system-react';
+import { DropdownSelect, P } from '@undp/design-system-react';
 
 import IconGrid from '../IconGrid';
 import ViewSelection from '../ViewSelection';
@@ -12,7 +12,7 @@ import {
   OptionsDataType,
   RawDataType,
 } from '@/types';
-import { COLOR_MAP, SDG_OPTIONS, TABLE_HEIGHT } from '@/constants';
+import { COLOR_MAP, SDG_OPTIONS, VIS_HEIGHT } from '@/constants';
 
 interface Props {
   longData: GraphDataType[];
@@ -82,6 +82,7 @@ export default function SlideOneContent(props: Props) {
             ]}
             graphSettings={{
               graphID: `slide-1-chart`,
+              graphTitle: `SDG Index Scores across States/UTs, ${selectedYear.label}`,
               footNote:
                 'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
               colors: COLOR_MAP.map(item => item.color),
@@ -91,7 +92,7 @@ export default function SlideOneContent(props: Props) {
               truncateBy: 25,
               leftMargin: 170,
               tooltip:
-                '<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{row}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{column}}</div><div>{{data.value}}</div></div>',
+                '<div class="font-bold min-w-[240px] p-2 bg-primary-gray-300 uppercase text-xs">{{row}} ({{data.year}})</div><div class="p-2 flex justify-between"><div>{{column}}</div><div>{{data.value}}</div></div>',
               styles: {
                 tooltip: {
                   padding: '0',
@@ -103,6 +104,9 @@ export default function SlideOneContent(props: Props) {
         )}
         {selectedView === 'table' && (
           <div className='w-full overflow-y-hidden'>
+            <P marginBottom='sm'>
+              SDG Index Scores across States/UTs, {selectedYear.label}
+            </P>
             <Legend />
             <SingleGraphDashboard
               dataSettings={{
@@ -120,7 +124,9 @@ export default function SlideOneContent(props: Props) {
                 },
               ]}
               graphSettings={{
-                height: TABLE_HEIGHT,
+                height: VIS_HEIGHT,
+                footNote:
+                  'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
                 minWidth: '2400px',
                 columnData: [
                   {
@@ -133,6 +139,9 @@ export default function SlideOneContent(props: Props) {
                     columnId: d.value,
                     sortable: true,
                     columnWidth: d.value === 'Comp. Score' ? 1.5 : undefined,
+                    chip: true,
+                    chipColumnId: `${d.value} Group`,
+                    chipColors: COLOR_MAP,
                   })),
                 ],
               }}

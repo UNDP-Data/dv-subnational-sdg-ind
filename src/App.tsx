@@ -107,7 +107,7 @@ export function App() {
           }));
 
         const sdgOptions = SDG_OPTIONS.map(sdg => ({
-          label: sdg.value,
+          label: sdg.label,
           value: sdg.value,
         }));
         const transformedLongFormatWithLatestGroup = transformedLongFormat.map(
@@ -226,9 +226,7 @@ export function App() {
               </div>
             ),
             viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideFourContent mapData={mapData} yearOptions={yearOptions} />
-              </div>
+              <SlideFourContent mapData={mapData} yearOptions={yearOptions} />
             ),
           },
         ]}

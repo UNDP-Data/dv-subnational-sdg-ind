@@ -16,7 +16,7 @@ import {
   GroupedOptionType,
   ChartTypes,
 } from '@/types';
-import { SDG_TITLES, TABLE_HEIGHT } from '@/constants';
+import { LEGEND_HEIGHT, SDG_TITLES, VIS_HEIGHT } from '@/constants';
 
 // const footnotesBySDG = {
 //   'SDG 10': [
@@ -185,50 +185,49 @@ export default function SlideFiveContent(props: Props) {
     return <Spinner className='w-full h-full' />;
   }
   return (
-    <div>
-      <div className='flex flex-col justify-between grow w-full gap-2'>
-        <div className='flex justify-between items-center gap-4 flex-wrap'>
-          <ViewSelection
-            selectedView={selectedView}
-            setSelectedView={setSelectedView}
-            slideIndex={4}
-          />
-          <div className='flex gap-4 flex-wrap items-center'>
-            {selectedView === 'table' ? (
-              <DropdownSelect
-                onChange={option => setSelectedSDG([option as OptionsDataType])}
-                options={sdgOptions}
-                value={selectedSDG}
-                isClearable={false}
-                size='sm'
-                placeholder='Select SDG'
-                className='w-[320px]'
-                variant='light'
-              />
-            ) : (
-              <DropdownSelect
-                onChange={option =>
-                  setSelectedIndicator(option as OptionsDataType)
-                }
-                options={indicatorOptions}
-                value={selectedIndicator}
-                size='sm'
-                placeholder='Select indicator'
-                className='w-[480px]'
-                variant='light'
-              />
-            )}
+    <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
+      <div className='flex justify-between items-center gap-4 flex-wrap'>
+        <ViewSelection
+          selectedView={selectedView}
+          setSelectedView={setSelectedView}
+          slideIndex={4}
+        />
+        <div className='flex gap-4 flex-wrap items-center'>
+          {selectedView === 'table' ? (
             <DropdownSelect
-              onChange={option => setSelectedYear(option as OptionsDataType)}
-              options={yearOptions}
-              size='sm'
-              placeholder='Select year'
+              onChange={option => setSelectedSDG([option as OptionsDataType])}
+              options={sdgOptions}
+              value={selectedSDG}
               isClearable={false}
-              value={selectedYear}
-              className='w-40'
+              size='sm'
+              placeholder='Select SDG'
+              className='w-[320px]'
               variant='light'
             />
-            {/* <IconGrid
+          ) : (
+            <DropdownSelect
+              onChange={option =>
+                setSelectedIndicator(option as OptionsDataType)
+              }
+              options={indicatorOptions}
+              value={selectedIndicator}
+              size='sm'
+              placeholder='Select indicator'
+              className='w-[480px]'
+              variant='light'
+            />
+          )}
+          <DropdownSelect
+            onChange={option => setSelectedYear(option as OptionsDataType)}
+            options={yearOptions}
+            size='sm'
+            placeholder='Select year'
+            isClearable={false}
+            value={selectedYear}
+            className='w-40'
+            variant='light'
+          />
+          {/* <IconGrid
             selectedView={selectedView}
             data={filteredData}
             year={selectedYear}
@@ -239,102 +238,113 @@ export default function SlideFiveContent(props: Props) {
             ]}
             slideIndex={5}
           /> */}
-          </div>
         </div>
-        {indicatorData.length === 0 ? (
-          <div className='flex w-full h-full flex-col justify-center grow items-center gap-2 p-6'>
-            <P
-              marginBottom='none'
-              leading='none'
-              size='lg'
-              className='text-primary-gray-550 dark:text-primary-gray-550'
-            >
-              No data available for <strong>{selectedIndicator.label}</strong>{' '}
-              for <strong>{selectedYear.label}</strong>
-            </P>
-          </div>
-        ) : (
-          <div className='grow flex mt-4'>
-            {selectedView === 'map' && (
-              <SingleGraphDashboard
-                dataSettings={{
-                  data: indicatorData,
-                }}
-                graphType='choroplethMap'
-                graphDataConfiguration={[
-                  { columnId: 'area', chartConfigId: 'id' },
-                  {
-                    columnId: 'value',
-                    chartConfigId: 'x',
+      </div>
+      {indicatorData.length === 0 ? (
+        <div className='flex w-full h-full flex-col justify-center grow items-center gap-2 p-6'>
+          <P
+            marginBottom='none'
+            leading='none'
+            size='lg'
+            className='text-primary-gray-550 dark:text-primary-gray-550'
+          >
+            No data available for <strong>{selectedIndicator.label}</strong> for{' '}
+            <strong>{selectedYear.label}</strong>
+          </P>
+        </div>
+      ) : (
+        <div className='grow flex mt-4'>
+          {selectedView === 'chart' && (
+            <SingleGraphDashboard
+              dataSettings={{
+                data: indicatorData,
+              }}
+              graphType='barChart'
+              dataFilters={[
+                {
+                  column: 'area',
+                  excludeValues: ['India', 'Target'],
+                },
+              ]}
+              graphDataConfiguration={[
+                { columnId: 'area', chartConfigId: 'label' },
+                {
+                  columnId: 'value',
+                  chartConfigId: 'size',
+                },
+              ]}
+              graphSettings={{
+                graphID: 'slide-4-chart',
+                graphTitle: `${selectedIndicator.label}, ${selectedYear.label}`,
+                footNote:
+                  'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                height: VIS_HEIGHT,
+                colorLegendTitle: undefined,
+                orientation: 'horizontal',
+                maxBarThickness: 24,
+                showTicks: false,
+                leftMargin: 170,
+                topMargin: 0,
+                truncateBy: 20,
+                showNAColor: false,
+                sortData: 'desc',
+                showLabels: true,
+                tooltip: `<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} (${selectedYear.label})</div><div class="p-2 flex justify-between"><div class='max-w-[240px]'>${selectedIndicator?.label}</div><div><b>{{size}}</b></div></div>`,
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
                   },
-                ]}
-                graphSettings={{
-                  graphID: 'slide-4-map',
-                  mapData: mapData,
-                  colorLegendTitle: selectedIndicator?.label,
-                  isWorldMap: false,
-                  height: TABLE_HEIGHT,
-                  scale: 1.1,
-                  zoomScaleExtend: [1, 1],
-                  mapNoDataColor: '#D4D6D8',
-                  styles: {
-                    tooltip: {
-                      padding: '0',
-                      minWidth: '150px',
-                    },
+                },
+                // refValues: indiaValue
+                //   ? [
+                //       {
+                //         value: indiaValue,
+                //         text: `India Average ${indiaValue}`,
+                //         color: '#000000',
+                //       },
+                //     ]
+                //   : undefined,
+              }}
+            />
+          )}
+          {selectedView === 'map' && (
+            <SingleGraphDashboard
+              dataSettings={{
+                data: indicatorData,
+              }}
+              graphType='choroplethMap'
+              graphDataConfiguration={[
+                { columnId: 'area', chartConfigId: 'id' },
+                {
+                  columnId: 'value',
+                  chartConfigId: 'x',
+                },
+              ]}
+              graphSettings={{
+                graphID: 'slide-4-map',
+                graphTitle: `${selectedIndicator.label}, ${selectedYear.label}`,
+                footNote:
+                  'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                mapData: mapData,
+                colorLegendTitle: selectedIndicator?.label,
+                isWorldMap: false,
+                height: VIS_HEIGHT + LEGEND_HEIGHT,
+                mapNoDataColor: '#D4D6D8',
+                styles: {
+                  tooltip: {
+                    padding: '0',
+                    minWidth: '150px',
                   },
-                  tooltip: `<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{id}} (${selectedYear.label})</div><div class="p-2 flex justify-between"><div class='max-w-[240px]'>${selectedIndicator?.label}</div><div><b>{{x}}</b></div></div>`,
-                }}
-              />
-            )}
-            {selectedView === 'chart' && (
-              <SingleGraphDashboard
-                dataSettings={{
-                  data: indicatorData,
-                }}
-                graphType='barChart'
-                graphDataConfiguration={[
-                  { columnId: 'area', chartConfigId: 'label' },
-                  {
-                    columnId: 'value',
-                    chartConfigId: 'size',
-                  },
-                ]}
-                graphSettings={{
-                  graphID: 'slide-4-chart',
-                  height: TABLE_HEIGHT + 100,
-                  colorLegendTitle: undefined,
-                  orientation: 'horizontal',
-                  maxBarThickness: 24,
-                  showTicks: false,
-                  leftMargin: 170,
-                  truncateBy: 20,
-                  showNAColor: false,
-                  sortData: 'desc',
-                  showLabels: true,
-                  tooltip: `<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{label}} (${selectedYear.label})</div><div class="p-2 flex justify-between"><div class='max-w-[240px]'>${selectedIndicator?.label}</div><div><b>{{size}}</b></div></div>`,
-                  styles: {
-                    tooltip: {
-                      padding: '0',
-                      minWidth: '150px',
-                    },
-                  },
-                  // refValues: indiaValue
-                  //   ? [
-                  //       {
-                  //         value: indiaValue,
-                  //         text: `India Average ${indiaValue}`,
-                  //         color: '#000000',
-                  //       },
-                  //     ]
-                  //   : undefined,
-                }}
-              />
-            )}
-            {selectedView === 'table' && (
-              <div className='w-full'>
-                <div className='w-full mt-4 overflow-y-hidden'>
-                  {/* <SingleGraphDashboard
+                },
+                tooltip: `<div class="font-bold p-2 bg-primary-gray-300 uppercase text-xs">{{id}} (${selectedYear.label})</div><div class="p-2 flex justify-between"><div class='max-w-[240px]'>${selectedIndicator?.label}</div><div><b>{{x}}</b></div></div>`,
+              }}
+            />
+          )}
+          {selectedView === 'table' && (
+            <div className='w-full'>
+              <div className='w-full mt-4 overflow-y-hidden'>
+                {/* <SingleGraphDashboard
                 dataSettings={{
                   data: wideData,
                 }}
@@ -342,8 +352,8 @@ export default function SlideFiveContent(props: Props) {
                 graphSettings={{
                   height:
                     selectedSDG?.value === 'SDG 10'
-                      ? TABLE_HEIGHT - 50
-                      : TABLE_HEIGHT,
+                      ? VIS_HEIGHT - 50
+                      : VIS_HEIGHT,
                   minWidth:
                     selectedSDG.value !== 'SDG 7' ? '2400px' : undefined,
                   footNote: renderFootnotes(selectedSDG),
@@ -369,12 +379,11 @@ export default function SlideFiveContent(props: Props) {
                   ],
                 }}
               /> */}
-                </div>
               </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
