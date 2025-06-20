@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DropdownSelect } from '@undp/design-system-react';
+import { DropdownSelect, P, Spinner } from '@undp/design-system-react';
 import {
   checkIfNullOrUndefined,
   fetchAndParseCSV,
@@ -181,55 +181,54 @@ export default function SlideFiveContent(props: Props) {
       },
     ]);
   }, [selectedIndicator, metaData]);
-
+  if (selectedIndicator === null) {
+    return <Spinner className='w-full h-full' />;
+  }
   return (
     <div>
-      {indicatorData.length === 0 ? null : (
-        <div className='flex flex-col justify-between grow w-full gap-2'>
-          <div className='flex justify-between items-center gap-4 flex-wrap'>
-            <ViewSelection
-              selectedView={selectedView}
-              setSelectedView={setSelectedView}
-              slideIndex={4}
-            />
-            <div className='flex gap-4 flex-wrap items-center'>
-              {selectedView === 'table' ? (
-                <DropdownSelect
-                  onChange={option =>
-                    setSelectedSDG([option as OptionsDataType])
-                  }
-                  options={sdgOptions}
-                  value={selectedSDG}
-                  isClearable={false}
-                  size='sm'
-                  placeholder='Select SDG'
-                  className='w-[320px]'
-                  variant='light'
-                />
-              ) : (
-                <DropdownSelect
-                  onChange={option =>
-                    setSelectedIndicator(option as OptionsDataType)
-                  }
-                  options={indicatorOptions}
-                  value={selectedIndicator}
-                  size='sm'
-                  placeholder='Select indicator'
-                  className='w-[480px]'
-                  variant='light'
-                />
-              )}
+      <div className='flex flex-col justify-between grow w-full gap-2'>
+        <div className='flex justify-between items-center gap-4 flex-wrap'>
+          <ViewSelection
+            selectedView={selectedView}
+            setSelectedView={setSelectedView}
+            slideIndex={4}
+          />
+          <div className='flex gap-4 flex-wrap items-center'>
+            {selectedView === 'table' ? (
               <DropdownSelect
-                onChange={option => setSelectedYear(option as OptionsDataType)}
-                options={yearOptions}
-                size='sm'
-                placeholder='Select year'
+                onChange={option => setSelectedSDG([option as OptionsDataType])}
+                options={sdgOptions}
+                value={selectedSDG}
                 isClearable={false}
-                value={selectedYear}
-                className='w-40'
+                size='sm'
+                placeholder='Select SDG'
+                className='w-[320px]'
                 variant='light'
               />
-              {/* <IconGrid
+            ) : (
+              <DropdownSelect
+                onChange={option =>
+                  setSelectedIndicator(option as OptionsDataType)
+                }
+                options={indicatorOptions}
+                value={selectedIndicator}
+                size='sm'
+                placeholder='Select indicator'
+                className='w-[480px]'
+                variant='light'
+              />
+            )}
+            <DropdownSelect
+              onChange={option => setSelectedYear(option as OptionsDataType)}
+              options={yearOptions}
+              size='sm'
+              placeholder='Select year'
+              isClearable={false}
+              value={selectedYear}
+              className='w-40'
+              variant='light'
+            />
+            {/* <IconGrid
             selectedView={selectedView}
             data={filteredData}
             year={selectedYear}
@@ -240,8 +239,21 @@ export default function SlideFiveContent(props: Props) {
             ]}
             slideIndex={5}
           /> */}
-            </div>
           </div>
+        </div>
+        {indicatorData.length === 0 ? (
+          <div className='flex w-full h-full flex-col justify-center grow items-center gap-2 p-6'>
+            <P
+              marginBottom='none'
+              leading='none'
+              size='lg'
+              className='text-primary-gray-550 dark:text-primary-gray-550'
+            >
+              No data available for <strong>{selectedIndicator.label}</strong>{' '}
+              for <strong>{selectedYear.label}</strong>
+            </P>
+          </div>
+        ) : (
           <div className='grow flex mt-4'>
             {selectedView === 'map' && (
               <SingleGraphDashboard
@@ -361,8 +373,8 @@ export default function SlideFiveContent(props: Props) {
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
