@@ -101,7 +101,7 @@ export default function SlideThreeContent(props: Props) {
             selectedView={selectedView}
             data={pivotedDataByYears}
             sdg={selectedSDG}
-            keys={['area', 'sdg', '2018', '2019', '2020–21', '2023–24']}
+            keys={['area', 'sdg', '2018', '2019', '2020-21', '2023-24']}
             slideIndex={3}
           />
         </div>
@@ -122,7 +122,7 @@ export default function SlideThreeContent(props: Props) {
                       style={{ backgroundColor: 'rgb(203, 54, 75)' }}
                     />
                     <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Aspirant (0–49)
+                      Aspirant (0-49)
                     </p>
                   </div>
                   <div className='flex items-center gap-1 cursor-pointer'>
@@ -131,7 +131,7 @@ export default function SlideThreeContent(props: Props) {
                       style={{ backgroundColor: 'rgb(246, 198, 70)' }}
                     />
                     <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Performer (50–64)
+                      Performer (50-64)
                     </p>
                   </div>
                   <div className='flex items-center gap-1 cursor-pointer'>
@@ -140,7 +140,7 @@ export default function SlideThreeContent(props: Props) {
                       style={{ backgroundColor: 'rgb(71, 158, 133)' }}
                     />
                     <p className='mt-0 ml-0 mr-0 text-sm leading-[1.4] mb-0'>
-                      Front Runner (65–99)
+                      Front Runner (65-99)
                     </p>
                   </div>
                   <div className='flex items-center gap-1 cursor-pointer'>
@@ -190,9 +190,9 @@ export default function SlideThreeContent(props: Props) {
                 scaleType: 'categorical',
                 colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
                 colorDomain: [
-                  'Aspirant (0–49)',
-                  'Performer (50–64)',
-                  'Front Runner (65–99)',
+                  'Aspirant (0-49)',
+                  'Performer (50-64)',
+                  'Front Runner (65-99)',
                   'Achiever (100)',
                 ],
                 tooltip:
@@ -313,14 +313,14 @@ export default function SlideThreeContent(props: Props) {
                 },
               },
               colorDomain: [
-                'Aspirant (0–49)',
-                'Performer (50–64)',
-                'Front Runner (65–99)',
+                'Aspirant (0-49)',
+                'Performer (50-64)',
+                'Front Runner (65-99)',
                 'Achiever (100)',
               ],
               colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
               footNote:
-                'Colors are assigned based on the latest available SDG Index data (2023–24).',
+                'Colors are assigned based on the latest available SDG Index data (2023-24).',
               highlightedLines: selectedArea
                 ? selectedArea.map(area => area.value)
                 : [],
@@ -370,17 +370,17 @@ export default function SlideThreeContent(props: Props) {
                       chipColors: COLOR_MAP,
                     },
                     {
-                      columnTitle: '2020–21',
-                      columnId: '2020–21',
+                      columnTitle: '2020-21',
+                      columnId: '2020-21',
                       chip: true,
-                      chipColumnId: 'group2020–21',
+                      chipColumnId: 'group2020-21',
                       chipColors: COLOR_MAP,
                     },
                     {
-                      columnTitle: '2023–24',
-                      columnId: '2023–24',
+                      columnTitle: '2023-24',
+                      columnId: '2023-24',
                       chip: true,
-                      chipColumnId: 'group2023–24',
+                      chipColumnId: 'group2023-24',
                       chipColors: COLOR_MAP,
                     },
                   ],
