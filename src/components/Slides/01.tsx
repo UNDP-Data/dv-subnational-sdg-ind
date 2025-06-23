@@ -103,7 +103,7 @@ export default function SlideOneContent(props: Props) {
           />
         )}
         {selectedView === 'table' && (
-          <div className='w-full overflow-y-hidden'>
+          <div className='undp-scrollbar'>
             <P marginBottom='sm'>
               SDG Index Scores across States/UTs, {selectedYear.label}
             </P>
@@ -127,7 +127,7 @@ export default function SlideOneContent(props: Props) {
                 height: VIS_HEIGHT,
                 footNote:
                   'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
-                minWidth: '2400px',
+                minWidth: '2000px',
                 columnData: [
                   {
                     columnTitle: 'States/UTs',

@@ -12,7 +12,22 @@ export interface MetaDataType {
   label: string;
   indicator: string;
   year: number;
+  interpretation: string;
 }
+
+export type IndicatorRow = {
+  'STATEs/UTs': string;
+  year: number | string;
+  yearFormatted?: number | string;
+  rowStyle?: React.CSSProperties | undefined;
+} & {
+  [indicatorName: string]:
+    | string
+    | number
+    | null
+    | undefined
+    | React.CSSProperties;
+};
 
 export interface OptionsDataType {
   label: string;

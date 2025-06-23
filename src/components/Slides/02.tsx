@@ -30,7 +30,6 @@ export default function SlideTwoContent(props: Props) {
     )?.['value'],
   );
 
-  // const allowedSDGs = SDG_OPTIONS.map(option => option.value);
   return (
     <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
       <div className='flex justify-between items-center gap-4 flex-wrap'>
@@ -107,8 +106,12 @@ export default function SlideTwoContent(props: Props) {
                     ? [
                         {
                           value: compScoreValue,
-                          text: `Composite Score (${compScoreValue})`,
+                          text: `Composite Score ${compScoreValue}`,
                           color: '#000000',
+                          styles: {
+                            line: { strokeWidth: '1px' },
+                            text: { fontWeight: 600 },
+                          },
                         },
                       ]
                     : undefined,

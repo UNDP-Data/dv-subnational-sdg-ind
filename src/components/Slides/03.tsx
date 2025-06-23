@@ -8,7 +8,13 @@ import ViewSelection from '../ViewSelection';
 import Legend from '../Legend';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import { COLOR_MAP, LEGEND_HEIGHT, VIS_HEIGHT } from '@/constants';
+import {
+  COLOR_MAP,
+  generalNote,
+  LEGEND_HEIGHT,
+  trendNote,
+  VIS_HEIGHT,
+} from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -157,8 +163,12 @@ export default function SlideThreeContent(props: Props) {
                       text:
                         selectedSDG?.label === 'Comp. Score'
                           ? 'India Composite Index Score'
-                          : `India ${selectedSDG?.label} Index Score (${refValue})`,
+                          : `India ${selectedSDG?.label} Index Score ${refValue}`,
                       color: '#000000',
+                      styles: {
+                        line: { strokeWidth: '1px' },
+                        text: { fontWeight: 600 },
+                      },
                     },
                   ]
                 : undefined,
@@ -285,8 +295,19 @@ export default function SlideThreeContent(props: Props) {
                 'Achiever (100)',
               ],
               colors: ['#CB364B', '#F6C646', '#479E85', '#4EABE9'],
-              footNote:
-                'Note: (1) From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory. (2) Colors are assigned based on the latest available SDG Index data (2023-24)',
+              footNote: (
+                <>
+                  <div className='text-sm text-primary-gray-550 space-y-1'>
+                    Notes:
+                  </div>
+                  <div className='text-sm text-primary-gray-550 space-y-1'>
+                    {generalNote}
+                  </div>
+                  <div className='text-sm text-primary-gray-550 space-y-1'>
+                    {trendNote}
+                  </div>
+                </>
+              ),
               highlightedLines: selectedArea
                 ? selectedArea.map(area => area.value)
                 : [],

@@ -80,3 +80,19 @@ export const COLOR_MAP = [
     color: '#D4D6D8',
   },
 ];
+
+export const footnotesBySDG = {
+  'SDG 10': [
+    'The "Percentage of SC/ST seats in State Legislative Assemblies" indicator is excluded from index computation due to the absence of a uniform target across all States/UTs.',
+    'The number of crime cases against SCs for Mizoram stands at 5.',
+  ],
+  'SDG 14': [
+    'The "Mean shore zone coastal water quality (DO) - Biochemical Oxygen Demand (BOD) (mg/l)" indicator has not been used to assess the performance of coastal States due to the absence of fixed quantitative targets.',
+  ],
+  'SDG 15': ['The absolute number of Wildlife cases for Delhi stands at 4128.'],
+};
+
+export const generalNote =
+  'From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.';
+export const trendNote =
+  'Colors are assigned based on the latest available SDG Index data (2023-24).';

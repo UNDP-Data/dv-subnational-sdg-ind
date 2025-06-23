@@ -226,7 +226,11 @@ export function App() {
               </div>
             ),
             viz: (
-              <SlideFourContent mapData={mapData} yearOptions={yearOptions} />
+              <SlideFourContent
+                mapData={mapData}
+                yearOptions={yearOptions}
+                sdgOptions={sdgOptions}
+              />
             ),
           },
         ]}
