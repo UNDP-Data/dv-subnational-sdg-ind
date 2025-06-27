@@ -1,5 +1,7 @@
 import '@/styles/fonts.css';
+import '@/styles/styles.css';
 import '@undp/data-viz/style.css';
+import '@undp/design-system-react/style.css';
 import { H3, P, Spinner, VizCarousel } from '@undp/design-system-react';
 import {
   checkIfNullOrUndefined,
@@ -14,9 +16,9 @@ import { GraphDataType, OptionsDataType, RawDataType } from './types';
 import SlideOneContent from './components/Slides/01';
 import SlideTwoContent from './components/Slides/02';
 import SlideThreeContent from './components/Slides/03';
-import SlideFourContent from './components/Slides/04';
 import { SDG_OPTIONS } from './constants';
 import { getIndexGroup } from './utils/getIndexGroup';
+import SlideFourContent from './components/Slides/04';
 
 export function App() {
   const [mapData, setMapData] = useState<
@@ -37,7 +39,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    fetchAndParseCSV('/data/subnational-sdg-data.csv')
+    fetchAndParseCSV('/data/scoreData.csv')
       .then(d => {
         const transformedWideFormat = (d as RawDataType[]).map(row => {
           const sdgGroups: Record<string, string> = {};
@@ -79,14 +81,20 @@ export function App() {
                   : undefined,
             })),
         );
-        const yearOptions = getUniqValue(d, 'year')
-          .sort()
-          .map(year => ({
-            label: `${year}`,
-            value: `${year}`,
+        const uniqueYears = Array.from(
+          new Map(
+            transformedLongFormat.map(item => [item.yearFormatted, item]),
+          ).values(),
+        );
+
+        const yearOptionsFromFile = uniqueYears
+          .sort((a, b) => Number(b.yearFormatted) - Number(a.yearFormatted))
+          .map(item => ({
+            label: item.year,
+            value: item.yearFormatted ?? item.year,
           }));
 
-        const areaOptions = getUniqValue(d, 'area')
+        const areaOptionsFromFile = getUniqValue(d, 'area')
           .filter(area => area !== 'Target')
           .sort((a, b) => {
             if (a === 'India') return -1;
@@ -98,8 +106,8 @@ export function App() {
             value: area,
           }));
 
-        const sdgOptions = SDG_OPTIONS.map(sdg => ({
-          label: sdg.value,
+        const sdgOptionsFromFile = SDG_OPTIONS.map(sdg => ({
+          label: sdg.label,
           value: sdg.value,
         }));
         const transformedLongFormatWithLatestGroup = transformedLongFormat.map(
@@ -110,16 +118,16 @@ export function App() {
                 el =>
                   el.area === d.area &&
                   el.sdg === d.sdg &&
-                  el.year === yearOptions[yearOptions.length - 1].value,
+                  el.year === yearOptionsFromFile[0].label,
               )?.value,
             ),
           }),
         );
         setWideData(transformedWideFormat);
         setLongData(transformedLongFormatWithLatestGroup);
-        setYearsOptions(yearOptions);
-        setAreaOptions(areaOptions);
-        setSDGOptions(sdgOptions);
+        setYearsOptions(yearOptionsFromFile);
+        setAreaOptions(areaOptionsFromFile);
+        setSDGOptions(sdgOptionsFromFile);
       })
       .catch(error => console.error('Error loading SDG data:', error));
   }, []);
@@ -218,15 +226,11 @@ export function App() {
               </div>
             ),
             viz: (
-              <div className='bg-primary-white w-full p-6 flex flex-col'>
-                <SlideFourContent
-                  wideData={wideData}
-                  mapData={mapData}
-                  longData={longData}
-                  yearOptions={yearOptions}
-                  areaOptions={areaOptions}
-                />
-              </div>
+              <SlideFourContent
+                mapData={mapData}
+                yearOptions={yearOptions}
+                sdgOptions={sdgOptions}
+              />
             ),
           },
         ]}

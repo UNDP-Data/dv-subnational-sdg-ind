@@ -23,7 +23,7 @@ interface Props {
 export default function IconGrid(props: Props) {
   const { selectedView, data, keys, year, area, sdg, slideIndex } = props;
   const filteredData = (data as GraphDataType[]).filter(d => {
-    const matchesYear = year ? String(d.year) === year.value : true;
+    const matchesYear = year ? String(d.yearFormatted) === year.value : true;
     const matchesArea = area ? d.area === area.value : true;
     const matchesSDG = sdg ? d.sdg === sdg.value : true;
     return matchesYear && matchesArea && matchesSDG;
