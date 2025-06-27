@@ -11,14 +11,15 @@ export interface MetaDataType {
   sdg: string;
   label: string;
   indicator: string;
-  year: number;
+  year: number | string;
+  yearFormatted: number;
   interpretation: string;
 }
 
 export type IndicatorRow = {
   'STATEs/UTs': string;
   year: number | string;
-  yearFormatted?: number | string;
+  yearFormatted: number;
   rowStyle?: React.CSSProperties | undefined;
 } & {
   [indicatorName: string]:

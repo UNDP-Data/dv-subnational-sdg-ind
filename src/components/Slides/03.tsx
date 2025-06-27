@@ -10,9 +10,9 @@ import Legend from '../Legend';
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
 import {
   COLOR_MAP,
-  generalNote,
+  GENERAL_NOTE,
   LEGEND_HEIGHT,
-  trendNote,
+  TREND_NOTE,
   VIS_HEIGHT,
 } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
@@ -301,10 +301,10 @@ export default function SlideThreeContent(props: Props) {
                     Notes:
                   </div>
                   <div className='text-sm text-primary-gray-550 space-y-1'>
-                    {generalNote}
+                    {GENERAL_NOTE}
                   </div>
                   <div className='text-sm text-primary-gray-550 space-y-1'>
-                    {trendNote}
+                    {TREND_NOTE}
                   </div>
                 </>
               ),

@@ -81,18 +81,29 @@ export const COLOR_MAP = [
   },
 ];
 
-export const footnotesBySDG = {
-  'SDG 10': [
-    'The "Percentage of SC/ST seats in State Legislative Assemblies" indicator is excluded from index computation due to the absence of a uniform target across all States/UTs.',
-    'The number of crime cases against SCs for Mizoram stands at 5.',
-  ],
-  'SDG 14': [
-    'The "Mean shore zone coastal water quality (DO) - Biochemical Oxygen Demand (BOD) (mg/l)" indicator has not been used to assess the performance of coastal States due to the absence of fixed quantitative targets.',
-  ],
-  'SDG 15': ['The absolute number of Wildlife cases for Delhi stands at 4128.'],
-};
+export const FOOTNOTES_SDGS = [
+  {
+    sdg: 'SDG 10',
+    footNotes: [
+      'The "Percentage of SC/ST seats in State Legislative Assemblies" indicator is excluded from index computation due to the absence of a uniform target across all States/UTs.',
+      'The number of crime cases against SCs for Mizoram stands at 5.',
+    ],
+  },
+  {
+    sdg: 'SDG 14',
+    footNotes: [
+      'The "Mean shore zone coastal water quality (DO) - Biochemical Oxygen Demand (BOD) (mg/l)" indicator has not been used to assess the performance of coastal States due to the absence of fixed quantitative targets.',
+    ],
+  },
+  {
+    sdg: 'SDG 15',
+    footNotes: [
+      'The absolute number of Wildlife cases for Delhi stands at 4128.',
+    ],
+  },
+];
 
-export const generalNote =
+export const GENERAL_NOTE =
   'From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.';
-export const trendNote =
+export const TREND_NOTE =
   'Colors are assigned based on the latest available SDG Index data (2023-24).';

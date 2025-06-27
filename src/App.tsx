@@ -16,9 +16,9 @@ import { GraphDataType, OptionsDataType, RawDataType } from './types';
 import SlideOneContent from './components/Slides/01';
 import SlideTwoContent from './components/Slides/02';
 import SlideThreeContent from './components/Slides/03';
-import SlideFourContent from './components/Slides/04';
 import { SDG_OPTIONS } from './constants';
 import { getIndexGroup } from './utils/getIndexGroup';
+import SlideFourContent from './components/Slides/04';
 
 export function App() {
   const [mapData, setMapData] = useState<
@@ -87,14 +87,14 @@ export function App() {
           ).values(),
         );
 
-        const yearOptions = uniqueYears
+        const yearOptionsFromFile = uniqueYears
           .sort((a, b) => Number(b.yearFormatted) - Number(a.yearFormatted))
           .map(item => ({
             label: item.year,
             value: item.yearFormatted ?? item.year,
           }));
 
-        const areaOptions = getUniqValue(d, 'area')
+        const areaOptionsFromFile = getUniqValue(d, 'area')
           .filter(area => area !== 'Target')
           .sort((a, b) => {
             if (a === 'India') return -1;
@@ -106,7 +106,7 @@ export function App() {
             value: area,
           }));
 
-        const sdgOptions = SDG_OPTIONS.map(sdg => ({
+        const sdgOptionsFromFile = SDG_OPTIONS.map(sdg => ({
           label: sdg.label,
           value: sdg.value,
         }));
@@ -118,16 +118,16 @@ export function App() {
                 el =>
                   el.area === d.area &&
                   el.sdg === d.sdg &&
-                  el.year === yearOptions[0].label,
+                  el.year === yearOptionsFromFile[0].label,
               )?.value,
             ),
           }),
         );
         setWideData(transformedWideFormat);
         setLongData(transformedLongFormatWithLatestGroup);
-        setYearsOptions(yearOptions);
-        setAreaOptions(areaOptions);
-        setSDGOptions(sdgOptions);
+        setYearsOptions(yearOptionsFromFile);
+        setAreaOptions(areaOptionsFromFile);
+        setSDGOptions(sdgOptionsFromFile);
       })
       .catch(error => console.error('Error loading SDG data:', error));
   }, []);
