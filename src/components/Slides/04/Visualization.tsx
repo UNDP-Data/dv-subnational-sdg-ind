@@ -14,12 +14,7 @@ import {
   ChartTypes,
   IndicatorRow,
 } from '@/types';
-import {
-  FOOTNOTES_SDGS,
-  GENERAL_NOTE,
-  LEGEND_HEIGHT,
-  VIS_HEIGHT,
-} from '@/constants';
+import { FOOTNOTES_SDGS, GENERAL_NOTE, VIS_HEIGHT } from '@/constants';
 
 interface Props {
   mapData: FeatureCollection<Polygon | MultiPolygon>;
@@ -138,7 +133,7 @@ export default function Visualization(props: Props) {
               row['STATEs/UTs'] === 'India'
                 ? { backgroundColor: '#F7F7F7' }
                 : row['STATEs/UTs'] === 'Target value'
-                  ? { backgroundColor: '#b5d5f5' }
+                  ? { backgroundColor: '#b5d5f54D' }
                   : undefined,
           };
         });
@@ -395,7 +390,7 @@ export default function Visualization(props: Props) {
                     mapData: mapData,
                     colorLegendTitle: selectedIndicator?.label,
                     isWorldMap: false,
-                    height: VIS_HEIGHT + LEGEND_HEIGHT,
+                    height: VIS_HEIGHT,
                     mapNoDataColor: '#D4D6D8',
                     styles: {
                       tooltip: {
@@ -448,7 +443,6 @@ export default function Visualization(props: Props) {
                       graphSettings={{
                         height:
                           VIS_HEIGHT +
-                          LEGEND_HEIGHT +
                           (selectedSDG.value === 'SDG 10'
                             ? -64
                             : selectedSDG.value === 'SDG 14' ||
