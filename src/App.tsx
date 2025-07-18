@@ -31,9 +31,7 @@ export function App() {
   const [sdgOptions, setSDGOptions] = useState<OptionsDataType[]>([]);
 
   useEffect(() => {
-    fetchAndParseJSON(
-      'https://raw.githubusercontent.com/UNDP-Data/dv-country-geojson/refs/heads/main/ADM1/IND.json',
-    )
+    fetchAndParseJSON('/data/map-geometry/India_State_Boundary_2020.json')
       .then(setMapData)
       .catch(console.error);
   }, []);
