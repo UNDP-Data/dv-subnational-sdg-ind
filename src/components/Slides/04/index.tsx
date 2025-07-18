@@ -47,7 +47,7 @@ export default function SlideFourContent(props: Props) {
       .catch(console.error);
   }, []);
   return (
-    <div className='bg-primary-white p-6 flex flex-col grow w-full gap-2'>
+    <div className='bg-primary-white flex flex-col grow w-full gap-2'>
       {metaData.length === 0 || indicatorOptions.length === 0 ? (
         <Spinner />
       ) : (

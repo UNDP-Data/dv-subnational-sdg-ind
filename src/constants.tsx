@@ -107,3 +107,10 @@ export const GENERAL_NOTE =
   'From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.';
 export const TREND_NOTE =
   'Colors are assigned based on the latest available SDG Index data (2023-24).';
+
+export const COLORS = {
+  aspirant: '#cb364b',
+  performer: '#f6c646',
+  frontRunner: '#479e85',
+  achiever: '#4eabe9',
+};

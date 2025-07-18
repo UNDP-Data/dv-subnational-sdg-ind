@@ -16,7 +16,7 @@ import { GraphDataType, OptionsDataType, RawDataType } from './types';
 import SlideOneContent from './components/Slides/01';
 import SlideTwoContent from './components/Slides/02';
 import SlideThreeContent from './components/Slides/03';
-import { SDG_OPTIONS } from './constants';
+import { COLORS, SDG_OPTIONS } from './constants';
 import { getIndexGroup } from './utils/getIndexGroup';
 import SlideFourContent from './components/Slides/04';
 
@@ -151,10 +151,24 @@ export function App() {
                   Performance of States and UTs on SDGs
                 </H3>
                 <P size='xl' marginBottom='sm' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet consectetur. Integer velit nibh
-                  mattis rhoncus enim venenatis non euismod felis. Quam nec
-                  porttitor sed et vitae et ac magna semper. Eu faucibus potenti
-                  egestas nunc aenean elit porttitor.
+                  Snapshot of how each State and UT performed across all 17
+                  SDGs, with performance levels color-coded from
+                  <span
+                    className='font-bold'
+                    style={{ color: COLORS.aspirant }}
+                  >
+                    {' '}
+                    Aspirant
+                  </span>{' '}
+                  to
+                  <span
+                    className='font-bold'
+                    style={{ color: COLORS.achiever }}
+                  >
+                    {' '}
+                    Achiever
+                  </span>
+                  .
                 </P>
               </div>
             ),
@@ -172,10 +186,9 @@ export function App() {
               <div className='flex flex-col'>
                 <H3 marginBottom='2xs'>Zooming In: State/UT Profiles</H3>
                 <P size='xl' marginBottom='sm' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet consectetur. Integer velit nibh
-                  mattis rhoncus enim venenatis non euismod felis. Quam nec
-                  porttitor sed et vitae et ac magna semper. Eu faucibus potenti
-                  egestas nunc aenean elit porttitor.
+                  Detailed SDG-wise performance and composite score for each
+                  State and UT, helping identify progress made and areas
+                  requiring greater focus.
                 </P>
               </div>
             ),
@@ -194,10 +207,9 @@ export function App() {
                   A Closer Look at Progress on Individual SDGs
                 </H3>
                 <P size='xl' marginBottom='sm' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet consectetur. Integer velit nibh
-                  mattis rhoncus enim venenatis non euismod felis. Quam nec
-                  porttitor sed et vitae et ac magna semper. Eu faucibus potenti
-                  egestas nunc aenean elit porttitor.
+                  Visualisation of State/UT performance on a specific SDG,
+                  highlighting regional disparities and emerging trends across
+                  the country.
                 </P>
               </div>
             ),
@@ -218,10 +230,9 @@ export function App() {
                   Exploring the Indicators Behind the SDG Index
                 </H3>
                 <P size='xl' marginBottom='sm' className='text-gray-600'>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-                  blandit augue eu sagittis facilisis. Class aptent taciti
-                  sociosqu ad litora torquent per conubia nostra, per inceptos
-                  himenaeos.
+                  Indicator-wise performance of each State and UT offers a
+                  granular view of what drives goal-level scores, helping
+                  pinpoint strengths, weaknesses, and data-driven priorities.
                 </P>
               </div>
             ),
