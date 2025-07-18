@@ -17,7 +17,8 @@ import {
 import { FOOTNOTES_SDGS, GENERAL_NOTE, VIS_HEIGHT } from '@/constants';
 
 interface Props {
-  mapData: FeatureCollection<Polygon | MultiPolygon>;
+  mapData2020: FeatureCollection<Polygon | MultiPolygon>;
+  mapDataBefore2020: FeatureCollection<Polygon | MultiPolygon>;
   yearOptions: OptionsDataType[];
   sdgOptions: OptionsDataType[];
   indicatorOptions: GroupedOptionType[];
@@ -62,8 +63,14 @@ const getFootNote = (sdgKey?: string) => {
 };
 
 export default function Visualization(props: Props) {
-  const { mapData, yearOptions, sdgOptions, metaData, indicatorOptions } =
-    props;
+  const {
+    mapData2020,
+    mapDataBefore2020,
+    yearOptions,
+    sdgOptions,
+    metaData,
+    indicatorOptions,
+  } = props;
   const [indicatorData, setIndicatorData] = useState<IndicatorRow[]>([]);
   const [selectedView, setSelectedView] = useState<ChartTypes>('chart');
   const [selectedIndicator, setSelectedIndicator] = useState<OptionsDataType>(
@@ -387,11 +394,15 @@ export default function Visualization(props: Props) {
                     graphTitle: `${selectedIndicator.label}, ${selectedYear.label}`,
                     footNote:
                       'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
-                    mapData: mapData,
+                    mapData:
+                      parseInt(selectedYear.value) < 2020
+                        ? mapDataBefore2020
+                        : mapData2020,
                     colorLegendTitle: selectedIndicator?.label,
                     isWorldMap: false,
                     height: VIS_HEIGHT,
                     mapNoDataColor: '#D4D6D8',
+                    mapProperty: 'State_Name',
                     styles: {
                       tooltip: {
                         padding: '0',

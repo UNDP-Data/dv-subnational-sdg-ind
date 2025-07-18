@@ -19,14 +19,22 @@ import { pivotData } from '@/utils/pivotData';
 
 interface Props {
   data: GraphDataType[];
-  mapData: FeatureCollection<Polygon | MultiPolygon>;
+  mapData2020: FeatureCollection<Polygon | MultiPolygon>;
+  mapDataBefore2020: FeatureCollection<Polygon | MultiPolygon>;
   yearOptions: OptionsDataType[];
   areaOptions: OptionsDataType[];
   sdgOptions: OptionsDataType[];
 }
 
 export default function SlideThreeContent(props: Props) {
-  const { data, mapData, yearOptions, areaOptions, sdgOptions } = props;
+  const {
+    data,
+    mapData2020,
+    mapDataBefore2020,
+    yearOptions,
+    areaOptions,
+    sdgOptions,
+  } = props;
   const [selectedView, setSelectedView] = useState<ChartTypes>('map');
   const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
   const [pivotedDataByYears, setPivotedDataByYears] = useState(pivotData(data));
@@ -214,7 +222,11 @@ export default function SlideThreeContent(props: Props) {
                   selectedSDG.value === 'Comp. Score'
                     ? `${selectedSDG.label}, ${selectedYear.label}`
                     : `${selectedSDG.value} Index Score, ${selectedYear.label}`,
-                mapData: mapData,
+                mapData:
+                  parseInt(selectedYear.value) < 2020
+                    ? mapDataBefore2020
+                    : mapData2020,
+                mapProperty: 'State_Name',
                 footNote:
                   'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
                 isWorldMap: false,

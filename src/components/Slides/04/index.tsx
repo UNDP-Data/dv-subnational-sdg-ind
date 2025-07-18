@@ -10,13 +10,14 @@ import Visualization from './Visualization';
 import { GroupedOptionType, MetaDataType, OptionsDataType } from '@/types';
 
 interface Props {
-  mapData: FeatureCollection<Polygon | MultiPolygon>;
+  mapData2020: FeatureCollection<Polygon | MultiPolygon>;
+  mapDataBefore2020: FeatureCollection<Polygon | MultiPolygon>;
   yearOptions: OptionsDataType[];
   sdgOptions: OptionsDataType[];
 }
 
 export default function SlideFourContent(props: Props) {
-  const { mapData, yearOptions, sdgOptions } = props;
+  const { mapData2020, mapDataBefore2020, yearOptions, sdgOptions } = props;
   const [metaData, setMetaData] = useState<MetaDataType[]>([]);
   const [indicatorOptions, setIndicatorOptions] = useState<GroupedOptionType[]>(
     [],
@@ -54,7 +55,8 @@ export default function SlideFourContent(props: Props) {
         <Visualization
           metaData={metaData}
           indicatorOptions={indicatorOptions}
-          mapData={mapData}
+          mapData2020={mapData2020}
+          mapDataBefore2020={mapDataBefore2020}
           yearOptions={yearOptions}
           sdgOptions={sdgOptions}
         />

@@ -21,7 +21,10 @@ import { getIndexGroup } from './utils/getIndexGroup';
 import SlideFourContent from './components/Slides/04';
 
 export function App() {
-  const [mapData, setMapData] = useState<
+  const [mapDataBefore2020, setMapDataBefore2020] = useState<
+    FeatureCollection<Polygon | MultiPolygon> | undefined
+  >(undefined);
+  const [mapData2020, setMapData2020] = useState<
     FeatureCollection<Polygon | MultiPolygon> | undefined
   >(undefined);
   const [wideData, setWideData] = useState<RawDataType[]>([]);
@@ -32,7 +35,15 @@ export function App() {
 
   useEffect(() => {
     fetchAndParseJSON('/data/map-geometry/India_State_Boundary_2020.json')
-      .then(setMapData)
+      .then(setMapData2020)
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetchAndParseJSON(
+      '/data/map-geometry/India_State_Boundary_Before_2020.json',
+    )
+      .then(setMapDataBefore2020)
       .catch(console.error);
   }, []);
 
@@ -130,7 +141,7 @@ export function App() {
       .catch(error => console.error('Error loading SDG data:', error));
   }, []);
 
-  if (!mapData || !longData || !wideData)
+  if (!mapData2020 || !mapDataBefore2020 || !longData || !wideData)
     return (
       <div className='p-4'>
         <Spinner />
@@ -213,7 +224,8 @@ export function App() {
             ),
             viz: (
               <SlideThreeContent
-                mapData={mapData}
+                mapData2020={mapData2020}
+                mapDataBefore2020={mapDataBefore2020}
                 data={longData}
                 yearOptions={yearOptions}
                 areaOptions={areaOptions}
@@ -236,7 +248,8 @@ export function App() {
             ),
             viz: (
               <SlideFourContent
-                mapData={mapData}
+                mapData2020={mapData2020}
+                mapDataBefore2020={mapDataBefore2020}
                 yearOptions={yearOptions}
                 sdgOptions={sdgOptions}
               />
