@@ -17,7 +17,8 @@ import {
 import { FOOTNOTES_SDGS, GENERAL_NOTE, VIS_HEIGHT } from '@/constants';
 
 interface Props {
-  mapData2020: FeatureCollection<Polygon | MultiPolygon>;
+  mapData2021: FeatureCollection<Polygon | MultiPolygon>;
+  mapDataPost2021: FeatureCollection<Polygon | MultiPolygon>;
   mapDataBefore2020: FeatureCollection<Polygon | MultiPolygon>;
   yearOptions: OptionsDataType[];
   sdgOptions: OptionsDataType[];
@@ -64,8 +65,9 @@ const getFootNote = (sdgKey?: string) => {
 
 export default function Visualization(props: Props) {
   const {
-    mapData2020,
+    mapData2021,
     mapDataBefore2020,
+    mapDataPost2021,
     yearOptions,
     sdgOptions,
     metaData,
@@ -80,7 +82,6 @@ export default function Visualization(props: Props) {
   const [selectedSDG, setSelectedSDG] = useState<OptionsDataType>(
     sdgOptions[0],
   );
-
   const sdgsWithoutMinWidthForTable = [
     'SDG 1',
     'SDG 7',
@@ -365,6 +366,7 @@ export default function Visualization(props: Props) {
                 d =>
                   d.yearFormatted === +selectedYear.value &&
                   d['STATEs/UTs'] !== 'Target' &&
+                  d['STATEs/UTs'] !== 'Target value' &&
                   d[selectedIndicator.label as keyof typeof d] !== null &&
                   d[selectedIndicator.label as keyof typeof d] !== undefined,
               ) ? (
@@ -392,12 +394,24 @@ export default function Visualization(props: Props) {
                   graphSettings={{
                     graphID: 'slide-4-map',
                     graphTitle: `${selectedIndicator.label}, ${selectedYear.label}`,
-                    footNote:
-                      'Note: From 2020, Dadra and Nagar Haveli and Daman and Diu were merged into one Union Territory.',
+                    footNote: (
+                      <P
+                        marginBottom='none'
+                        size='sm'
+                        className='text-primary-gray-550 dark:text-primary-gray-40'
+                      >
+                        Note: From 2020, Dadra and Nagar Haveli and Daman and
+                        Diu were merged into one Union Territory. The boundaries
+                        and names and the designations used do not imply
+                        official endorsement by the UN.
+                      </P>
+                    ),
                     mapData:
                       parseInt(selectedYear.value) < 2020
                         ? mapDataBefore2020
-                        : mapData2020,
+                        : parseInt(selectedYear.value) === 2021
+                          ? mapData2021
+                          : mapDataPost2021,
                     colorLegendTitle: selectedIndicator?.label,
                     isWorldMap: false,
                     height: VIS_HEIGHT,

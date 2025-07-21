@@ -24,7 +24,10 @@ export function App() {
   const [mapDataBefore2020, setMapDataBefore2020] = useState<
     FeatureCollection<Polygon | MultiPolygon> | undefined
   >(undefined);
-  const [mapData2020, setMapData2020] = useState<
+  const [mapData2021, setMapData2021] = useState<
+    FeatureCollection<Polygon | MultiPolygon> | undefined
+  >(undefined);
+  const [mapDataPost2021, setMapDataPost2021] = useState<
     FeatureCollection<Polygon | MultiPolygon> | undefined
   >(undefined);
   const [wideData, setWideData] = useState<RawDataType[]>([]);
@@ -32,20 +35,6 @@ export function App() {
   const [yearOptions, setYearsOptions] = useState<OptionsDataType[]>([]);
   const [areaOptions, setAreaOptions] = useState<OptionsDataType[]>([]);
   const [sdgOptions, setSDGOptions] = useState<OptionsDataType[]>([]);
-
-  useEffect(() => {
-    fetchAndParseJSON('/data/map-geometry/India_State_Boundary_2020.json')
-      .then(setMapData2020)
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    fetchAndParseJSON(
-      '/data/map-geometry/India_State_Boundary_Before_2020.json',
-    )
-      .then(setMapDataBefore2020)
-      .catch(console.error);
-  }, []);
 
   useEffect(() => {
     fetchAndParseCSV('/data/scoreData.csv')
@@ -139,9 +128,26 @@ export function App() {
         setSDGOptions(sdgOptionsFromFile);
       })
       .catch(error => console.error('Error loading SDG data:', error));
+    fetchAndParseJSON(
+      '/data/map-geometry/India_State_Boundary_Before_2020.json',
+    )
+      .then(setMapDataBefore2020)
+      .catch(console.error);
+    fetchAndParseJSON('/data/map-geometry/India_State_Boundary_2021.json')
+      .then(setMapData2021)
+      .catch(console.error);
+    fetchAndParseJSON('/data/map-geometry/India_State_Boundary_Post_2021.json')
+      .then(setMapDataPost2021)
+      .catch(console.error);
   }, []);
 
-  if (!mapData2020 || !mapDataBefore2020 || !longData || !wideData)
+  if (
+    !mapData2021 ||
+    !mapDataPost2021 ||
+    !mapDataBefore2020 ||
+    !longData ||
+    !wideData
+  )
     return (
       <div className='p-4'>
         <Spinner />
@@ -224,7 +230,8 @@ export function App() {
             ),
             viz: (
               <SlideThreeContent
-                mapData2020={mapData2020}
+                mapData2021={mapData2021}
+                mapDataPost2021={mapDataPost2021}
                 mapDataBefore2020={mapDataBefore2020}
                 data={longData}
                 yearOptions={yearOptions}
@@ -248,7 +255,8 @@ export function App() {
             ),
             viz: (
               <SlideFourContent
-                mapData2020={mapData2020}
+                mapData2021={mapData2021}
+                mapDataPost2021={mapDataPost2021}
                 mapDataBefore2020={mapDataBefore2020}
                 yearOptions={yearOptions}
                 sdgOptions={sdgOptions}
