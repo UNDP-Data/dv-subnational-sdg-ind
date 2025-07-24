@@ -8,13 +8,7 @@ import ViewSelection from '../ViewSelection';
 import Legend from '../Legend';
 
 import { ChartTypes, GraphDataType, OptionsDataType } from '@/types';
-import {
-  COLOR_MAP,
-  GENERAL_NOTE,
-  LEGEND_HEIGHT,
-  TREND_NOTE,
-  VIS_HEIGHT,
-} from '@/constants';
+import { COLOR_MAP, GENERAL_NOTE, TREND_NOTE, VIS_HEIGHT } from '@/constants';
 import { pivotData } from '@/utils/pivotData';
 
 interface Props {
@@ -232,19 +226,41 @@ export default function SlideThreeContent(props: Props) {
                       : mapDataPost2021,
                 mapProperty: 'State_Name',
                 footNote: (
-                  <P
-                    marginBottom='none'
-                    size='sm'
-                    className='text-primary-gray-550 dark:text-primary-gray-40'
-                  >
-                    Note: From 2020, Dadra and Nagar Haveli and Daman and Diu
-                    were merged into one Union Territory. The boundaries and
-                    names and the designations used do not imply official
-                    endorsement by the UN.
-                  </P>
+                  <>
+                    <P
+                      marginBottom='none'
+                      size='sm'
+                      className='text-primary-gray-550 dark:text-primary-gray-40'
+                    >
+                      Notes:
+                    </P>
+                    <P
+                      marginBottom='none'
+                      size='sm'
+                      className='text-primary-gray-550 dark:text-primary-gray-40 mb-1'
+                    >
+                      From 2020, Dadra and Nagar Haveli and Daman and Diu were
+                      merged into one Union Territory. The boundaries and names
+                      and the designations used do not imply official
+                      endorsement by the UN.
+                    </P>
+                    <P
+                      marginBottom='none'
+                      size='sm'
+                      className='text-primary-gray-550 dark:text-primary-gray-40 mb-2'
+                    >
+                      The designations employed and the presentation of material
+                      on this map do not imply the expression of any opinion
+                      whatsoever on the part of the Secretariat of the United
+                      Nations or UNDP concerning the legal status of any
+                      country, territory, city or area or its authorities, or
+                      concerning the delimitation of its frontiers or
+                      boundaries.
+                    </P>
+                  </>
                 ),
                 isWorldMap: false,
-                height: VIS_HEIGHT + LEGEND_HEIGHT,
+                height: VIS_HEIGHT,
                 mapNoDataColor: '#D4D6D8',
                 scaleType: 'categorical',
                 colorLegendTitle: undefined,

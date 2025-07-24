@@ -395,16 +395,38 @@ export default function Visualization(props: Props) {
                     graphID: 'slide-4-map',
                     graphTitle: `${selectedIndicator.label}, ${selectedYear.label}`,
                     footNote: (
-                      <P
-                        marginBottom='none'
-                        size='sm'
-                        className='text-primary-gray-550 dark:text-primary-gray-40'
-                      >
-                        Note: From 2020, Dadra and Nagar Haveli and Daman and
-                        Diu were merged into one Union Territory. The boundaries
-                        and names and the designations used do not imply
-                        official endorsement by the UN.
-                      </P>
+                      <>
+                        <P
+                          marginBottom='none'
+                          size='sm'
+                          className='text-primary-gray-550 dark:text-primary-gray-40'
+                        >
+                          Notes:
+                        </P>
+                        <P
+                          marginBottom='none'
+                          size='sm'
+                          className='text-primary-gray-550 dark:text-primary-gray-40 mb-1'
+                        >
+                          From 2020, Dadra and Nagar Haveli and Daman and Diu
+                          were merged into one Union Territory. The boundaries
+                          and names and the designations used do not imply
+                          official endorsement by the UN.
+                        </P>
+                        <P
+                          marginBottom='none'
+                          size='sm'
+                          className='text-primary-gray-550 dark:text-primary-gray-40 mb-2'
+                        >
+                          The designations employed and the presentation of
+                          material on this map do not imply the expression of
+                          any opinion whatsoever on the part of the Secretariat
+                          of the United Nations or UNDP concerning the legal
+                          status of any country, territory, city or area or its
+                          authorities, or concerning the delimitation of its
+                          frontiers or boundaries.
+                        </P>
+                      </>
                     ),
                     mapData:
                       parseInt(selectedYear.value) < 2020
@@ -414,7 +436,7 @@ export default function Visualization(props: Props) {
                           : mapDataPost2021,
                     colorLegendTitle: selectedIndicator?.label,
                     isWorldMap: false,
-                    height: VIS_HEIGHT,
+                    height: VIS_HEIGHT - 24,
                     mapNoDataColor: '#D4D6D8',
                     mapProperty: 'State_Name',
                     styles: {
